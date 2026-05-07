@@ -31,7 +31,6 @@
     overflow-x: hidden;
   }
 
-  /* ─── HEADER ─── */
   header {
     display: flex;
     align-items: center;
@@ -46,18 +45,9 @@
     letter-spacing: -1px;
   }
   .logo span { color: var(--accent2); }
-  .tagline {
-    font-size: 11px;
-    color: var(--text-dim);
-    letter-spacing: 0.05em;
-  }
+  .tagline { font-size: 11px; color: var(--text-dim); letter-spacing: 0.05em; }
 
-  /* ─── URL INPUT ─── */
-  .url-section {
-    padding: 14px 16px;
-    display: flex;
-    gap: 8px;
-  }
+  .url-section { padding: 14px 16px; display: flex; gap: 8px; }
   .url-input {
     flex: 1;
     background: var(--surface);
@@ -73,7 +63,6 @@
   }
   .url-input::placeholder { color: var(--text-dim); font-size: 12px; }
   .url-input:focus { border-color: var(--accent); }
-
   .load-btn {
     background: var(--accent);
     color: #000;
@@ -89,7 +78,6 @@
   }
   .load-btn:active { opacity: 0.7; }
 
-  /* ─── VIDEO AREA ─── */
   .video-wrapper {
     position: relative;
     width: 100%;
@@ -117,7 +105,6 @@
   }
   .video-placeholder .icon { font-size: 40px; opacity: 0.3; }
 
-  /* ─── STATUS BAR ─── */
   .status-bar {
     display: flex;
     align-items: center;
@@ -138,7 +125,17 @@
   @keyframes pulse { 50% { opacity: 0.4; } }
   .status-text { color: var(--text-dim); }
 
-  /* ─── CONTROLS PANEL ─── */
+  /* ループカウンター */
+  .loop-counter {
+    margin-left: auto;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    display: none;
+  }
+  .loop-counter.show { display: block; }
+  .loop-counter span { color: var(--accent2); font-weight: 700; }
+
   .panel {
     margin: 0 16px 14px;
     background: var(--surface);
@@ -147,7 +144,6 @@
     overflow: hidden;
   }
 
-  /* ─── AB SECTION ─── */
   .ab-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -186,6 +182,29 @@
   }
   .ab-time.unset { color: var(--text-dim); font-size: 16px; }
 
+  /* AB微調整ボタン */
+  .ab-adjust {
+    display: flex;
+    gap: 4px;
+    margin-top: 2px;
+  }
+  .adj-btn {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 0;
+    color: var(--text-dim);
+    font-size: 11px;
+    font-family: 'Space Mono', monospace;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+  }
+  .adj-btn:active { opacity: 0.6; transform: scale(0.95); }
+  .adj-btn.a-adj:active { color: var(--accent); border-color: var(--accent); }
+  .adj-btn.b-adj:active { color: var(--accent2); border-color: var(--accent2); }
+
   .ab-btn {
     background: var(--surface2);
     border: 1px solid var(--border);
@@ -203,7 +222,36 @@
   .ab-btn.b-btn { border-color: var(--accent2); color: var(--accent2); }
   .ab-btn:active { opacity: 0.6; transform: scale(0.97); }
 
-  /* ─── PROGRESS / SEEK BAR ─── */
+  /* メモ欄 */
+  .memo-section {
+    padding: 10px 14px;
+    border-top: 1px solid var(--border);
+  }
+  .memo-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+  .memo-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: 'Noto Sans JP', sans-serif;
+    outline: none;
+    -webkit-appearance: none;
+    resize: none;
+    height: 56px;
+    transition: border-color 0.2s;
+  }
+  .memo-input::placeholder { color: var(--text-dim); }
+  .memo-input:focus { border-color: var(--accent); }
+
   .seek-section {
     padding: 12px 14px;
     border-top: 1px solid var(--border);
@@ -236,7 +284,6 @@
     width: 0%;
     transition: width 0.3s linear;
   }
-  /* AB region highlight */
   .ab-region {
     position: absolute;
     height: 100%;
@@ -264,7 +311,6 @@
     color: var(--text-dim);
   }
 
-  /* ─── PLAYBACK CONTROLS ─── */
   .playback-row {
     display: flex;
     align-items: center;
@@ -273,7 +319,6 @@
     border-top: 1px solid var(--border);
     gap: 8px;
   }
-
   .ctrl-btn {
     background: var(--surface2);
     border: 1px solid var(--border);
@@ -299,6 +344,234 @@
     font-size: 22px;
     border-radius: 50%;
   }
+  .ctrl-btn.loop-on {
+    background: rgba(255,61,113,0.15);
+    border-color: var(--accent2);
+    color: var(--accent2);
+  }
+
+  /* タイムスタンプ共有ボタン */
+  .share-row {
+    padding: 10px 14px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+  }
+  .share-btn {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    color: var(--text-dim);
+    font-size: 12px;
+    font-family: 'Space Mono', monospace;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+  }
+  .share-btn:active { opacity: 0.6; }
+  .share-btn.primary { border-color: var(--accent); color: var(--accent); }
+
+  .speed-section {
+    padding: 12px 14px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .speed-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    min-width: 40px;
+  }
+  .speed-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .speed-chips::-webkit-scrollbar { display: none; }
+  .speed-chip {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .speed-chip.active {
+    background: rgba(0,229,255,0.12);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .speed-chip:active { opacity: 0.6; }
+
+  /* スピード微調整スライダー */
+  .speed-fine {
+    padding: 8px 14px 12px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .speed-fine-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    min-width: 40px;
+  }
+  .speed-fine-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 700;
+    min-width: 50px;
+    text-align: right;
+  }
+  .speed-fine-slider {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 2px;
+    outline: none;
+  }
+  .speed-fine-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: var(--accent);
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  .speed-fine-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: var(--accent);
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+  }
+
+  /* 早戻し/早送りボタン */
+  .skip-row {
+    display: flex;
+    gap: 6px;
+    padding: 10px 14px;
+    border-top: 1px solid var(--border);
+    justify-content: space-between;
+  }
+  .skip-btn {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 4px;
+    color: var(--text);
+    font-size: 12px;
+    font-family: 'Space Mono', monospace;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    min-width: 0;
+  }
+  .skip-btn:active { opacity: 0.6; transform: scale(0.95); border-color: var(--accent); color: var(--accent); }
+  .skip-btn.back { color: var(--text-dim); }
+  .skip-btn.fwd { color: var(--text-dim); }
+
+  /* 履歴 */
+  .history-section { margin: 0 16px 24px; }
+  .history-header {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    padding: 0 2px;
+  }
+  .history-list { display: flex; flex-direction: column; gap: 6px; }
+  .history-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .history-item:active { border-color: var(--accent); opacity: 0.8; }
+  .history-thumb {
+    width: 56px;
+    height: 32px;
+    border-radius: 4px;
+    background: var(--surface2);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .history-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .history-info { flex: 1; min-width: 0; }
+  .history-title {
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text);
+  }
+  .history-ab {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+  .history-memo {
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .history-del {
+    color: var(--text-dim);
+    font-size: 16px;
+    padding: 4px;
+    flex-shrink: 0;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(60px);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-size: 13px;
+    color: var(--text);
+    white-space: nowrap;
+    transition: transform 0.3s ease, opacity 0.3s;
+    opacity: 0;
+    z-index: 100;
+    pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
   /* ─── FULLSCREEN ─── */
   .video-wrapper.fullscreen {
     position: fixed;
@@ -408,7 +681,6 @@
     border-color: #00e5ff;
     color: #00e5ff;
   }
-
   .fs-time {
     font-family: monospace;
     font-size: 11px;
@@ -416,7 +688,6 @@
     display: flex;
     justify-content: space-between;
   }
-  /* 常時表示の戻るボタン */
   .fs-exit-fixed {
     position: fixed;
     top: 12px;
@@ -437,7 +708,6 @@
   }
   .fs-exit-fixed.show { display: block; }
   .fs-exit-fixed.visible { opacity: 1; }
-  /* iframeのタップを検知するための透明レイヤー */
   .fs-tap-layer {
     position: fixed;
     inset: 0;
@@ -447,131 +717,6 @@
     pointer-events: auto;
   }
   .fs-tap-layer.show { display: block; }
-
-  .ctrl-btn.loop-on {
-    background: rgba(255,61,113,0.15);
-    border-color: var(--accent2);
-    color: var(--accent2);
-  }
-
-  /* ─── SPEED ─── */
-  .speed-section {
-    padding: 12px 14px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .speed-label {
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    color: var(--text-dim);
-    letter-spacing: 0.08em;
-    min-width: 40px;
-  }
-  .speed-chips {
-    display: flex;
-    gap: 6px;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .speed-chips::-webkit-scrollbar { display: none; }
-  .speed-chip {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 6px 10px;
-    font-family: 'Space Mono', monospace;
-    font-size: 12px;
-    color: var(--text-dim);
-    cursor: pointer;
-    white-space: nowrap;
-    flex-shrink: 0;
-    transition: all 0.15s;
-  }
-  .speed-chip.active {
-    background: rgba(0,229,255,0.12);
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-  .speed-chip:active { opacity: 0.6; }
-
-  /* ─── RECENT HISTORY ─── */
-  .history-section {
-    margin: 0 16px 24px;
-  }
-  .history-header {
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    color: var(--text-dim);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-    padding: 0 2px;
-  }
-  .history-list { display: flex; flex-direction: column; gap: 6px; }
-  .history-item {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 10px 14px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    transition: border-color 0.2s;
-  }
-  .history-item:active { border-color: var(--accent); opacity: 0.8; }
-  .history-thumb {
-    width: 56px;
-    height: 32px;
-    border-radius: 4px;
-    background: var(--surface2);
-    overflow: hidden;
-    flex-shrink: 0;
-  }
-  .history-thumb img { width: 100%; height: 100%; object-fit: cover; }
-  .history-info { flex: 1; min-width: 0; }
-  .history-title {
-    font-size: 12px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    color: var(--text);
-  }
-  .history-ab {
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    color: var(--text-dim);
-    margin-top: 2px;
-  }
-  .history-del {
-    color: var(--text-dim);
-    font-size: 16px;
-    padding: 4px;
-    flex-shrink: 0;
-  }
-
-  /* ─── TOAST ─── */
-  .toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%) translateY(60px);
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 10px 20px;
-    font-size: 13px;
-    color: var(--text);
-    white-space: nowrap;
-    transition: transform 0.3s ease, opacity 0.3s;
-    opacity: 0;
-    z-index: 100;
-    pointer-events: none;
-  }
-  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 </style>
 </head>
 <body>
@@ -583,13 +728,11 @@
   </div>
 </header>
 
-<!-- URL Input -->
 <div class="url-section">
   <input type="url" class="url-input" id="urlInput" placeholder="YouTube URL を貼り付け..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
   <button class="load-btn" id="loadBtn">読込</button>
 </div>
 
-<!-- Video -->
 <div class="video-wrapper" id="videoWrapper">
   <div class="video-placeholder" id="placeholder">
     <div class="icon">▶</div>
@@ -597,27 +740,39 @@
   </div>
 </div>
 
-<!-- Status -->
 <div class="status-bar">
   <div class="status-dot" id="statusDot"></div>
   <div class="status-text" id="statusText">待機中</div>
+  <div class="loop-counter" id="loopCounter">🔁 <span id="loopCount">0</span>回</div>
 </div>
 
-<!-- Controls Panel -->
 <div class="panel">
-
   <!-- AB Points -->
   <div class="ab-grid">
     <div class="ab-cell">
       <div class="ab-label"><span class="point-letter a-letter">A</span>開始点</div>
       <div class="ab-time unset" id="aTimeDisplay">-- : --</div>
+      <div class="ab-adjust">
+        <button class="adj-btn a-adj" id="aMinus">-0.5</button>
+        <button class="adj-btn a-adj" id="aPlus">+0.5</button>
+      </div>
       <button class="ab-btn a-btn" id="setABtn">ここをAにセット</button>
     </div>
     <div class="ab-cell">
       <div class="ab-label"><span class="point-letter b-letter">B</span>終了点</div>
       <div class="ab-time unset" id="bTimeDisplay">-- : --</div>
+      <div class="ab-adjust">
+        <button class="adj-btn b-adj" id="bMinus">-0.5</button>
+        <button class="adj-btn b-adj" id="bPlus">+0.5</button>
+      </div>
       <button class="ab-btn b-btn" id="setBBtn">ここをBにセット</button>
     </div>
+  </div>
+
+  <!-- メモ -->
+  <div class="memo-section">
+    <div class="memo-label">MEMO</div>
+    <textarea class="memo-input" id="memoInput" placeholder="このAB区間のメモを入力..."></textarea>
   </div>
 
   <!-- Seek Bar -->
@@ -646,12 +801,32 @@
     <button class="ctrl-btn" id="fullscreenBtn" title="フルスクリーン"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></button>
   </div>
 
+  <!-- 早戻し/早送り -->
+  <div class="skip-row">
+    <button class="skip-btn back" data-skip="-5">-5s</button>
+    <button class="skip-btn back" data-skip="-2">-2s</button>
+    <button class="skip-btn back" data-skip="-1">-1s</button>
+    <button class="skip-btn fwd" data-skip="1">+1s</button>
+    <button class="skip-btn fwd" data-skip="2">+2s</button>
+    <button class="skip-btn fwd" data-skip="5">+5s</button>
+  </div>
+
+  <!-- タイムスタンプ共有 -->
+  <div class="share-row">
+    <button class="share-btn primary" id="shareABBtn">🔗 AB点URLをコピー</button>
+    <button class="share-btn" id="shareCurrentBtn">📍 現在位置URLをコピー</button>
+  </div>
+
   <!-- Speed -->
   <div class="speed-section">
     <div class="speed-label">SPEED</div>
     <div class="speed-chips" id="speedChips">
       <div class="speed-chip" data-speed="0.5">0.5×</div>
       <div class="speed-chip" data-speed="0.75">0.75×</div>
+      <div class="speed-chip" data-speed="0.8">0.8×</div>
+      <div class="speed-chip" data-speed="0.85">0.85×</div>
+      <div class="speed-chip" data-speed="0.9">0.9×</div>
+      <div class="speed-chip" data-speed="0.95">0.95×</div>
       <div class="speed-chip active" data-speed="1">1×</div>
       <div class="speed-chip" data-speed="1.25">1.25×</div>
       <div class="speed-chip" data-speed="1.5">1.5×</div>
@@ -659,6 +834,12 @@
     </div>
   </div>
 
+  <!-- スピード微調整スライダー -->
+  <div class="speed-fine">
+    <span class="speed-fine-label">FINE</span>
+    <input type="range" class="speed-fine-slider" id="speedSlider" min="0.5" max="2" step="0.05" value="1">
+    <span class="speed-fine-value" id="speedSliderValue">1.00×</span>
+  </div>
 </div>
 
 <!-- History -->
@@ -699,6 +880,10 @@
     <div class="fs-speed-chips">
       <div class="fs-speed-chip" data-speed="0.5">0.5×</div>
       <div class="fs-speed-chip" data-speed="0.75">0.75×</div>
+      <div class="fs-speed-chip" data-speed="0.8">0.8×</div>
+      <div class="fs-speed-chip" data-speed="0.85">0.85×</div>
+      <div class="fs-speed-chip" data-speed="0.9">0.9×</div>
+      <div class="fs-speed-chip" data-speed="0.95">0.95×</div>
       <div class="fs-speed-chip fs-speed-active" data-speed="1">1×</div>
       <div class="fs-speed-chip" data-speed="1.25">1.25×</div>
       <div class="fs-speed-chip" data-speed="1.5">1.5×</div>
@@ -708,51 +893,38 @@
 </div>
 
 <script>
-// ─── YouTube IFrame API ───
+// ─── State ───
 let player = null;
 let playerReady = false;
 let videoId = null;
 let duration = 0;
-
 let pointA = null;
 let pointB = null;
 let loopEnabled = false;
 let isPlaying = false;
 let pollingTimer = null;
 let currentSpeed = 1;
+let loopCount = 0;
 
-// Load YouTube API
+// ─── YouTube IFrame API ───
 const tag = document.createElement('script');
 tag.src = 'https://www.youtube.com/iframe_api';
 document.head.appendChild(tag);
 
-window.onYouTubeIframeAPIReady = function() {
-  // API ready — player created on demand
-};
+window.onYouTubeIframeAPIReady = function() {};
 
 function createPlayer(vid) {
-  // Remove old player iframe if exists
   const old = document.getElementById('ytPlayer');
   if (old) old.remove();
-
   const div = document.createElement('div');
   div.id = 'ytPlayer';
   document.getElementById('videoWrapper').appendChild(div);
   document.getElementById('placeholder').style.display = 'none';
-
   playerReady = false;
   player = new YT.Player('ytPlayer', {
     videoId: vid,
-    playerVars: {
-      playsinline: 1,
-      rel: 0,
-      modestbranding: 1,
-      controls: 1,
-    },
-    events: {
-      onReady: onPlayerReady,
-      onStateChange: onStateChange,
-    }
+    playerVars: { playsinline: 1, rel: 0, modestbranding: 1, controls: 1 },
+    events: { onReady: onPlayerReady, onStateChange: onStateChange }
   });
 }
 
@@ -762,6 +934,8 @@ function onPlayerReady(e) {
   setStatus('準備完了', '');
   document.getElementById('totalTime').textContent = fmtTime(duration);
   document.getElementById('seekBar').max = duration;
+  // URLパラメータからAB点を復元
+  restoreFromURL();
   startPolling();
 }
 
@@ -769,15 +943,18 @@ function onStateChange(e) {
   if (e.data === YT.PlayerState.PLAYING) {
     isPlaying = true;
     document.getElementById('playBtn').textContent = '⏸';
+    document.getElementById('fsPlayBtn').textContent = '⏸';
     setStatus('再生中', 'playing');
     startPolling();
   } else if (e.data === YT.PlayerState.PAUSED) {
     isPlaying = false;
     document.getElementById('playBtn').textContent = '▶';
+    document.getElementById('fsPlayBtn').textContent = '▶';
     setStatus('一時停止', '');
   } else if (e.data === YT.PlayerState.ENDED) {
     isPlaying = false;
     document.getElementById('playBtn').textContent = '▶';
+    document.getElementById('fsPlayBtn').textContent = '▶';
     setStatus('終了', '');
     if (loopEnabled && pointA !== null) {
       player.seekTo(pointA, true);
@@ -795,39 +972,23 @@ function pollPosition() {
   if (!playerReady || !player) return;
   const cur = player.getCurrentTime() || 0;
   duration = player.getDuration() || duration;
-
-  // Update seek bar
   const pct = duration ? (cur / duration * 100) : 0;
   document.getElementById('seekFill').style.width = pct + '%';
   document.getElementById('seekBar').value = cur;
   document.getElementById('currentTime').textContent = fmtTime(cur);
   document.getElementById('totalTime').textContent = fmtTime(duration);
-
-  // AB Region highlight
   updateABRegion();
-
-  // Loop check
   if (loopEnabled && pointA !== null && pointB !== null) {
     if (cur >= pointB) {
       player.seekTo(pointA, true);
+      loopCount++;
+      document.getElementById('loopCount').textContent = loopCount;
     }
   }
+  if (isFullscreen) updateFsUI();
 }
 
-function updateABRegion() {
-  const region = document.getElementById('abRegion');
-  if (pointA !== null && pointB !== null && duration) {
-    const left = pointA / duration * 100;
-    const width = (pointB - pointA) / duration * 100;
-    region.style.left = left + '%';
-    region.style.width = width + '%';
-    region.style.display = 'block';
-  } else {
-    region.style.display = 'none';
-  }
-}
-
-// ─── Extract Video ID ───
+// ─── URL / Video Load ───
 function extractVideoId(url) {
   const patterns = [
     /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
@@ -840,7 +1001,6 @@ function extractVideoId(url) {
   return null;
 }
 
-// ─── Load Video ───
 document.getElementById('loadBtn').addEventListener('click', loadVideo);
 document.getElementById('urlInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') loadVideo();
@@ -850,24 +1010,36 @@ function loadVideo() {
   const url = document.getElementById('urlInput').value.trim();
   const vid = extractVideoId(url);
   if (!vid) { showToast('有効なYouTube URLを入力してください'); return; }
-
   videoId = vid;
   pointA = null; pointB = null;
   loopEnabled = false;
+  loopCount = 0;
   updateABDisplay();
   updateLoopBtn();
-
+  updateLoopCounter();
+  document.getElementById('memoInput').value = '';
   if (pollingTimer) { clearInterval(pollingTimer); pollingTimer = null; }
-
   setStatus('読み込み中...', '');
-
   if (!window.YT || !window.YT.Player) {
-    // API not ready yet — wait
-    window.onYouTubeIframeAPIReady = function() {
-      createPlayer(vid);
-    };
+    window.onYouTubeIframeAPIReady = function() { createPlayer(vid); };
   } else {
     createPlayer(vid);
+  }
+}
+
+// ─── URLパラメータからAB復元 ───
+function restoreFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  const a = parseFloat(params.get('a'));
+  const b = parseFloat(params.get('b'));
+  if (!isNaN(a) && a >= 0) {
+    pointA = a;
+    player.seekTo(a, true);
+  }
+  if (!isNaN(b) && b > 0) pointB = b;
+  if (pointA !== null || pointB !== null) {
+    updateABDisplay();
+    showToast('AB点を復元しました');
   }
 }
 
@@ -875,27 +1047,55 @@ function loadVideo() {
 document.getElementById('setABtn').addEventListener('click', () => {
   if (!playerReady) { showToast('動画を先に読み込んでください'); return; }
   pointA = player.getCurrentTime();
-  if (pointB !== null && pointA >= pointB) { pointB = null; }
+  if (pointB !== null && pointA >= pointB) pointB = null;
   updateABDisplay();
   showToast(`A点セット: ${fmtTime(pointA)}`);
-  updateLoopStatus();
 });
 
 document.getElementById('setBBtn').addEventListener('click', () => {
   if (!playerReady) { showToast('動画を先に読み込んでください'); return; }
   pointB = player.getCurrentTime();
-  if (pointA !== null && pointB <= pointA) { pointA = null; }
+  if (pointA !== null && pointB <= pointA) pointA = null;
   updateABDisplay();
   showToast(`B点セット: ${fmtTime(pointB)}`);
-  updateLoopStatus();
+});
+
+// ─── AB微調整 ───
+document.getElementById('aMinus').addEventListener('click', () => {
+  if (pointA === null) { showToast('A点を先にセットしてください'); return; }
+  pointA = Math.max(0, pointA - 0.5);
+  updateABDisplay();
+  if (playerReady) player.seekTo(pointA, true);
+  showToast(`A点: ${fmtTime(pointA)}`);
+});
+document.getElementById('aPlus').addEventListener('click', () => {
+  if (pointA === null) { showToast('A点を先にセットしてください'); return; }
+  pointA = pointB !== null ? Math.min(pointB - 0.5, pointA + 0.5) : pointA + 0.5;
+  updateABDisplay();
+  if (playerReady) player.seekTo(pointA, true);
+  showToast(`A点: ${fmtTime(pointA)}`);
+});
+document.getElementById('bMinus').addEventListener('click', () => {
+  if (pointB === null) { showToast('B点を先にセットしてください'); return; }
+  pointB = pointA !== null ? Math.max(pointA + 0.5, pointB - 0.5) : Math.max(0, pointB - 0.5);
+  updateABDisplay();
+  showToast(`B点: ${fmtTime(pointB)}`);
+});
+document.getElementById('bPlus').addEventListener('click', () => {
+  if (pointB === null) { showToast('B点を先にセットしてください'); return; }
+  pointB = Math.min(duration || 99999, pointB + 0.5);
+  updateABDisplay();
+  showToast(`B点: ${fmtTime(pointB)}`);
 });
 
 document.getElementById('resetABBtn').addEventListener('click', () => {
   pointA = null; pointB = null;
   loopEnabled = false;
+  loopCount = 0;
   updateABDisplay();
   updateLoopBtn();
   updateABRegion();
+  updateLoopCounter();
   setStatus(isPlaying ? '再生中' : '待機中', isPlaying ? 'playing' : '');
   showToast('AB点をリセットしました');
 });
@@ -916,57 +1116,110 @@ document.getElementById('loopBtn').addEventListener('click', () => {
     return;
   }
   loopEnabled = !loopEnabled;
+  loopCount = 0;
   updateLoopBtn();
+  updateLoopCounter();
   if (loopEnabled) {
     player.seekTo(pointA, true);
     player.playVideo();
-    showToast(`🔁 ABリピート ON`);
+    setStatus('AB リピート中', 'looping');
+    showToast('🔁 ABリピート ON');
   } else {
+    setStatus('再生中', 'playing');
     showToast('リピート OFF');
   }
 });
 
 function updateLoopBtn() {
-  const btn = document.getElementById('loopBtn');
-  btn.classList.toggle('loop-on', loopEnabled);
+  document.getElementById('loopBtn').classList.toggle('loop-on', loopEnabled);
 }
 
-function updateLoopStatus() {
-  if (loopEnabled) {
-    setStatus('AB リピート中', 'looping');
-  }
+function updateLoopCounter() {
+  const el = document.getElementById('loopCounter');
+  document.getElementById('loopCount').textContent = loopCount;
+  el.classList.toggle('show', loopEnabled);
 }
 
 // ─── Play/Pause ───
 document.getElementById('playBtn').addEventListener('click', () => {
   if (!playerReady) return;
-  if (isPlaying) {
-    player.pauseVideo();
-  } else {
-    player.playVideo();
-  }
+  if (isPlaying) { player.pauseVideo(); } else { player.playVideo(); }
 });
 
 // ─── Seek ───
-const seekBar = document.getElementById('seekBar');
-seekBar.addEventListener('input', () => {
+document.getElementById('seekBar').addEventListener('input', () => {
   if (!playerReady) return;
-  player.seekTo(parseFloat(seekBar.value), true);
+  player.seekTo(parseFloat(document.getElementById('seekBar').value), true);
 });
 
 // ─── Speed ───
 document.querySelectorAll('.speed-chip').forEach(chip => {
   chip.addEventListener('click', () => {
     const spd = parseFloat(chip.dataset.speed);
-    currentSpeed = spd;
-    document.querySelectorAll('.speed-chip').forEach(c => c.classList.remove('active'));
-    chip.classList.add('active');
-    if (playerReady) {
-      player.setPlaybackRate(spd);
-      showToast(`再生速度: ${spd}×`);
-    }
+    setSpeed(spd);
   });
 });
+
+function setSpeed(spd) {
+  currentSpeed = spd;
+  document.querySelectorAll('.speed-chip').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll(`.speed-chip[data-speed="${spd}"]`).forEach(c => c.classList.add('active'));
+  document.querySelectorAll('.fs-speed-chip').forEach(c => c.classList.remove('fs-speed-active'));
+  document.querySelectorAll(`.fs-speed-chip[data-speed="${spd}"]`).forEach(c => c.classList.add('fs-speed-active'));
+  // スライダーも同期
+  const slider = document.getElementById('speedSlider');
+  const sliderVal = document.getElementById('speedSliderValue');
+  if (slider) slider.value = spd;
+  if (sliderVal) sliderVal.textContent = spd.toFixed(2) + '×';
+  if (playerReady) player.setPlaybackRate(spd);
+  showToast(`再生速度: ${spd}×`);
+}
+
+// ─── タイムスタンプ共有 ───
+document.getElementById('shareABBtn').addEventListener('click', () => {
+  if (!videoId) { showToast('動画を先に読み込んでください'); return; }
+  if (pointA === null || pointB === null) { showToast('A点とB点を両方セットしてください'); return; }
+  const url = `https://drumsns-web.github.io/YTLoop/youtube-ab-repeat.html?v=${videoId}&a=${pointA.toFixed(1)}&b=${pointB.toFixed(1)}`;
+  copyToClipboard(url);
+  showToast('🔗 AB点URLをコピーしました！');
+});
+
+document.getElementById('shareCurrentBtn').addEventListener('click', () => {
+  if (!videoId || !playerReady) { showToast('動画を先に読み込んでください'); return; }
+  const cur = player.getCurrentTime() || 0;
+  const url = `https://drumsns-web.github.io/YTLoop/youtube-ab-repeat.html?v=${videoId}&a=${cur.toFixed(1)}`;
+  copyToClipboard(url);
+  showToast('📍 現在位置URLをコピーしました！');
+});
+
+function copyToClipboard(text) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const el = document.createElement('textarea');
+  el.value = text;
+  el.style.position = 'fixed';
+  el.style.opacity = '0';
+  document.body.appendChild(el);
+  el.select();
+  document.execCommand('copy');
+  document.body.removeChild(el);
+}
+
+// ─── URLパラメータで動画を自動読込 ───
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const v = params.get('v');
+  if (v) {
+    document.getElementById('urlInput').value = `https://youtu.be/${v}`;
+    loadVideo();
+  }
+})();
 
 // ─── Save to History ───
 document.getElementById('saveBtn').addEventListener('click', () => {
@@ -975,16 +1228,17 @@ document.getElementById('saveBtn').addEventListener('click', () => {
     return;
   }
   const title = getVideoTitle();
+  const memo = document.getElementById('memoInput').value.trim();
   const entry = {
     id: videoId,
     title,
     a: pointA,
     b: pointB,
+    memo,
     thumb: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
     savedAt: Date.now()
   };
   let history = loadHistory();
-  // Remove duplicate
   history = history.filter(h => !(h.id === videoId && Math.abs(h.a - pointA) < 1 && Math.abs(h.b - pointB) < 1));
   history.unshift(entry);
   if (history.length > 20) history = history.slice(0, 20);
@@ -994,9 +1248,7 @@ document.getElementById('saveBtn').addEventListener('click', () => {
 });
 
 function getVideoTitle() {
-  try {
-    return player.getVideoData().title || videoId;
-  } catch { return videoId; }
+  try { return player.getVideoData().title || videoId; } catch { return videoId; }
 }
 
 function loadHistory() {
@@ -1018,6 +1270,7 @@ function renderHistory() {
       <div class="history-info">
         <div class="history-title">${entry.title}</div>
         <div class="history-ab">A: ${fmtTime(entry.a)} → B: ${fmtTime(entry.b)}</div>
+        ${entry.memo ? `<div class="history-memo">📝 ${entry.memo}</div>` : ''}
       </div>
       <div class="history-del" data-i="${i}">✕</div>
     `;
@@ -1031,12 +1284,12 @@ function renderHistory() {
     item.addEventListener('click', () => {
       document.getElementById('urlInput').value = `https://youtu.be/${entry.id}`;
       loadVideo();
-      // Restore AB after load — wait for ready
       const wait = setInterval(() => {
         if (playerReady && duration > 0) {
           clearInterval(wait);
           pointA = entry.a;
           pointB = entry.b;
+          document.getElementById('memoInput').value = entry.memo || '';
           updateABDisplay();
           player.seekTo(pointA, true);
           showToast('AB点を復元しました');
@@ -1075,6 +1328,19 @@ function updateABDisplay() {
   updateABRegion();
 }
 
+function updateABRegion() {
+  const region = document.getElementById('abRegion');
+  if (pointA !== null && pointB !== null && duration) {
+    const left = pointA / duration * 100;
+    const width = (pointB - pointA) / duration * 100;
+    region.style.left = left + '%';
+    region.style.width = width + '%';
+    region.style.display = 'block';
+  } else {
+    region.style.display = 'none';
+  }
+}
+
 function setStatus(text, type) {
   document.getElementById('statusText').textContent = text;
   const dot = document.getElementById('statusDot');
@@ -1091,9 +1357,10 @@ function showToast(msg) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
 }
 
-
 // ─── FULLSCREEN ───
 let isFullscreen = false;
+let fsControlsVisible = true;
+let fsHideTimer = null;
 
 document.getElementById('fullscreenBtn').addEventListener('click', enterFullscreen);
 
@@ -1122,53 +1389,32 @@ function exitFullscreen() {
   if (fsHideTimer) clearTimeout(fsHideTimer);
 }
 
-let fsControlsVisible = true;
-let fsHideTimer = null;
-
 function showFsControls() {
-  const ctrl = document.getElementById('fullscreenControls');
-  const exitBtn = document.getElementById('fsExitFixed');
-  const tapLayer = document.getElementById('fsTapLayer');
-  ctrl.classList.add('show');
-  exitBtn.classList.add('visible');
-  tapLayer.classList.remove('show'); // 操作パネル表示中はタップレイヤー非表示
+  document.getElementById('fullscreenControls').classList.add('show');
+  document.getElementById('fsExitFixed').classList.add('visible');
+  document.getElementById('fsTapLayer').classList.remove('show');
   fsControlsVisible = true;
   resetFsHideTimer();
 }
 
 function hideFsControls() {
-  const ctrl = document.getElementById('fullscreenControls');
-  const exitBtn = document.getElementById('fsExitFixed');
-  const tapLayer = document.getElementById('fsTapLayer');
-  ctrl.classList.remove('show');
-  exitBtn.classList.remove('visible');
-  tapLayer.classList.add('show'); // 非表示時はタップレイヤーを有効化
+  document.getElementById('fullscreenControls').classList.remove('show');
+  document.getElementById('fsExitFixed').classList.remove('visible');
+  document.getElementById('fsTapLayer').classList.add('show');
   fsControlsVisible = false;
 }
 
 function toggleFsControls() {
-  if (fsControlsVisible) {
-    hideFsControls();
-  } else {
-    showFsControls();
-  }
+  if (fsControlsVisible) { hideFsControls(); } else { showFsControls(); }
 }
 
 function resetFsHideTimer() {
   if (fsHideTimer) clearTimeout(fsHideTimer);
-  fsHideTimer = setTimeout(() => {
-    if (isFullscreen) hideFsControls();
-  }, 3000);
+  fsHideTimer = setTimeout(() => { if (isFullscreen) hideFsControls(); }, 3000);
 }
 
-document.getElementById('fsExitFixed').addEventListener('click', e => {
-  e.stopPropagation();
-  exitFullscreen();
-});
-document.getElementById('fsExitBtn').addEventListener('click', e => {
-  e.stopPropagation();
-  exitFullscreen();
-});
+document.getElementById('fsExitFixed').addEventListener('click', e => { e.stopPropagation(); exitFullscreen(); });
+document.getElementById('fsExitBtn').addEventListener('click', e => { e.stopPropagation(); exitFullscreen(); });
 document.getElementById('fsPlayBtn').addEventListener('click', e => {
   e.stopPropagation();
   if (!playerReady) return;
@@ -1182,8 +1428,8 @@ document.getElementById('fsSeekABtn').addEventListener('click', e => {
 });
 document.getElementById('fsResetBtn').addEventListener('click', e => {
   e.stopPropagation();
-  pointA = null; pointB = null; loopEnabled = false;
-  updateABDisplay(); updateLoopBtn(); updateABRegion();
+  pointA = null; pointB = null; loopEnabled = false; loopCount = 0;
+  updateABDisplay(); updateLoopBtn(); updateABRegion(); updateLoopCounter();
   showToast('AB点リセット');
   resetFsHideTimer();
 });
@@ -1191,18 +1437,19 @@ document.getElementById('fsLoopBtn').addEventListener('click', e => {
   e.stopPropagation();
   if (pointA === null || pointB === null) { showToast('A・B点を設定してください'); return; }
   loopEnabled = !loopEnabled;
+  loopCount = 0;
   updateLoopBtn();
   updateFsLoopBtn();
+  updateLoopCounter();
   if (loopEnabled) { player.seekTo(pointA, true); player.playVideo(); showToast('🔁 ABリピート ON'); }
   else { showToast('リピート OFF'); }
   resetFsHideTimer();
 });
 
-const fsSeekBar = document.getElementById('fsSeekBar');
-fsSeekBar.addEventListener('input', e => {
+document.getElementById('fsSeekBar').addEventListener('input', e => {
   e.stopPropagation();
   if (!playerReady) return;
-  player.seekTo(parseFloat(fsSeekBar.value), true);
+  player.seekTo(parseFloat(document.getElementById('fsSeekBar').value), true);
   resetFsHideTimer();
 });
 
@@ -1218,46 +1465,35 @@ function updateFsUI() {
   document.getElementById('fsPlayBtn').textContent = isPlaying ? '⏸' : '▶';
   updateFsLoopBtn();
 }
-function updateFsLoopBtn() {
-  const btn = document.getElementById('fsLoopBtn');
-  btn.style.background = loopEnabled ? 'rgba(255,61,113,0.4)' : '';
-}
 
-// pollPositionにfsUI更新を追加
-const origPollPosition = pollPosition;
-function pollPosition() {
-  if (!playerReady || !player) return;
-  const cur = player.getCurrentTime() || 0;
-  duration = player.getDuration() || duration;
-  const pct = duration ? (cur / duration * 100) : 0;
-  document.getElementById('seekFill').style.width = pct + '%';
-  document.getElementById('seekBar').value = cur;
-  document.getElementById('currentTime').textContent = fmtTime(cur);
-  document.getElementById('totalTime').textContent = fmtTime(duration);
-  updateABRegion();
-  if (loopEnabled && pointA !== null && pointB !== null) {
-    if (cur >= pointB) { player.seekTo(pointA, true); }
-  }
-  if (isFullscreen) updateFsUI();
+function updateFsLoopBtn() {
+  document.getElementById('fsLoopBtn').style.background = loopEnabled ? 'rgba(255,61,113,0.4)' : '';
 }
 
 // ─── フルスクリーン スピード ───
 document.querySelectorAll('.fs-speed-chip').forEach(chip => {
   chip.addEventListener('click', e => {
     e.stopPropagation();
-    const spd = parseFloat(chip.dataset.speed);
-    currentSpeed = spd;
-    // 通常パネルも同期
-    document.querySelectorAll('.speed-chip').forEach(c => c.classList.remove('active'));
-    document.querySelectorAll(`.speed-chip[data-speed="${spd}"]`).forEach(c => c.classList.add('active'));
-    // FSパネル
-    document.querySelectorAll('.fs-speed-chip').forEach(c => c.classList.remove('fs-speed-active'));
-    chip.classList.add('fs-speed-active');
-    if (playerReady) {
-      player.setPlaybackRate(spd);
-      showToast(`再生速度: ${spd}×`);
-    }
+    setSpeed(parseFloat(chip.dataset.speed));
     resetFsHideTimer();
+  });
+});
+
+// ─── スピード微調整スライダー ───
+document.getElementById('speedSlider').addEventListener('input', e => {
+  const spd = parseFloat(e.target.value);
+  setSpeed(spd);
+});
+
+// ─── 早戻し/早送りボタン ───
+document.querySelectorAll('.skip-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (!playerReady) { showToast('動画を先に読み込んでください'); return; }
+    const sec = parseFloat(btn.dataset.skip);
+    const cur = player.getCurrentTime() || 0;
+    const newTime = Math.max(0, Math.min(duration || 99999, cur + sec));
+    player.seekTo(newTime, true);
+    showToast(`${sec > 0 ? '+' : ''}${sec}秒 → ${fmtTime(newTime)}`);
   });
 });
 
