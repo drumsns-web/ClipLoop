@@ -583,14 +583,44 @@
     color: var(--text-dim);
     letter-spacing: 0.08em;
     margin-bottom: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
   }
-  .slot-label-hint {
-    font-size: 9px;
+  .slot-save-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .slot-save-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
     color: var(--text-dim);
-    opacity: 0.7;
+    min-width: 50px;
+  }
+  .slot-save-chips {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex: 1;
+  }
+  .slot-save-chips::-webkit-scrollbar { display: none; }
+  .slot-save-chip {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: var(--text-dim);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .slot-save-chip:active {
+    opacity: 0.6;
+    background: rgba(255,61,113,0.2);
+    border-color: var(--accent2);
+    color: var(--accent2);
   }
   .slot-grid {
     display: grid;
@@ -601,7 +631,7 @@
     background: var(--surface2);
     border: 1px solid var(--border);
     border-radius: 8px;
-    padding: 8px 4px;
+    padding: 6px 4px;
     color: var(--text-dim);
     font-family: 'Space Mono', monospace;
     font-size: 11px;
@@ -621,11 +651,6 @@
     border-color: var(--accent);
     color: var(--accent);
   }
-  .slot-btn.active-slot {
-    background: rgba(255,61,113,0.15);
-    border-color: var(--accent2);
-    color: var(--accent2);
-  }
   .slot-num {
     font-size: 14px;
     font-weight: 700;
@@ -638,12 +663,13 @@
   }
   .slot-del-btn {
     position: absolute;
-    top: 2px;
-    right: 4px;
-    font-size: 10px;
+    top: 1px;
+    right: 3px;
+    font-size: 11px;
     color: var(--text-dim);
     padding: 2px;
     line-height: 1;
+    z-index: 2;
   }
 
   /* ─── FULLSCREEN ─── */
@@ -887,10 +913,12 @@
 
   <!-- AB区間スロット -->
   <div class="slot-section">
-    <div class="slot-label">
-      <span>AB区間スロット (1〜10)</span>
-      <span class="slot-label-hint">タップ:呼出 / 長押し:保存</span>
+    <div class="slot-label">AB区間スロット (1〜10)</div>
+    <div class="slot-save-row">
+      <span class="slot-save-label">💾 保存先</span>
+      <div class="slot-save-chips" id="slotSaveChips"></div>
     </div>
+    <div class="slot-label">📂 呼出（タップ）</div>
     <div class="slot-grid" id="slotGrid"></div>
   </div>
 
@@ -1609,8 +1637,19 @@ function saveSlots(slots) {
 }
 
 function renderSlots() {
-  const grid = document.getElementById('slotGrid');
   const slots = loadSlots();
+  // 保存先チップ
+  const saveChips = document.getElementById('slotSaveChips');
+  saveChips.innerHTML = '';
+  for (let i = 0; i < 10; i++) {
+    const chip = document.createElement('div');
+    chip.className = 'slot-save-chip';
+    chip.textContent = i + 1;
+    chip.addEventListener('click', () => saveToSlot(i));
+    saveChips.appendChild(chip);
+  }
+  // 呼出ボタン
+  const grid = document.getElementById('slotGrid');
   grid.innerHTML = '';
   for (let i = 0; i < 10; i++) {
     const btn = document.createElement('button');
@@ -1626,33 +1665,14 @@ function renderSlots() {
     } else {
       btn.innerHTML = `<span class="slot-num">${i + 1}</span><span class="slot-time">empty</span>`;
     }
-    // 長押しで保存、タップで呼び出し
-    let pressTimer = null;
-    let longPressed = false;
-    const startPress = (e) => {
-      // 削除ボタンを押した場合はスキップ
-      if (e.target.dataset.slotDel !== undefined) return;
-      longPressed = false;
-      pressTimer = setTimeout(() => {
-        longPressed = true;
-        saveToSlot(i);
-      }, 600);
-    };
-    const endPress = (e) => {
-      if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
-      if (longPressed) return;
+    btn.addEventListener('click', (e) => {
       if (e.target.dataset.slotDel !== undefined) {
         e.stopPropagation();
         deleteSlot(i);
         return;
       }
       if (slots[i]) loadFromSlot(i);
-    };
-    btn.addEventListener('touchstart', startPress, { passive: true });
-    btn.addEventListener('touchend', endPress);
-    btn.addEventListener('mousedown', startPress);
-    btn.addEventListener('mouseup', endPress);
-    btn.addEventListener('mouseleave', () => { if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; } });
+    });
     grid.appendChild(btn);
   }
 }
