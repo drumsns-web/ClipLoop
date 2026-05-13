@@ -572,6 +572,80 @@
   }
   .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
+  /* ─── AB区間スロット ─── */
+  .slot-section {
+    padding: 10px 14px;
+    border-top: 1px solid var(--border);
+  }
+  .slot-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .slot-label-hint {
+    font-size: 9px;
+    color: var(--text-dim);
+    opacity: 0.7;
+  }
+  .slot-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+  }
+  .slot-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 4px;
+    color: var(--text-dim);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-height: 50px;
+    justify-content: center;
+    position: relative;
+  }
+  .slot-btn:active { opacity: 0.6; transform: scale(0.95); }
+  .slot-btn.has-data {
+    background: rgba(0,229,255,0.08);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .slot-btn.active-slot {
+    background: rgba(255,61,113,0.15);
+    border-color: var(--accent2);
+    color: var(--accent2);
+  }
+  .slot-num {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .slot-time {
+    font-size: 9px;
+    opacity: 0.8;
+    line-height: 1;
+  }
+  .slot-del-btn {
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    font-size: 10px;
+    color: var(--text-dim);
+    padding: 2px;
+    line-height: 1;
+  }
+
   /* ─── FULLSCREEN ─── */
   .video-wrapper.fullscreen {
     position: fixed;
@@ -811,6 +885,15 @@
     <button class="skip-btn fwd" data-skip="5">+5s</button>
   </div>
 
+  <!-- AB区間スロット -->
+  <div class="slot-section">
+    <div class="slot-label">
+      <span>AB区間スロット (1〜10)</span>
+      <span class="slot-label-hint">タップ:呼出 / 長押し:保存</span>
+    </div>
+    <div class="slot-grid" id="slotGrid"></div>
+  </div>
+
   <!-- タイムスタンプ共有 -->
   <div class="share-row">
     <button class="share-btn primary" id="shareABBtn">🔗 AB点URLをコピー</button>
@@ -822,6 +905,9 @@
     <div class="speed-label">SPEED</div>
     <div class="speed-chips" id="speedChips">
       <div class="speed-chip" data-speed="0.5">0.5×</div>
+      <div class="speed-chip" data-speed="0.6">0.6×</div>
+      <div class="speed-chip" data-speed="0.65">0.65×</div>
+      <div class="speed-chip" data-speed="0.7">0.7×</div>
       <div class="speed-chip" data-speed="0.75">0.75×</div>
       <div class="speed-chip" data-speed="0.8">0.8×</div>
       <div class="speed-chip" data-speed="0.85">0.85×</div>
@@ -879,6 +965,9 @@
     <span class="fs-speed-label">SPEED</span>
     <div class="fs-speed-chips">
       <div class="fs-speed-chip" data-speed="0.5">0.5×</div>
+      <div class="fs-speed-chip" data-speed="0.6">0.6×</div>
+      <div class="fs-speed-chip" data-speed="0.65">0.65×</div>
+      <div class="fs-speed-chip" data-speed="0.7">0.7×</div>
       <div class="fs-speed-chip" data-speed="0.75">0.75×</div>
       <div class="fs-speed-chip" data-speed="0.8">0.8×</div>
       <div class="fs-speed-chip" data-speed="0.85">0.85×</div>
@@ -1018,6 +1107,7 @@ function loadVideo() {
   updateLoopBtn();
   updateLoopCounter();
   document.getElementById('memoInput').value = '';
+  renderSlots();
   if (pollingTimer) { clearInterval(pollingTimer); pollingTimer = null; }
   setStatus('読み込み中...', '');
   if (!window.YT || !window.YT.Player) {
@@ -1497,8 +1587,110 @@ document.querySelectorAll('.skip-btn').forEach(btn => {
   });
 });
 
+// ─── AB区間スロット ───
+function getSlotKey() {
+  return videoId ? `ytloop_slots_${videoId}` : null;
+}
+
+function loadSlots() {
+  const key = getSlotKey();
+  if (!key) return Array(10).fill(null);
+  try {
+    const data = JSON.parse(localStorage.getItem(key) || '[]');
+    while (data.length < 10) data.push(null);
+    return data;
+  } catch { return Array(10).fill(null); }
+}
+
+function saveSlots(slots) {
+  const key = getSlotKey();
+  if (!key) return;
+  localStorage.setItem(key, JSON.stringify(slots));
+}
+
+function renderSlots() {
+  const grid = document.getElementById('slotGrid');
+  const slots = loadSlots();
+  grid.innerHTML = '';
+  for (let i = 0; i < 10; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'slot-btn';
+    const slot = slots[i];
+    if (slot) {
+      btn.classList.add('has-data');
+      btn.innerHTML = `
+        <span class="slot-num">${i + 1}</span>
+        <span class="slot-time">${fmtTime(slot.a)}〜${fmtTime(slot.b)}</span>
+        <span class="slot-del-btn" data-slot-del="${i}">✕</span>
+      `;
+    } else {
+      btn.innerHTML = `<span class="slot-num">${i + 1}</span><span class="slot-time">empty</span>`;
+    }
+    // 長押しで保存、タップで呼び出し
+    let pressTimer = null;
+    let longPressed = false;
+    const startPress = (e) => {
+      // 削除ボタンを押した場合はスキップ
+      if (e.target.dataset.slotDel !== undefined) return;
+      longPressed = false;
+      pressTimer = setTimeout(() => {
+        longPressed = true;
+        saveToSlot(i);
+      }, 600);
+    };
+    const endPress = (e) => {
+      if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+      if (longPressed) return;
+      if (e.target.dataset.slotDel !== undefined) {
+        e.stopPropagation();
+        deleteSlot(i);
+        return;
+      }
+      if (slots[i]) loadFromSlot(i);
+    };
+    btn.addEventListener('touchstart', startPress, { passive: true });
+    btn.addEventListener('touchend', endPress);
+    btn.addEventListener('mousedown', startPress);
+    btn.addEventListener('mouseup', endPress);
+    btn.addEventListener('mouseleave', () => { if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; } });
+    grid.appendChild(btn);
+  }
+}
+
+function saveToSlot(idx) {
+  if (!videoId) { showToast('動画を先に読み込んでください'); return; }
+  if (pointA === null || pointB === null) { showToast('A点とB点を両方セットしてください'); return; }
+  const slots = loadSlots();
+  slots[idx] = { a: pointA, b: pointB, memo: document.getElementById('memoInput').value.trim() };
+  saveSlots(slots);
+  renderSlots();
+  showToast(`📌 スロット${idx + 1}に保存しました`);
+}
+
+function loadFromSlot(idx) {
+  if (!playerReady) { showToast('動画を先に読み込んでください'); return; }
+  const slots = loadSlots();
+  const slot = slots[idx];
+  if (!slot) return;
+  pointA = slot.a;
+  pointB = slot.b;
+  if (slot.memo !== undefined) document.getElementById('memoInput').value = slot.memo;
+  updateABDisplay();
+  player.seekTo(pointA, true);
+  showToast(`📂 スロット${idx + 1}を呼び出しました`);
+}
+
+function deleteSlot(idx) {
+  const slots = loadSlots();
+  slots[idx] = null;
+  saveSlots(slots);
+  renderSlots();
+  showToast(`スロット${idx + 1}を削除しました`);
+}
+
 // ─── Init ───
 renderHistory();
+renderSlots();
 </script>
 </body>
 </html>
