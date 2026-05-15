@@ -2199,16 +2199,22 @@ document.getElementById('fileInput').addEventListener('change', e => {
 async function loadLocalFile(file) {
   // クリーンアップ
   if (localFileURL) URL.revokeObjectURL(localFileURL);
-  if (localMedia) { localMedia.pause(); localMedia.remove(); localMedia = null; }
+  if (localMedia) {
+    localMedia.pause();
+    try { localMedia.remove(); } catch {}
+    localMedia = null;
+  }
   if (localPollingTimer) { clearInterval(localPollingTimer); localPollingTimer = null; }
-  resetToneMediaSource();
+  // Tone関連をリセット
+  if (tonePitchShift) { try { tonePitchShift.dispose(); } catch {} tonePitchShift = null; }
+  if (toneMediaSource) { try { toneMediaSource.disconnect(); } catch {} toneMediaSource = null; }
+  toneConnected = false;
   audioBuffer = null;
 
   localFileURL = URL.createObjectURL(file);
   const isVideo = file.type.startsWith('video/');
   const isAudio = file.type.startsWith('audio/');
 
-  // body に音源/動画フラグを付ける
   document.body.classList.toggle('is-audio', isAudio);
   document.body.classList.toggle('is-video', isVideo);
 
@@ -2220,6 +2226,8 @@ async function loadLocalFile(file) {
   localMedia.src = localFileURL;
   localMedia.controls = true;
   localMedia.playsInline = true;
+  // crossOrigin設定（同一オリジン扱い）
+  localMedia.crossOrigin = 'anonymous';
   if ('preservesPitch' in localMedia) localMedia.preservesPitch = preservePitch;
   if ('mozPreservesPitch' in localMedia) localMedia.mozPreservesPitch = preservePitch;
   if ('webkitPreservesPitch' in localMedia) localMedia.webkitPreservesPitch = preservePitch;
@@ -2272,26 +2280,23 @@ async function loadLocalFile(file) {
   document.getElementById('localMemo').value = '';
   renderLocalSlots();
 
-  // 音源の場合：AudioBufferに読み込んで移調可能にする
+  // 音源の場合：AudioBufferに読み込んで波形を表示
   if (isAudio) {
     setLocalStatus('音源を解析中...', '');
     try {
-      // Tone.jsのコンテキストでデコード（共有）
-      if (typeof Tone !== 'undefined') {
-        if (!audioCtx) audioCtx = Tone.context.rawContext || Tone.context;
-      } else {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
+      // AudioContextを単独で確保（波形デコード専用）
+      const decodeCtx = new (window.AudioContext || window.webkitAudioContext)();
       const arrayBuf = await file.arrayBuffer();
-      audioBuffer = await audioCtx.decodeAudioData(arrayBuf.slice(0));
-      setLocalStatus('準備完了（移調対応）', '');
-      showToast('🎵 音源を読み込みました（移調可能）');
+      audioBuffer = await decodeCtx.decodeAudioData(arrayBuf.slice(0));
+      try { decodeCtx.close(); } catch {}
+      setLocalStatus('準備完了', '');
+      showToast('🎵 音源を読み込みました');
       // 波形描画
       setTimeout(() => { drawWaveform(); updateWaveformOverlay(); }, 100);
     } catch (e) {
       console.warn('AudioBuffer decode failed:', e);
       audioBuffer = null;
-      showToast('音源解析失敗（通常再生のみ可）');
+      showToast('音源解析失敗: ' + e.message);
     }
   }
 }
@@ -2519,39 +2524,37 @@ async function initTone() {
 
 async function setupToneForMedia() {
   if (!localMedia || localMedia.tagName !== 'AUDIO') return false;
-  if (!await initTone()) return false;
+  if (typeof Tone === 'undefined') {
+    showToast('⚠️ Tone.js未読込');
+    return false;
+  }
 
   try {
-    // MediaElementSourceは1メディア要素に1つだけ作成可能
-    // 既存ソースがある場合はそれを再利用、なければ作成
-    if (!toneMediaSource || toneMediaSource._mediaElement !== localMedia) {
-      try {
-        toneMediaSource = Tone.context.createMediaElementSource(localMedia);
-        toneMediaSource._mediaElement = localMedia;
-      } catch (err) {
-        // 既に作成済みエラー → 無視して既存を使う
-        console.warn('MediaElementSource already exists, reusing', err);
-      }
+    // Toneを開始（ユーザーアクション内で呼ばれる必要あり）
+    if (Tone.context.state !== 'running') {
+      await Tone.start();
     }
 
-    // PitchShiftノードを作成
-    if (tonePitchShift) { try { tonePitchShift.dispose(); } catch {} }
-    tonePitchShift = new Tone.PitchShift({
-      pitch: pitchShift,
-      windowSize: 0.1,
-      delayTime: 0,
-      feedback: 0
-    });
-
-    // audio → PitchShift → destination
-    if (toneMediaSource) {
-      try { toneMediaSource.disconnect(); } catch {}
-      toneMediaSource.connect(tonePitchShift);
-      tonePitchShift.toDestination();
-      toneConnected = true;
-      return true;
+    // MediaElementSourceは1メディア要素につき1つしか作れない
+    if (!toneMediaSource) {
+      toneMediaSource = Tone.context.createMediaElementSource(localMedia);
     }
-    return false;
+
+    // PitchShift作成
+    if (!tonePitchShift) {
+      tonePitchShift = new Tone.PitchShift(pitchShift);
+    } else {
+      tonePitchShift.pitch = pitchShift;
+    }
+
+    // 接続：source → pitchShift → destination
+    try { toneMediaSource.disconnect(); } catch {}
+    try { tonePitchShift.disconnect(); } catch {}
+    toneMediaSource.connect(tonePitchShift);
+    tonePitchShift.toDestination();
+
+    toneConnected = true;
+    return true;
   } catch (e) {
     console.warn('Tone setup failed:', e);
     showToast('⚠️ Tone接続失敗: ' + e.message);
