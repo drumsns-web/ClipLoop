@@ -2258,7 +2258,7 @@ async function loadLocalFile(file) {
       try { decodeCtx.close(); } catch {}
       setLocalStatus('準備完了', '');
       showToast('🎵 音源を読み込みました');
-      setTimeout(() => { drawWaveform(); updateWaveformOverlay(); }, 100);
+      setTimeout(() => { drawWaveform(); updateWaveformOverlay(); }, 300);
     } catch (e) {
       console.warn('AudioBuffer decode failed:', e);
       audioBuffer = null;
@@ -2445,6 +2445,11 @@ function drawWaveform() {
   if (!audioBuffer) return;
   const canvas = document.getElementById('waveformCanvas');
   const wrap = document.getElementById('waveformWrap');
+  // レンダリング前は幅が0なので待機
+  if (wrap.clientWidth === 0) {
+    setTimeout(drawWaveform, 100);
+    return;
+  }
   const dpr = window.devicePixelRatio || 1;
   const W = wrap.clientWidth * dpr;
   const H = wrap.clientHeight * dpr;
