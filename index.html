@@ -2251,19 +2251,30 @@ async function loadLocalFile(file) {
   // 音源ファイルの場合：波形描画のためAudioBufferに読み込む
   if (isAudio) {
     setLocalStatus('音源を解析中...', '');
+    showToast('🔍 デコード開始: type=' + file.type);
     try {
       const decodeCtx = new (window.AudioContext || window.webkitAudioContext)();
       const arrayBuf = await file.arrayBuffer();
+      showToast('🔍 サイズ: ' + arrayBuf.byteLength + ' bytes');
       audioBuffer = await decodeCtx.decodeAudioData(arrayBuf.slice(0));
       try { decodeCtx.close(); } catch {}
       setLocalStatus('準備完了', '');
-      showToast('🎵 音源を読み込みました');
-      setTimeout(() => { drawWaveform(); updateWaveformOverlay(); }, 300);
+      showToast('🎵 音源OK: ' + audioBuffer.duration.toFixed(1) + '秒, ' + audioBuffer.numberOfChannels + 'ch');
+      setTimeout(() => {
+        const wrap = document.getElementById('waveformWrap');
+        showToast('🔍 wrap幅: ' + wrap.clientWidth + 'px');
+        drawWaveform();
+        updateWaveformOverlay();
+      }, 500);
     } catch (e) {
       console.warn('AudioBuffer decode failed:', e);
       audioBuffer = null;
-      showToast('波形描画失敗（通常再生は可能）');
+      showToast('❌ デコード失敗: ' + e.message);
     }
+  } else if (isVideo) {
+    showToast('動画ファイル（波形表示なし）');
+  } else {
+    showToast('⚠️ 認識できないファイル形式: ' + file.type);
   }
 }
 
