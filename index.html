@@ -173,6 +173,86 @@
   }
   .waveform-a-marker { background: var(--accent); }
   .waveform-b-marker { background: var(--accent2); }
+  .waveform-channel-label {
+    position: absolute;
+    left: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(0,0,0,0.4);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .waveform-channel-label.l { top: 4px; }
+  .waveform-channel-label.r { bottom: 4px; }
+
+  /* 左右バランススライダー */
+  .balance-section {
+    padding: 12px 14px;
+    border-top: 1px solid var(--border);
+    display: none;
+  }
+  body.is-audio-file .balance-section { display: block; }
+  .balance-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .balance-row:last-child { margin-bottom: 0; }
+  .balance-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    min-width: 30px;
+    text-align: center;
+  }
+  .balance-label.lbl-l { color: var(--accent); }
+  .balance-label.lbl-r { color: var(--accent2); }
+  .balance-slider {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 2px;
+    outline: none;
+  }
+  .balance-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: var(--text);
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  .balance-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: var(--text);
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+  }
+  .balance-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text);
+    min-width: 60px;
+    text-align: right;
+  }
+  .balance-reset {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 12px;
+    color: var(--text-dim);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+  }
+  .balance-reset:active { opacity: 0.6; }
   .logo {
     font-family: 'Space Mono', monospace;
     font-size: 20px;
@@ -1120,6 +1200,8 @@
 <div class="waveform-section" id="waveformSection">
   <div class="waveform-wrap" id="waveformWrap">
     <canvas class="waveform-canvas" id="waveformCanvas"></canvas>
+    <div class="waveform-channel-label l" id="waveformLabelL">L</div>
+    <div class="waveform-channel-label r" id="waveformLabelR">R</div>
     <div class="waveform-ab-overlay" id="waveformAbOverlay"></div>
     <div class="waveform-a-marker" id="waveformAMarker"></div>
     <div class="waveform-b-marker" id="waveformBMarker"></div>
@@ -1189,6 +1271,25 @@
     <button class="skip-btn fwd" data-local-skip="1">+1s</button>
     <button class="skip-btn fwd" data-local-skip="2">+2s</button>
     <button class="skip-btn fwd" data-local-skip="5">+5s</button>
+  </div>
+
+  <!-- 左右バランス（音源のみ表示） -->
+  <div class="balance-section" id="balanceSection">
+    <div class="balance-row">
+      <span class="balance-label lbl-l">L</span>
+      <input type="range" class="balance-slider" id="lVolSlider" min="0" max="1" step="0.01" value="1">
+      <span class="balance-value" id="lVolValue">100%</span>
+    </div>
+    <div class="balance-row">
+      <span class="balance-label lbl-r">R</span>
+      <input type="range" class="balance-slider" id="rVolSlider" min="0" max="1" step="0.01" value="1">
+      <span class="balance-value" id="rVolValue">100%</span>
+    </div>
+    <div class="balance-row" style="justify-content:flex-end;gap:6px">
+      <button class="balance-reset" id="balanceLOnly">Lのみ</button>
+      <button class="balance-reset" id="balanceROnly">Rのみ</button>
+      <button class="balance-reset" id="balanceReset">リセット</button>
+    </div>
   </div>
 
   <div class="speed-section">
@@ -2025,6 +2126,12 @@ async function loadLocalFile(file) {
   }
   if (localPollingTimer) { clearInterval(localPollingTimer); localPollingTimer = null; }
   audioBuffer = null;
+  resetLR();
+  // スライダー値もリセット
+  document.getElementById('lVolSlider').value = 1;
+  document.getElementById('rVolSlider').value = 1;
+  document.getElementById('lVolValue').textContent = '100%';
+  document.getElementById('rVolValue').textContent = '100%';
 
   localFileURL = URL.createObjectURL(file);
   const isVideo = file.type.startsWith('video/');
@@ -2053,6 +2160,7 @@ async function loadLocalFile(file) {
     document.getElementById('localPlayBtn').textContent = '⏸';
     setLocalStatus('再生中', 'playing');
     startLocalPolling();
+    ensureLRSetupOnPlay();
   });
   localMedia.addEventListener('pause', () => {
     localIsPlaying = false;
@@ -2078,8 +2186,9 @@ async function loadLocalFile(file) {
   document.getElementById('localMemo').value = '';
   renderLocalSlots();
 
-  // 音源の場合：AudioBufferに読み込んで波形描画
+  // 音源の場合：AudioBufferに読み込んで波形描画＋LR制御を構築
   document.getElementById('waveformSection').classList.toggle('show', isAudio);
+  document.body.classList.toggle('is-audio-file', isAudio);
   if (isAudio) {
     setLocalStatus('波形を解析中...', '');
     try {
@@ -2088,7 +2197,6 @@ async function loadLocalFile(file) {
       audioBuffer = await decodeCtx.decodeAudioData(arrayBuf.slice(0));
       try { decodeCtx.close(); } catch {}
       setLocalStatus('準備完了', '');
-      // 波形描画（少し待ってから）
       setTimeout(() => { drawWaveform(); updateWaveformOverlay(); }, 200);
     } catch (e) {
       console.warn('decode failed:', e);
@@ -2408,6 +2516,102 @@ function loadFromLocalSlot(idx) {
   updateLocalABDisplay();
   localMedia.currentTime = localPointA;
   showToast('📂 スロット' + (idx + 1) + 'を呼び出し');
+}
+
+// ─── 左右バランス制御 ───
+let lrAudioCtx = null;
+let lrSource = null;
+let lrSplitter = null;
+let lrGainL = null;
+let lrGainR = null;
+let lrMerger = null;
+let lrSetup = false;
+
+async function setupLRControl() {
+  if (!localMedia || localMedia.tagName !== 'AUDIO') return false;
+  if (lrSetup) return true; // 既にセットアップ済み
+  try {
+    if (!lrAudioCtx) lrAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (lrAudioCtx.state === 'suspended') await lrAudioCtx.resume();
+    lrSource = lrAudioCtx.createMediaElementSource(localMedia);
+    lrSplitter = lrAudioCtx.createChannelSplitter(2);
+    lrGainL = lrAudioCtx.createGain();
+    lrGainR = lrAudioCtx.createGain();
+    lrMerger = lrAudioCtx.createChannelMerger(2);
+    lrSource.connect(lrSplitter);
+    lrSplitter.connect(lrGainL, 0);
+    lrSplitter.connect(lrGainR, 1);
+    lrGainL.connect(lrMerger, 0, 0);
+    lrGainR.connect(lrMerger, 0, 1);
+    lrMerger.connect(lrAudioCtx.destination);
+    lrSetup = true;
+    // 現在のスライダー値を反映
+    applyLRVolume();
+    return true;
+  } catch (e) {
+    console.warn('LR setup failed:', e);
+    return false;
+  }
+}
+
+function applyLRVolume() {
+  if (!lrGainL || !lrGainR) return;
+  const lv = parseFloat(document.getElementById('lVolSlider').value);
+  const rv = parseFloat(document.getElementById('rVolSlider').value);
+  lrGainL.gain.value = lv;
+  lrGainR.gain.value = rv;
+  document.getElementById('lVolValue').textContent = Math.round(lv * 100) + '%';
+  document.getElementById('rVolValue').textContent = Math.round(rv * 100) + '%';
+}
+
+document.getElementById('lVolSlider').addEventListener('input', () => {
+  setupLRControl();
+  applyLRVolume();
+});
+document.getElementById('rVolSlider').addEventListener('input', () => {
+  setupLRControl();
+  applyLRVolume();
+});
+document.getElementById('balanceLOnly').addEventListener('click', () => {
+  document.getElementById('lVolSlider').value = 1;
+  document.getElementById('rVolSlider').value = 0;
+  setupLRControl();
+  applyLRVolume();
+  showToast('Lチャンネルのみ');
+});
+document.getElementById('balanceROnly').addEventListener('click', () => {
+  document.getElementById('lVolSlider').value = 0;
+  document.getElementById('rVolSlider').value = 1;
+  setupLRControl();
+  applyLRVolume();
+  showToast('Rチャンネルのみ');
+});
+document.getElementById('balanceReset').addEventListener('click', () => {
+  document.getElementById('lVolSlider').value = 1;
+  document.getElementById('rVolSlider').value = 1;
+  setupLRControl();
+  applyLRVolume();
+  showToast('左右バランスをリセット');
+});
+
+// 再生時にLR制御をセットアップ（ユーザーアクション内で実行）
+function ensureLRSetupOnPlay() {
+  if (localMedia && localMedia.tagName === 'AUDIO' && !lrSetup) {
+    setupLRControl();
+  }
+}
+
+// ファイル変更時にLR状態をリセット
+function resetLR() {
+  // MediaElementSourceは再生成不可なので、ファイル変更時はAudioContextを閉じて作り直す
+  if (lrAudioCtx) {
+    try { lrAudioCtx.close(); } catch {}
+    lrAudioCtx = null;
+  }
+  lrSource = null; lrSplitter = null;
+  lrGainL = null; lrGainR = null;
+  lrMerger = null;
+  lrSetup = false;
 }
 
 // ─── Init ───
