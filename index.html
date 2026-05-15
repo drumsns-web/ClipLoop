@@ -5,7 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>YT Loop</title>
 <link rel="apple-touch-icon" href="IMG_5138.jpg">
-<script src="https://cdn.jsdelivr.net/npm/soundtouchjs@0.1.30/dist/soundtouch.js"></script>
+<script type="module">
+  import { PitchShifter } from 'https://cdn.jsdelivr.net/npm/soundtouchjs@0.1.31/dist/soundtouch.min.js';
+  window.PitchShifter = PitchShifter;
+</script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+JP:wght@300;400;700&display=swap');
 
@@ -2422,6 +2425,8 @@ function updateLocalLoopCounter() {
 
 document.getElementById('localPlayBtn').addEventListener('click', () => {
   if (!localMedia) return;
+  // iOS Safari でAudioContextを起こす
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
   if (localIsPlaying) localMedia.pause(); else localMedia.play();
 });
 
@@ -2519,74 +2524,53 @@ function isPitchModeActive() {
 
 function startPitchPlayback(offset) {
   if (!audioBuffer || !audioCtx) return false;
-  if (typeof window.soundtouch === 'undefined' && typeof window.SoundTouch === 'undefined') {
-    showToast('⚠️ ピッチシフトライブラリ読込失敗');
+  if (typeof window.PitchShifter === 'undefined') {
+    showToast('⚠️ ピッチシフトライブラリ未読込');
     return false;
   }
 
   stopPitchPlayback();
 
   try {
-    // soundtouchjs 0.1.30 はグローバルに soundtouch オブジェクトを露出
-    const ST = window.soundtouch || window.SoundTouch;
-    const SimpleFilter = ST.SimpleFilter;
-    const SoundTouchClass = ST.SoundTouch;
-    const WebAudioBufferSource = ST.WebAudioBufferSource;
-
-    if (!SimpleFilter || !SoundTouchClass || !WebAudioBufferSource) {
-      console.warn('SoundTouch classes not available');
-      return false;
+    // AudioContextを必ずresume
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
     }
 
-    const source = new WebAudioBufferSource(audioBuffer);
-    const st = new SoundTouchClass();
-    st.pitchSemitones = pitchShift;
-    st.tempo = localSpeed;
-    const filter = new SimpleFilter(source, st);
+    // SoundTouchJS の PitchShifter クラスを使用
+    const shifter = new window.PitchShifter(audioCtx, audioBuffer, 4096);
+    shifter.tempo = localSpeed;
+    shifter.pitch = Math.pow(2, pitchShift / 12); // 半音→比率変換
+    // pitchSemitones プロパティもサポート
+    if ('pitchSemitones' in shifter) shifter.pitchSemitones = pitchShift;
 
-    // 再生開始位置を設定
-    if (offset > 0) {
-      source.position = Math.floor(offset * audioBuffer.sampleRate);
+    // 開始位置を設定（PitchShifterのpercentagePlayedで指定）
+    if (offset > 0 && audioBuffer.duration > 0) {
+      const pct = offset / audioBuffer.duration;
+      if ('percentagePlayed' in shifter) shifter.percentagePlayed = pct;
     }
 
-    // ScriptProcessorで音声出力
-    const bufferSize = 4096;
-    const node = audioCtx.createScriptProcessor(bufferSize, 2, 2);
-    node.onaudioprocess = (e) => {
-      const out = e.outputBuffer;
-      const L = out.getChannelData(0);
-      const R = out.getChannelData(1);
-      const samples = new Float32Array(bufferSize * 2);
-      const framesExtracted = filter.extract(samples, bufferSize);
-      if (framesExtracted === 0) {
-        // 再生終了
-        for (let i = 0; i < bufferSize; i++) { L[i] = 0; R[i] = 0; }
-        return;
-      }
-      for (let i = 0; i < framesExtracted; i++) {
-        L[i] = samples[i * 2];
-        R[i] = samples[i * 2 + 1];
-      }
-      for (let i = framesExtracted; i < bufferSize; i++) { L[i] = 0; R[i] = 0; }
-    };
-    node.connect(audioCtx.destination);
+    shifter.connect(audioCtx.destination);
 
-    pitchShifter = { node, filter, source, st, sampleRate: audioBuffer.sampleRate };
+    pitchShifter = { node: shifter };
     pitchPlayStartTime = audioCtx.currentTime;
     pitchPlayOffset = offset;
     pitchPlayActive = true;
 
-    if (audioCtx.state === 'suspended') audioCtx.resume();
     return true;
   } catch (e) {
     console.warn('Pitch playback failed:', e);
+    showToast('⚠️ 移調処理エラー: ' + e.message);
     return false;
   }
 }
 
 function stopPitchPlayback() {
-  if (pitchShifter) {
-    try { pitchShifter.node.disconnect(); } catch {}
+  if (pitchShifter && pitchShifter.node) {
+    try {
+      pitchShifter.node.disconnect();
+      if (pitchShifter.node.off) pitchShifter.node.off();
+    } catch {}
     pitchShifter = null;
   }
   pitchPlayActive = false;
