@@ -5,10 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>YT Loop</title>
 <link rel="apple-touch-icon" href="IMG_5138.jpg">
-<script type="module">
-  import { PitchShifter } from 'https://cdn.jsdelivr.net/npm/soundtouchjs@0.1.31/dist/soundtouch.min.js';
-  window.PitchShifter = PitchShifter;
-</script>
+<script src="https://cdn.jsdelivr.net/npm/soundtouchjs@0.1.30/dist/soundtouch.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+JP:wght@300;400;700&display=swap');
 
@@ -2524,30 +2521,38 @@ function isPitchModeActive() {
 
 function startPitchPlayback(offset) {
   if (!audioBuffer || !audioCtx) return false;
-  if (typeof window.PitchShifter === 'undefined') {
-    showToast('⚠️ ピッチシフトライブラリ未読込');
+
+  // soundtouchjs 0.1.30 のグローバル名前空間を探す
+  const PS = window.PitchShifter ||
+             (window.soundtouch && window.soundtouch.PitchShifter) ||
+             (window.SoundTouch && window.SoundTouch.PitchShifter);
+
+  if (!PS) {
+    // デバッグ情報
+    const keys = Object.keys(window).filter(k => /sound|pitch|touch/i.test(k));
+    showToast('⚠️ ライブラリ未読込: ' + (keys.join(',') || 'なし'));
+    console.warn('Available globals:', keys);
+    console.warn('window.soundtouch:', window.soundtouch);
     return false;
   }
 
   stopPitchPlayback();
 
   try {
-    // AudioContextを必ずresume
-    if (audioCtx.state === 'suspended') {
-      audioCtx.resume();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+
+    const shifter = new PS(audioCtx, audioBuffer, 4096);
+    shifter.tempo = localSpeed;
+    if ('pitchSemitones' in shifter) {
+      shifter.pitchSemitones = pitchShift;
+    } else {
+      shifter.pitch = Math.pow(2, pitchShift / 12);
     }
 
-    // SoundTouchJS の PitchShifter クラスを使用
-    const shifter = new window.PitchShifter(audioCtx, audioBuffer, 4096);
-    shifter.tempo = localSpeed;
-    shifter.pitch = Math.pow(2, pitchShift / 12); // 半音→比率変換
-    // pitchSemitones プロパティもサポート
-    if ('pitchSemitones' in shifter) shifter.pitchSemitones = pitchShift;
-
-    // 開始位置を設定（PitchShifterのpercentagePlayedで指定）
     if (offset > 0 && audioBuffer.duration > 0) {
-      const pct = offset / audioBuffer.duration;
-      if ('percentagePlayed' in shifter) shifter.percentagePlayed = pct;
+      if ('percentagePlayed' in shifter) {
+        shifter.percentagePlayed = offset / audioBuffer.duration;
+      }
     }
 
     shifter.connect(audioCtx.destination);
@@ -2557,10 +2562,11 @@ function startPitchPlayback(offset) {
     pitchPlayOffset = offset;
     pitchPlayActive = true;
 
+    showToast('🎵 移調再生中');
     return true;
   } catch (e) {
     console.warn('Pitch playback failed:', e);
-    showToast('⚠️ 移調処理エラー: ' + e.message);
+    showToast('⚠️ 移調エラー: ' + e.message);
     return false;
   }
 }
