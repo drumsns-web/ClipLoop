@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>YT Loop</title>
 <link rel="apple-touch-icon" href="IMG_5138.jpg">
+<script src="https://cdn.jsdelivr.net/npm/soundtouchjs@0.1.30/dist/soundtouch.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+JP:wght@300;400;700&display=swap');
 
@@ -37,6 +38,278 @@
     gap: 10px;
     padding: 16px 16px 0;
   }
+
+  /* ─── モード切替タブ ─── */
+  .mode-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 12px 16px 0;
+  }
+  .mode-tab {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+    color: var(--text-dim);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+  }
+  .mode-tab.active {
+    background: rgba(0,229,255,0.12);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .mode-tab:active { opacity: 0.7; }
+
+  /* モード切替表示 */
+  .mode-content { display: none; }
+  .mode-content.active { display: block; }
+
+  /* ファイル選択 */
+  .file-section {
+    padding: 14px 16px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .file-input-wrap {
+    flex: 1;
+    position: relative;
+  }
+  .file-input {
+    display: none;
+  }
+  .file-label {
+    display: block;
+    background: var(--surface);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    color: var(--text-dim);
+    font-size: 13px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .file-label:active { border-color: var(--accent); color: var(--accent); }
+  .file-name {
+    color: var(--accent);
+    font-size: 12px;
+    margin-top: 4px;
+    word-break: break-all;
+  }
+
+  /* ローカル動画/オーディオ */
+  .local-media-wrapper {
+    position: relative;
+    width: 100%;
+    background: #000;
+    overflow: hidden;
+  }
+  .local-media-wrapper.has-video {
+    padding-top: 56.25%;
+  }
+  .local-media-wrapper video,
+  .local-media-wrapper audio {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: #000;
+  }
+  .local-media-wrapper audio {
+    position: relative;
+    height: 50px;
+    background: var(--surface);
+  }
+  .local-placeholder {
+    padding: 40px 16px;
+    text-align: center;
+    color: var(--text-dim);
+    background: var(--surface);
+    font-size: 13px;
+  }
+
+  /* 波形表示 */
+  .waveform-section {
+    margin: 0 16px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: none;
+  }
+  body.is-audio .waveform-section { display: block; }
+  .waveform-wrap {
+    position: relative;
+    width: 100%;
+    height: 120px;
+    background: #fff;
+    cursor: pointer;
+    touch-action: none;
+  }
+  .waveform-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .waveform-ab-overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    background: rgba(0,229,255,0.25);
+    pointer-events: none;
+    display: none;
+  }
+  .waveform-cursor {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #ff3d71;
+    pointer-events: none;
+    transform: translateX(-1px);
+  }
+  .waveform-a-marker, .waveform-b-marker {
+    position: absolute;
+    top: -2px;
+    width: 14px;
+    height: 18px;
+    transform: translateX(-7px);
+    pointer-events: none;
+    display: none;
+  }
+  .waveform-a-marker {
+    background: var(--accent);
+    clip-path: polygon(0 0, 100% 0, 100% 70%, 50% 100%, 0 70%);
+  }
+  .waveform-b-marker {
+    background: var(--accent);
+    clip-path: polygon(0 0, 100% 0, 100% 70%, 50% 100%, 0 70%);
+  }
+  .waveform-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-dim);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    background: var(--surface2);
+  }
+
+  /* 移調・ピッチコントロール */
+  .pitch-section {
+    padding: 12px 14px;
+    border-top: 1px solid var(--border);
+  }
+  .pitch-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .pitch-row:last-child { margin-bottom: 0; }
+  .pitch-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    min-width: 50px;
+  }
+  .pitch-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--accent2);
+    font-weight: 700;
+    min-width: 50px;
+    text-align: right;
+  }
+  .pitch-slider {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 2px;
+    outline: none;
+  }
+  .pitch-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: var(--accent2);
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  .pitch-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: var(--accent2);
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+  }
+  .pitch-buttons {
+    display: flex;
+    gap: 4px;
+    margin-top: 6px;
+  }
+  .pitch-btn {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px;
+    color: var(--text-dim);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+  }
+  .pitch-btn:active { opacity: 0.6; }
+  .pitch-btn.reset { color: var(--accent2); border-color: var(--accent2); }
+  .preserve-pitch-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  /* 音源モード専用UI（動画時は非表示） */
+  .audio-only { display: none; }
+  body.is-audio .audio-only { display: block; }
+  body.is-audio .audio-only.pitch-section { display: block; }
+  body.is-video .audio-only { display: none !important; }
+  .toggle-switch {
+    width: 36px;
+    height: 20px;
+    background: var(--surface2);
+    border-radius: 10px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .toggle-switch.on { background: var(--accent); }
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.2s;
+  }
+  .toggle-switch.on::after { transform: translateX(16px); }
   .logo {
     font-family: 'Space Mono', monospace;
     font-size: 20px;
@@ -828,6 +1101,15 @@
   </div>
 </header>
 
+<!-- モード切替タブ -->
+<div class="mode-tabs">
+  <div class="mode-tab active" data-mode="youtube">📺 YouTube</div>
+  <div class="mode-tab" data-mode="local">📁 ローカルファイル</div>
+</div>
+
+<!-- YouTube モード -->
+<div class="mode-content active" id="ytMode">
+
 <div class="url-section">
   <input type="url" class="url-input" id="urlInput" placeholder="YouTube URL を貼り付け..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
   <button class="load-btn" id="loadBtn">読込</button>
@@ -955,6 +1237,174 @@
     <span class="speed-fine-value" id="speedSliderValue">1.00×</span>
   </div>
 </div>
+
+</div><!-- /YouTube mode -->
+
+<!-- ローカルファイル モード -->
+<div class="mode-content" id="localMode">
+
+<div class="file-section">
+  <div class="file-input-wrap">
+    <input type="file" class="file-input" id="fileInput" accept="video/*,audio/*">
+    <label for="fileInput" class="file-label">
+      📁 動画または音源ファイルを選択
+    </label>
+    <div class="file-name" id="fileName"></div>
+  </div>
+</div>
+
+<div class="local-media-wrapper" id="localMediaWrapper">
+  <div class="local-placeholder">
+    ファイルを選択してください<br>
+    <small>(動画/音源どちらも対応)</small>
+  </div>
+</div>
+
+<!-- 波形表示（音源モードのみ） -->
+<div class="waveform-section" id="waveformSection">
+  <div class="waveform-wrap" id="waveformWrap">
+    <canvas class="waveform-canvas" id="waveformCanvas"></canvas>
+    <div class="waveform-ab-overlay" id="waveformAbOverlay"></div>
+    <div class="waveform-a-marker" id="waveformAMarker"></div>
+    <div class="waveform-b-marker" id="waveformBMarker"></div>
+    <div class="waveform-cursor" id="waveformCursor"></div>
+  </div>
+</div>
+
+<!-- Local Status -->
+<div class="status-bar">
+  <div class="status-dot" id="localStatusDot"></div>
+  <div class="status-text" id="localStatusText">待機中</div>
+  <div class="loop-counter" id="localLoopCounter">🔁 <span id="localLoopCount">0</span>回</div>
+</div>
+
+<div class="panel">
+  <!-- AB Points (Local) -->
+  <div class="ab-grid">
+    <div class="ab-cell">
+      <div class="ab-label"><span class="point-letter a-letter">A</span>開始点</div>
+      <div class="ab-time unset" id="localATime">-- : --</div>
+      <div class="ab-adjust">
+        <button class="adj-btn a-adj" id="localAMinus">-0.5</button>
+        <button class="adj-btn a-adj" id="localAPlus">+0.5</button>
+      </div>
+      <button class="ab-btn a-btn" id="localSetA">ここをAにセット</button>
+    </div>
+    <div class="ab-cell">
+      <div class="ab-label"><span class="point-letter b-letter">B</span>終了点</div>
+      <div class="ab-time unset" id="localBTime">-- : --</div>
+      <div class="ab-adjust">
+        <button class="adj-btn b-adj" id="localBMinus">-0.5</button>
+        <button class="adj-btn b-adj" id="localBPlus">+0.5</button>
+      </div>
+      <button class="ab-btn b-btn" id="localSetB">ここをBにセット</button>
+    </div>
+  </div>
+
+  <!-- Memo (Local) -->
+  <div class="memo-section">
+    <div class="memo-label">MEMO</div>
+    <textarea class="memo-input" id="localMemo" placeholder="このAB区間のメモを入力..."></textarea>
+  </div>
+
+  <!-- Seek Bar (Local) -->
+  <div class="seek-section">
+    <div class="seek-label">POSITION</div>
+    <div class="seek-wrap">
+      <div class="seek-track">
+        <div class="ab-region" id="localAbRegion"></div>
+        <div class="seek-fill" id="localSeekFill"></div>
+      </div>
+      <input type="range" class="seek-input" id="localSeekBar" min="0" max="100" value="0" step="0.1">
+    </div>
+    <div class="seek-markers">
+      <span id="localCurrentTime">0:00</span>
+      <span id="localTotalTime">0:00</span>
+    </div>
+  </div>
+
+  <!-- Playback Controls (Local) -->
+  <div class="playback-row">
+    <button class="ctrl-btn" id="localResetAB" title="AB解除">✕</button>
+    <button class="ctrl-btn" id="localSeekA" title="Aへ戻る">⏮</button>
+    <button class="ctrl-btn play-btn" id="localPlayBtn">▶</button>
+    <button class="ctrl-btn" id="localLoopBtn" title="ABリピート">🔁</button>
+    <button class="ctrl-btn" id="localSaveBtn" title="保存">💾</button>
+    <button class="ctrl-btn" id="localFullscreenBtn" title="フルスクリーン"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></button>
+  </div>
+
+  <!-- 早戻し/早送り (Local) -->
+  <div class="skip-row">
+    <button class="skip-btn back" data-local-skip="-5">-5s</button>
+    <button class="skip-btn back" data-local-skip="-2">-2s</button>
+    <button class="skip-btn back" data-local-skip="-1">-1s</button>
+    <button class="skip-btn fwd" data-local-skip="1">+1s</button>
+    <button class="skip-btn fwd" data-local-skip="2">+2s</button>
+    <button class="skip-btn fwd" data-local-skip="5">+5s</button>
+  </div>
+
+  <!-- Speed (Local) -->
+  <div class="speed-section">
+    <div class="speed-label">SPEED</div>
+    <div class="speed-chips" id="localSpeedChips">
+      <div class="speed-chip" data-local-speed="0.5">0.5×</div>
+      <div class="speed-chip" data-local-speed="0.6">0.6×</div>
+      <div class="speed-chip" data-local-speed="0.65">0.65×</div>
+      <div class="speed-chip" data-local-speed="0.7">0.7×</div>
+      <div class="speed-chip" data-local-speed="0.75">0.75×</div>
+      <div class="speed-chip" data-local-speed="0.8">0.8×</div>
+      <div class="speed-chip" data-local-speed="0.85">0.85×</div>
+      <div class="speed-chip" data-local-speed="0.9">0.9×</div>
+      <div class="speed-chip" data-local-speed="0.95">0.95×</div>
+      <div class="speed-chip active" data-local-speed="1">1×</div>
+      <div class="speed-chip" data-local-speed="1.25">1.25×</div>
+      <div class="speed-chip" data-local-speed="1.5">1.5×</div>
+      <div class="speed-chip" data-local-speed="2">2×</div>
+    </div>
+  </div>
+
+  <!-- Speed Slider (Local) -->
+  <div class="speed-fine">
+    <span class="speed-fine-label">FINE</span>
+    <input type="range" class="speed-fine-slider" id="localSpeedSlider" min="0.5" max="2" step="0.05" value="1">
+    <span class="speed-fine-value" id="localSpeedValue">1.00×</span>
+  </div>
+
+  <!-- ピッチ独立切替 -->
+  <div class="preserve-pitch-toggle">
+    <div class="toggle-switch on" id="preservePitchToggle"></div>
+    <span>ピッチを保持（速度変えても音程そのまま）</span>
+  </div>
+
+  <!-- 移調コントロール（音源のみ） -->
+  <div class="pitch-section audio-only" id="pitchSection">
+    <div class="pitch-row">
+      <span class="pitch-label">PITCH</span>
+      <input type="range" class="pitch-slider" id="pitchSlider" min="-12" max="12" step="1" value="0">
+      <span class="pitch-value" id="pitchValue">±0</span>
+    </div>
+    <div class="pitch-buttons">
+      <button class="pitch-btn" data-pitch="-1">-1半音</button>
+      <button class="pitch-btn" data-pitch="-2">-2半音</button>
+      <button class="pitch-btn reset" data-pitch="reset">±0</button>
+      <button class="pitch-btn" data-pitch="2">+2半音</button>
+      <button class="pitch-btn" data-pitch="1">+1半音</button>
+    </div>
+  </div>
+
+  <!-- AB区間スロット (Local) -->
+  <div class="slot-section">
+    <div class="slot-label">AB区間スロット (1〜10)</div>
+    <div class="slot-save-row">
+      <span class="slot-save-label">💾 保存先</span>
+      <div class="slot-save-chips" id="localSlotSaveChips"></div>
+    </div>
+    <div class="slot-label">📂 呼出（タップ）</div>
+    <div class="slot-grid" id="localSlotGrid"></div>
+  </div>
+</div>
+
+</div><!-- /Local mode -->
 
 <!-- History -->
 <div class="history-section" id="historySection" style="display:none">
@@ -1708,9 +2158,712 @@ function deleteSlot(idx) {
   showToast(`スロット${idx + 1}を削除しました`);
 }
 
+// ─── タブ切替 ───
+document.querySelectorAll('.mode-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const mode = tab.dataset.mode;
+    document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelectorAll('.mode-content').forEach(c => c.classList.remove('active'));
+    document.getElementById(mode === 'youtube' ? 'ytMode' : 'localMode').classList.add('active');
+    // モード切替時に再生中なら停止
+    if (mode === 'youtube' && localMedia && !localMedia.paused) localMedia.pause();
+    if (mode === 'local' && playerReady && isPlaying) player.pauseVideo();
+  });
+});
+
+// ─── ローカルファイル モード ───
+let localMedia = null; // video or audio element
+let localPointA = null;
+let localPointB = null;
+let localLoopEnabled = false;
+let localIsPlaying = false;
+let localPollingTimer = null;
+let localLoopCount = 0;
+let localSpeed = 1;
+let localFileURL = null;
+let preservePitch = true;
+let pitchShift = 0; // semitones
+
+// AudioContext for pitch shifting
+let audioCtx = null;
+let audioSource = null;
+let audioGain = null;
+
+document.getElementById('fileInput').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  loadLocalFile(file);
+});
+
+async function loadLocalFile(file) {
+  // クリーンアップ
+  if (localFileURL) URL.revokeObjectURL(localFileURL);
+  if (localMedia) { localMedia.pause(); localMedia.remove(); localMedia = null; }
+  if (localPollingTimer) { clearInterval(localPollingTimer); localPollingTimer = null; }
+  stopPitchPlayback();
+  audioBuffer = null;
+
+  localFileURL = URL.createObjectURL(file);
+  const isVideo = file.type.startsWith('video/');
+  const isAudio = file.type.startsWith('audio/');
+
+  // body に音源/動画フラグを付ける
+  document.body.classList.toggle('is-audio', isAudio);
+  document.body.classList.toggle('is-video', isVideo);
+
+  const wrapper = document.getElementById('localMediaWrapper');
+  wrapper.innerHTML = '';
+  wrapper.classList.toggle('has-video', isVideo);
+
+  localMedia = document.createElement(isVideo ? 'video' : 'audio');
+  localMedia.src = localFileURL;
+  localMedia.controls = true;
+  localMedia.playsInline = true;
+  if ('preservesPitch' in localMedia) localMedia.preservesPitch = preservePitch;
+  if ('mozPreservesPitch' in localMedia) localMedia.mozPreservesPitch = preservePitch;
+  if ('webkitPreservesPitch' in localMedia) localMedia.webkitPreservesPitch = preservePitch;
+
+  wrapper.appendChild(localMedia);
+
+  localMedia.addEventListener('loadedmetadata', () => {
+    document.getElementById('localTotalTime').textContent = fmtTime(localMedia.duration);
+    document.getElementById('localSeekBar').max = localMedia.duration;
+    setLocalStatus('準備完了', '');
+    startLocalPolling();
+  });
+  localMedia.addEventListener('play', () => {
+    localIsPlaying = true;
+    document.getElementById('localPlayBtn').textContent = '⏸';
+    setLocalStatus('再生中', 'playing');
+    startLocalPolling();
+    // ピッチシフトONなら独立再生も開始
+    if (pitchShift !== 0 && audioBuffer && localMedia.tagName === 'AUDIO') {
+      startPitchPlayback(localMedia.currentTime);
+    }
+  });
+  localMedia.addEventListener('pause', () => {
+    localIsPlaying = false;
+    document.getElementById('localPlayBtn').textContent = '▶';
+    setLocalStatus('一時停止', '');
+    stopPitchPlayback();
+  });
+  localMedia.addEventListener('ended', () => {
+    localIsPlaying = false;
+    document.getElementById('localPlayBtn').textContent = '▶';
+    if (localLoopEnabled && localPointA !== null) {
+      localMedia.currentTime = localPointA;
+      localMedia.play();
+    } else {
+      setLocalStatus('終了', '');
+    }
+  });
+
+  document.getElementById('fileName').textContent = `📄 ${file.name}`;
+  localPointA = null; localPointB = null;
+  localLoopEnabled = false;
+  localLoopCount = 0;
+  pitchShift = 0;
+  document.getElementById('pitchSlider').value = 0;
+  document.getElementById('pitchValue').textContent = '±0';
+  updateLocalABDisplay();
+  updateLocalLoopBtn();
+  updateLocalLoopCounter();
+  document.getElementById('localMemo').value = '';
+  renderLocalSlots();
+
+  // 音源の場合：AudioBufferに読み込んで移調可能にする
+  if (isAudio) {
+    setLocalStatus('音源を解析中...', '');
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const arrayBuf = await file.arrayBuffer();
+      audioBuffer = await audioCtx.decodeAudioData(arrayBuf.slice(0));
+      setLocalStatus('準備完了（移調対応）', '');
+      showToast('🎵 音源を読み込みました（移調可能）');
+      // 波形描画
+      setTimeout(() => { drawWaveform(); updateWaveformOverlay(); }, 100);
+    } catch (e) {
+      console.warn('AudioBuffer decode failed:', e);
+      audioBuffer = null;
+      showToast('音源解析失敗（通常再生のみ可）');
+    }
+  }
+}
+
+function setupAudioGraph() {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch { return; }
+  }
+  try {
+    if (audioSource) try { audioSource.disconnect(); } catch {}
+    audioSource = audioCtx.createMediaElementSource(localMedia);
+    audioGain = audioCtx.createGain();
+    audioSource.connect(audioGain);
+    audioGain.connect(audioCtx.destination);
+  } catch (e) {
+    console.warn('Audio graph setup failed:', e);
+  }
+}
+
+function startLocalPolling() {
+  if (localPollingTimer) return;
+  localPollingTimer = setInterval(pollLocalPosition, 200);
+}
+
+function pollLocalPosition() {
+  if (!localMedia) return;
+  const cur = localMedia.currentTime || 0;
+  const dur = localMedia.duration || 0;
+  const pct = dur ? (cur / dur * 100) : 0;
+  document.getElementById('localSeekFill').style.width = pct + '%';
+  document.getElementById('localSeekBar').value = cur;
+  document.getElementById('localCurrentTime').textContent = fmtTime(cur);
+  updateLocalABRegion();
+  if (localLoopEnabled && localPointA !== null && localPointB !== null) {
+    if (cur >= localPointB) {
+      localMedia.currentTime = localPointA;
+      localLoopCount++;
+      document.getElementById('localLoopCount').textContent = localLoopCount;
+      // ピッチシフト再生中ならループ位置で再開
+      if (pitchShift !== 0 && audioBuffer && !localMedia.paused) {
+        startPitchPlayback(localPointA);
+      }
+    }
+  }
+}
+
+// AB Controls (Local)
+document.getElementById('localSetA').addEventListener('click', () => {
+  if (!localMedia) { showToast('ファイルを読み込んでください'); return; }
+  localPointA = localMedia.currentTime;
+  if (localPointB !== null && localPointA >= localPointB) localPointB = null;
+  updateLocalABDisplay();
+  showToast(`A点セット: ${fmtTime(localPointA)}`);
+});
+
+document.getElementById('localSetB').addEventListener('click', () => {
+  if (!localMedia) { showToast('ファイルを読み込んでください'); return; }
+  localPointB = localMedia.currentTime;
+  if (localPointA !== null && localPointB <= localPointA) localPointA = null;
+  updateLocalABDisplay();
+  showToast(`B点セット: ${fmtTime(localPointB)}`);
+});
+
+document.getElementById('localAMinus').addEventListener('click', () => {
+  if (localPointA === null) { showToast('A点をセット'); return; }
+  localPointA = Math.max(0, localPointA - 0.5);
+  updateLocalABDisplay();
+  if (localMedia) localMedia.currentTime = localPointA;
+});
+document.getElementById('localAPlus').addEventListener('click', () => {
+  if (localPointA === null) { showToast('A点をセット'); return; }
+  localPointA = localPointB !== null ? Math.min(localPointB - 0.5, localPointA + 0.5) : localPointA + 0.5;
+  updateLocalABDisplay();
+  if (localMedia) localMedia.currentTime = localPointA;
+});
+document.getElementById('localBMinus').addEventListener('click', () => {
+  if (localPointB === null) { showToast('B点をセット'); return; }
+  localPointB = localPointA !== null ? Math.max(localPointA + 0.5, localPointB - 0.5) : Math.max(0, localPointB - 0.5);
+  updateLocalABDisplay();
+});
+document.getElementById('localBPlus').addEventListener('click', () => {
+  if (localPointB === null) { showToast('B点をセット'); return; }
+  const dur = localMedia ? localMedia.duration : 99999;
+  localPointB = Math.min(dur, localPointB + 0.5);
+  updateLocalABDisplay();
+});
+
+document.getElementById('localResetAB').addEventListener('click', () => {
+  localPointA = null; localPointB = null;
+  localLoopEnabled = false;
+  localLoopCount = 0;
+  updateLocalABDisplay();
+  updateLocalLoopBtn();
+  updateLocalABRegion();
+  updateLocalLoopCounter();
+  showToast('AB点リセット');
+});
+
+document.getElementById('localSeekA').addEventListener('click', () => {
+  if (!localMedia) return;
+  if (localPointA !== null) {
+    localMedia.currentTime = localPointA;
+    showToast(`A点 (${fmtTime(localPointA)}) へジャンプ`);
+  }
+});
+
+document.getElementById('localLoopBtn').addEventListener('click', () => {
+  if (localPointA === null || localPointB === null) {
+    showToast('A点とB点を両方セットしてください');
+    return;
+  }
+  localLoopEnabled = !localLoopEnabled;
+  localLoopCount = 0;
+  updateLocalLoopBtn();
+  updateLocalLoopCounter();
+  if (localLoopEnabled) {
+    localMedia.currentTime = localPointA;
+    localMedia.play();
+    showToast('🔁 ABリピート ON');
+  } else {
+    showToast('リピート OFF');
+  }
+});
+
+function updateLocalLoopBtn() {
+  document.getElementById('localLoopBtn').classList.toggle('loop-on', localLoopEnabled);
+}
+function updateLocalLoopCounter() {
+  const el = document.getElementById('localLoopCounter');
+  document.getElementById('localLoopCount').textContent = localLoopCount;
+  el.classList.toggle('show', localLoopEnabled);
+}
+
+document.getElementById('localPlayBtn').addEventListener('click', () => {
+  if (!localMedia) return;
+  if (localIsPlaying) localMedia.pause(); else localMedia.play();
+});
+
+document.getElementById('localSeekBar').addEventListener('input', () => {
+  if (!localMedia) return;
+  const newTime = parseFloat(document.getElementById('localSeekBar').value);
+  localMedia.currentTime = newTime;
+  if (pitchShift !== 0 && audioBuffer && !localMedia.paused) {
+    startPitchPlayback(newTime);
+  }
+});
+
+// Speed (Local)
+document.querySelectorAll('[data-local-speed]').forEach(chip => {
+  chip.addEventListener('click', () => {
+    setLocalSpeed(parseFloat(chip.dataset.localSpeed));
+  });
+});
+document.getElementById('localSpeedSlider').addEventListener('input', e => {
+  setLocalSpeed(parseFloat(e.target.value));
+});
+
+function setLocalSpeed(spd) {
+  localSpeed = spd;
+  document.querySelectorAll('[data-local-speed]').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll(`[data-local-speed="${spd}"]`).forEach(c => c.classList.add('active'));
+  document.getElementById('localSpeedSlider').value = spd;
+  document.getElementById('localSpeedValue').textContent = spd.toFixed(2) + '×';
+  if (localMedia) localMedia.playbackRate = spd;
+  // ピッチシフト再生中ならtempo更新（現在位置から再開）
+  if (pitchShift !== 0 && audioBuffer && pitchPlayActive && localMedia && !localMedia.paused) {
+    startPitchPlayback(localMedia.currentTime);
+  }
+  showToast(`再生速度: ${spd}×`);
+}
+
+// Skip (Local)
+document.querySelectorAll('[data-local-skip]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (!localMedia) { showToast('ファイルを読み込んでください'); return; }
+    const sec = parseFloat(btn.dataset.localSkip);
+    const newTime = Math.max(0, Math.min(localMedia.duration, localMedia.currentTime + sec));
+    localMedia.currentTime = newTime;
+    showToast(`${sec > 0 ? '+' : ''}${sec}秒`);
+  });
+});
+
+// ピッチ保持トグル
+document.getElementById('preservePitchToggle').addEventListener('click', () => {
+  preservePitch = !preservePitch;
+  document.getElementById('preservePitchToggle').classList.toggle('on', preservePitch);
+  if (localMedia) {
+    if ('preservesPitch' in localMedia) localMedia.preservesPitch = preservePitch;
+    if ('mozPreservesPitch' in localMedia) localMedia.mozPreservesPitch = preservePitch;
+    if ('webkitPreservesPitch' in localMedia) localMedia.webkitPreservesPitch = preservePitch;
+  }
+  showToast(preservePitch ? 'ピッチ保持 ON' : 'ピッチ保持 OFF');
+});
+
+// 移調（簡易実装：playbackRateを使ったピッチ変更ではなく、半音単位でplaybackRateを変える方式）
+// 注意：これは音程と速度が連動する旧来方式。本格的な独立ピッチシフトはWeb Audio APIで複雑な実装が必要。
+// preservePitch OFFにして再生速度を変えると擬似的にピッチ変更可能
+document.getElementById('pitchSlider').addEventListener('input', e => {
+  setPitch(parseInt(e.target.value));
+});
+document.querySelectorAll('[data-pitch]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const v = btn.dataset.pitch;
+    if (v === 'reset') { setPitch(0); return; }
+    setPitch(pitchShift + parseInt(v));
+  });
+});
+
+function setPitch(semitones) {
+  pitchShift = Math.max(-12, Math.min(12, semitones));
+  document.getElementById('pitchSlider').value = pitchShift;
+  document.getElementById('pitchValue').textContent = (pitchShift >= 0 ? '+' : '') + pitchShift;
+  applyPitch();
+  showToast(`移調: ${pitchShift >= 0 ? '+' : ''}${pitchShift}半音`);
+}
+
+// ─── 移調＆速度独立制御（音源のみ） ───
+// 仕組み：ピッチシフトONの時は <audio> 要素を非表示にして
+//         SoundTouchのPitchShifterノードで音源を独立再生する
+
+let audioBuffer = null;
+let pitchShifter = null;
+let pitchPlayStartTime = 0; // AudioContext.currentTime when started
+let pitchPlayOffset = 0;    // バッファ内開始位置（秒）
+let pitchPlayActive = false;
+
+function isPitchModeActive() {
+  return pitchShifter !== null && pitchPlayActive;
+}
+
+function startPitchPlayback(offset) {
+  if (!audioBuffer || !audioCtx) return false;
+  if (typeof window.soundtouch === 'undefined' && typeof window.SoundTouch === 'undefined') {
+    showToast('⚠️ ピッチシフトライブラリ読込失敗');
+    return false;
+  }
+
+  stopPitchPlayback();
+
+  try {
+    // soundtouchjs 0.1.30 はグローバルに soundtouch オブジェクトを露出
+    const ST = window.soundtouch || window.SoundTouch;
+    const SimpleFilter = ST.SimpleFilter;
+    const SoundTouchClass = ST.SoundTouch;
+    const WebAudioBufferSource = ST.WebAudioBufferSource;
+
+    if (!SimpleFilter || !SoundTouchClass || !WebAudioBufferSource) {
+      console.warn('SoundTouch classes not available');
+      return false;
+    }
+
+    const source = new WebAudioBufferSource(audioBuffer);
+    const st = new SoundTouchClass();
+    st.pitchSemitones = pitchShift;
+    st.tempo = localSpeed;
+    const filter = new SimpleFilter(source, st);
+
+    // 再生開始位置を設定
+    if (offset > 0) {
+      source.position = Math.floor(offset * audioBuffer.sampleRate);
+    }
+
+    // ScriptProcessorで音声出力
+    const bufferSize = 4096;
+    const node = audioCtx.createScriptProcessor(bufferSize, 2, 2);
+    node.onaudioprocess = (e) => {
+      const out = e.outputBuffer;
+      const L = out.getChannelData(0);
+      const R = out.getChannelData(1);
+      const samples = new Float32Array(bufferSize * 2);
+      const framesExtracted = filter.extract(samples, bufferSize);
+      if (framesExtracted === 0) {
+        // 再生終了
+        for (let i = 0; i < bufferSize; i++) { L[i] = 0; R[i] = 0; }
+        return;
+      }
+      for (let i = 0; i < framesExtracted; i++) {
+        L[i] = samples[i * 2];
+        R[i] = samples[i * 2 + 1];
+      }
+      for (let i = framesExtracted; i < bufferSize; i++) { L[i] = 0; R[i] = 0; }
+    };
+    node.connect(audioCtx.destination);
+
+    pitchShifter = { node, filter, source, st, sampleRate: audioBuffer.sampleRate };
+    pitchPlayStartTime = audioCtx.currentTime;
+    pitchPlayOffset = offset;
+    pitchPlayActive = true;
+
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return true;
+  } catch (e) {
+    console.warn('Pitch playback failed:', e);
+    return false;
+  }
+}
+
+function stopPitchPlayback() {
+  if (pitchShifter) {
+    try { pitchShifter.node.disconnect(); } catch {}
+    pitchShifter = null;
+  }
+  pitchPlayActive = false;
+}
+
+function getPitchPlaybackTime() {
+  if (!pitchPlayActive) return 0;
+  // 経過時間 × tempo = バッファ内の進行時間
+  const elapsed = audioCtx.currentTime - pitchPlayStartTime;
+  return pitchPlayOffset + elapsed * localSpeed;
+}
+
+function applyPitch() {
+  if (!localMedia) return;
+  const isAudio = localMedia.tagName === 'AUDIO';
+
+  if (!isAudio || !audioBuffer || pitchShift === 0) {
+    // 通常モード（ピッチシフトなし）
+    stopPitchPlayback();
+    localMedia.muted = false;
+    if ('preservesPitch' in localMedia) localMedia.preservesPitch = preservePitch;
+    if ('mozPreservesPitch' in localMedia) localMedia.mozPreservesPitch = preservePitch;
+    if ('webkitPreservesPitch' in localMedia) localMedia.webkitPreservesPitch = preservePitch;
+    localMedia.playbackRate = localSpeed;
+
+    if (!isAudio && pitchShift !== 0) {
+      showToast('⚠️ 動画の移調は非対応');
+    }
+    return;
+  }
+
+  // 音源 + ピッチシフトON → SoundTouchで独立再生
+  // <audio>要素はミュートして時間管理だけに使用
+  localMedia.muted = true;
+  localMedia.playbackRate = localSpeed; // 時間管理のため
+  if ('preservesPitch' in localMedia) localMedia.preservesPitch = preservePitch;
+
+  if (!localMedia.paused) {
+    // 既に再生中なら現在位置でSoundTouch再生を開始
+    startPitchPlayback(localMedia.currentTime);
+  }
+}
+
+// Helpers (Local)
+function updateLocalABDisplay() {
+  const aEl = document.getElementById('localATime');
+  const bEl = document.getElementById('localBTime');
+  if (localPointA !== null) { aEl.textContent = fmtTime(localPointA); aEl.classList.remove('unset'); }
+  else { aEl.textContent = '-- : --'; aEl.classList.add('unset'); }
+  if (localPointB !== null) { bEl.textContent = fmtTime(localPointB); bEl.classList.remove('unset'); }
+  else { bEl.textContent = '-- : --'; bEl.classList.add('unset'); }
+  updateLocalABRegion();
+}
+
+function updateLocalABRegion() {
+  const region = document.getElementById('localAbRegion');
+  const dur = localMedia ? localMedia.duration : 0;
+  if (localPointA !== null && localPointB !== null && dur) {
+    region.style.left = (localPointA / dur * 100) + '%';
+    region.style.width = ((localPointB - localPointA) / dur * 100) + '%';
+    region.style.display = 'block';
+  } else {
+    region.style.display = 'none';
+  }
+}
+
+function setLocalStatus(text, type) {
+  document.getElementById('localStatusText').textContent = text;
+  const dot = document.getElementById('localStatusDot');
+  dot.className = 'status-dot';
+  if (type) dot.classList.add(type);
+}
+
+// Save / History (Local) - 動画名+AB点で保存
+document.getElementById('localSaveBtn').addEventListener('click', () => {
+  if (!localMedia || localPointA === null || localPointB === null) {
+    showToast('ファイルとA/B点を設定してください');
+    return;
+  }
+  showToast('💾 履歴保存はYouTubeモードのみ対応');
+});
+
+// Local Slots
+function getLocalSlotKey() {
+  if (!document.getElementById('fileName').textContent) return null;
+  return 'ytloop_local_slots_' + document.getElementById('fileName').textContent;
+}
+function loadLocalSlots() {
+  const key = getLocalSlotKey();
+  if (!key) return Array(10).fill(null);
+  try {
+    const data = JSON.parse(localStorage.getItem(key) || '[]');
+    while (data.length < 10) data.push(null);
+    return data;
+  } catch { return Array(10).fill(null); }
+}
+function saveLocalSlots(slots) {
+  const key = getLocalSlotKey();
+  if (key) localStorage.setItem(key, JSON.stringify(slots));
+}
+function renderLocalSlots() {
+  const saveChips = document.getElementById('localSlotSaveChips');
+  const grid = document.getElementById('localSlotGrid');
+  const slots = loadLocalSlots();
+  saveChips.innerHTML = '';
+  grid.innerHTML = '';
+  for (let i = 0; i < 10; i++) {
+    const chip = document.createElement('div');
+    chip.className = 'slot-save-chip';
+    chip.textContent = i + 1;
+    chip.addEventListener('click', () => saveToLocalSlot(i));
+    saveChips.appendChild(chip);
+
+    const btn = document.createElement('button');
+    btn.className = 'slot-btn';
+    const slot = slots[i];
+    if (slot) {
+      btn.classList.add('has-data');
+      btn.innerHTML = `<span class="slot-num">${i + 1}</span><span class="slot-time">${fmtTime(slot.a)}〜${fmtTime(slot.b)}</span><span class="slot-del-btn" data-slot-del="${i}">✕</span>`;
+    } else {
+      btn.innerHTML = `<span class="slot-num">${i + 1}</span><span class="slot-time">empty</span>`;
+    }
+    btn.addEventListener('click', (e) => {
+      if (e.target.dataset.slotDel !== undefined) {
+        e.stopPropagation();
+        const s = loadLocalSlots();
+        s[i] = null;
+        saveLocalSlots(s);
+        renderLocalSlots();
+        return;
+      }
+      if (slots[i]) loadFromLocalSlot(i);
+    });
+    grid.appendChild(btn);
+  }
+}
+function saveToLocalSlot(idx) {
+  if (!localMedia) { showToast('ファイルを読み込んでください'); return; }
+  if (localPointA === null || localPointB === null) { showToast('A点とB点をセット'); return; }
+  const slots = loadLocalSlots();
+  slots[idx] = { a: localPointA, b: localPointB, memo: document.getElementById('localMemo').value.trim() };
+  saveLocalSlots(slots);
+  renderLocalSlots();
+  showToast(`📌 スロット${idx + 1}に保存`);
+}
+function loadFromLocalSlot(idx) {
+  const slots = loadLocalSlots();
+  const slot = slots[idx];
+  if (!slot || !localMedia) return;
+  localPointA = slot.a;
+  localPointB = slot.b;
+  if (slot.memo !== undefined) document.getElementById('localMemo').value = slot.memo;
+  updateLocalABDisplay();
+  localMedia.currentTime = localPointA;
+  showToast(`📂 スロット${idx + 1}を呼び出し`);
+}
+
+// ─── 波形表示 ───
+function drawWaveform() {
+  if (!audioBuffer) return;
+  const canvas = document.getElementById('waveformCanvas');
+  const wrap = document.getElementById('waveformWrap');
+  const dpr = window.devicePixelRatio || 1;
+  const W = wrap.clientWidth * dpr;
+  const H = wrap.clientHeight * dpr;
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  // 背景
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, W, H);
+
+  // チャンネル数によって描画位置を分ける
+  const numCh = Math.min(audioBuffer.numberOfChannels, 2);
+  const channelHeight = H / numCh;
+
+  for (let ch = 0; ch < numCh; ch++) {
+    const data = audioBuffer.getChannelData(ch);
+    const samplesPerPixel = Math.floor(data.length / W);
+    const centerY = channelHeight * (ch + 0.5);
+    const maxAmp = channelHeight * 0.45;
+
+    ctx.fillStyle = '#888';
+    for (let x = 0; x < W; x++) {
+      const start = x * samplesPerPixel;
+      const end = start + samplesPerPixel;
+      let min = 1, max = -1;
+      for (let i = start; i < end && i < data.length; i++) {
+        if (data[i] < min) min = data[i];
+        if (data[i] > max) max = data[i];
+      }
+      const yMin = centerY - max * maxAmp;
+      const yMax = centerY - min * maxAmp;
+      ctx.fillRect(x, yMin, 1, Math.max(1, yMax - yMin));
+    }
+
+    // 中央線
+    ctx.fillStyle = 'rgba(0,0,0,0.1)';
+    ctx.fillRect(0, centerY, W, 1);
+  }
+}
+
+function updateWaveformOverlay() {
+  if (!audioBuffer || !localMedia) return;
+  const wrap = document.getElementById('waveformWrap');
+  const w = wrap.clientWidth;
+  const dur = audioBuffer.duration;
+
+  // AB区間ハイライト
+  const overlay = document.getElementById('waveformAbOverlay');
+  const aMarker = document.getElementById('waveformAMarker');
+  const bMarker = document.getElementById('waveformBMarker');
+  if (localPointA !== null && localPointB !== null && dur > 0) {
+    overlay.style.left = (localPointA / dur * w) + 'px';
+    overlay.style.width = ((localPointB - localPointA) / dur * w) + 'px';
+    overlay.style.display = 'block';
+  } else {
+    overlay.style.display = 'none';
+  }
+  if (localPointA !== null && dur > 0) {
+    aMarker.style.left = (localPointA / dur * w) + 'px';
+    aMarker.style.display = 'block';
+  } else {
+    aMarker.style.display = 'none';
+  }
+  if (localPointB !== null && dur > 0) {
+    bMarker.style.left = (localPointB / dur * w) + 'px';
+    bMarker.style.display = 'block';
+  } else {
+    bMarker.style.display = 'none';
+  }
+
+  // 現在位置カーソル
+  const cursor = document.getElementById('waveformCursor');
+  const cur = localMedia.currentTime || 0;
+  if (dur > 0) {
+    cursor.style.left = (cur / dur * w) + 'px';
+  }
+}
+
+// 波形クリックでシーク
+document.getElementById('waveformWrap').addEventListener('click', e => {
+  if (!localMedia || !audioBuffer) return;
+  const rect = e.currentTarget.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const ratio = x / rect.width;
+  const newTime = audioBuffer.duration * ratio;
+  localMedia.currentTime = newTime;
+  if (pitchShift !== 0 && audioBuffer && !localMedia.paused) {
+    startPitchPlayback(newTime);
+  }
+});
+
+// リサイズで再描画
+window.addEventListener('resize', () => {
+  if (audioBuffer) drawWaveform();
+});
+
+// updateLocalABRegionで波形オーバーレイも更新
+const _origUpdateLocalABRegion = updateLocalABRegion;
+updateLocalABRegion = function() {
+  _origUpdateLocalABRegion();
+  updateWaveformOverlay();
+};
+
+// pollLocalPositionで毎回波形カーソル更新（既存のpollLocalPosition内で呼ぶ）
+const _origPoll = pollLocalPosition;
+pollLocalPosition = function() {
+  _origPoll();
+  if (audioBuffer) updateWaveformOverlay();
+};
+
 // ─── Init ───
 renderHistory();
 renderSlots();
+renderLocalSlots();
 </script>
 </body>
 </html>
