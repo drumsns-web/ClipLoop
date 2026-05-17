@@ -177,14 +177,23 @@
     position: absolute;
     left: 6px;
     font-family: 'Space Mono', monospace;
-    font-size: 11px;
+    font-size: 16px;
     font-weight: 700;
-    color: rgba(0,0,0,0.4);
     pointer-events: none;
-    z-index: 1;
+    z-index: 2;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(0,0,0,0.7);
+    line-height: 1;
   }
-  .waveform-channel-label.l { top: 4px; }
-  .waveform-channel-label.r { bottom: 4px; }
+  .waveform-channel-label.l {
+    top: 6px;
+    color: #00e5ff;
+  }
+  .waveform-channel-label.r {
+    bottom: 6px;
+    color: #ff3d71;
+  }
 
   /* 左右バランススライダー */
   .balance-section {
