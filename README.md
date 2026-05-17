@@ -1,2 +1,2 @@
-# YTLoop
-YouTube動画、AB間ループ機能
+# ClipLoop
+ Youtube/ ローカル動画・音源のAB間ループアプリ
