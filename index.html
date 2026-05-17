@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>YT Loop</title>
-<link rel="apple-touch-icon" href="IMG_5138.jpg">
+<title>ClipLoop</title>
+<link rel="apple-touch-icon" href="icon.png">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+JP:wght@300;400;700&display=swap');
 
@@ -1039,7 +1039,7 @@
 
 <header>
   <div>
-    <div class="logo">YT<span>LOOP</span></div>
+    <div class="logo">Clip<span>Loop</span></div>
     <div class="tagline">A→B 区間リピート</div>
   </div>
 </header>
@@ -1671,7 +1671,7 @@ function setSpeed(spd) {
 document.getElementById('shareABBtn').addEventListener('click', () => {
   if (!videoId) { showToast('動画を先に読み込んでください'); return; }
   if (pointA === null || pointB === null) { showToast('A点とB点を両方セットしてください'); return; }
-  const url = `https://drumsns-web.github.io/YTLoop/?v=${videoId}&a=${pointA.toFixed(1)}&b=${pointB.toFixed(1)}`;
+  const url = `https://drumsns-web.github.io/ClipLoop/?v=${videoId}&a=${pointA.toFixed(1)}&b=${pointB.toFixed(1)}`;
   copyToClipboard(url);
   showToast('🔗 AB点URLをコピーしました！');
 });
@@ -1679,7 +1679,7 @@ document.getElementById('shareABBtn').addEventListener('click', () => {
 document.getElementById('shareCurrentBtn').addEventListener('click', () => {
   if (!videoId || !playerReady) { showToast('動画を先に読み込んでください'); return; }
   const cur = player.getCurrentTime() || 0;
-  const url = `https://drumsns-web.github.io/YTLoop/?v=${videoId}&a=${cur.toFixed(1)}`;
+  const url = `https://drumsns-web.github.io/ClipLoop/?v=${videoId}&a=${cur.toFixed(1)}`;
   copyToClipboard(url);
   showToast('📍 現在位置URLをコピーしました！');
 });
