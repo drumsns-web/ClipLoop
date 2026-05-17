@@ -2145,7 +2145,10 @@ async function loadLocalFile(file) {
   localMedia.src = localFileURL;
   localMedia.controls = true;
   localMedia.playsInline = true;
+  // ピッチ保持を強制ON（速度変えても音程キープ）
   if ('preservesPitch' in localMedia) localMedia.preservesPitch = true;
+  if ('mozPreservesPitch' in localMedia) localMedia.mozPreservesPitch = true;
+  if ('webkitPreservesPitch' in localMedia) localMedia.webkitPreservesPitch = true;
 
   wrapper.appendChild(localMedia);
 
@@ -2160,7 +2163,10 @@ async function loadLocalFile(file) {
     document.getElementById('localPlayBtn').textContent = '⏸';
     setLocalStatus('再生中', 'playing');
     startLocalPolling();
-    ensureLRSetupOnPlay();
+    // ピッチ保持を再確認
+    if ('preservesPitch' in localMedia) localMedia.preservesPitch = true;
+    if ('mozPreservesPitch' in localMedia) localMedia.mozPreservesPitch = true;
+    if ('webkitPreservesPitch' in localMedia) localMedia.webkitPreservesPitch = true;
   });
   localMedia.addEventListener('pause', () => {
     localIsPlaying = false;
@@ -2403,7 +2409,13 @@ function setLocalSpeed(spd) {
   document.querySelectorAll('[data-local-speed="' + spd + '"]').forEach(c => c.classList.add('active'));
   document.getElementById('localSpeedSlider').value = spd;
   document.getElementById('localSpeedValue').textContent = spd.toFixed(2) + '×';
-  if (localMedia) localMedia.playbackRate = spd;
+  if (localMedia) {
+    // ピッチ保持を再確認（Web Audio接続後も維持）
+    if ('preservesPitch' in localMedia) localMedia.preservesPitch = true;
+    if ('mozPreservesPitch' in localMedia) localMedia.mozPreservesPitch = true;
+    if ('webkitPreservesPitch' in localMedia) localMedia.webkitPreservesPitch = true;
+    localMedia.playbackRate = spd;
+  }
 }
 
 document.querySelectorAll('[data-local-skip]').forEach(btn => {
@@ -2529,7 +2541,11 @@ let lrSetup = false;
 
 async function setupLRControl() {
   if (!localMedia || localMedia.tagName !== 'AUDIO') return false;
-  if (lrSetup) return true; // 既にセットアップ済み
+  if (lrSetup) return true;
+  // スライダーが両方とも100%（デフォルト）なら、Web Audioに繋がない（ピッチ問題回避）
+  const lv = parseFloat(document.getElementById('lVolSlider').value);
+  const rv = parseFloat(document.getElementById('rVolSlider').value);
+  if (lv === 1 && rv === 1) return false;
   try {
     if (!lrAudioCtx) lrAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
     if (lrAudioCtx.state === 'suspended') await lrAudioCtx.resume();
@@ -2545,7 +2561,11 @@ async function setupLRControl() {
     lrGainR.connect(lrMerger, 0, 1);
     lrMerger.connect(lrAudioCtx.destination);
     lrSetup = true;
-    // 現在のスライダー値を反映
+    // ピッチ保持を再強制
+    if ('preservesPitch' in localMedia) localMedia.preservesPitch = true;
+    if ('mozPreservesPitch' in localMedia) localMedia.mozPreservesPitch = true;
+    if ('webkitPreservesPitch' in localMedia) localMedia.webkitPreservesPitch = true;
+    localMedia.playbackRate = localSpeed;
     applyLRVolume();
     return true;
   } catch (e) {
