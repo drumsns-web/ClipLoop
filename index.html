@@ -1782,6 +1782,7 @@
     <button class="ctrl-btn" id="localSeekA" title="Aへ戻る">⏮</button>
     <button class="ctrl-btn play-btn" id="localPlayBtn">▶</button>
     <button class="ctrl-btn" id="localLoopBtn" title="ABリピート">🔁</button>
+    <button class="ctrl-btn" id="localSaveBtn" title="履歴に保存">💾</button>
   </div>
 
   <div class="skip-row">
@@ -2842,9 +2843,31 @@ let localSpeed = 1;
 let localFileURL = null;
 let audioBuffer = null;
 
-document.getElementById('fileInput').addEventListener('change', e => {
+document.getElementById('fileInput').addEventListener('change', async e => {
   const file = e.target.files[0];
-  if (file) loadLocalFile(file);
+  if (!file) return;
+  await loadLocalFile(file);
+  // 履歴から復元する場合
+  if (pendingHistoryEntry && pendingHistoryEntry.name === file.name) {
+    const entry = pendingHistoryEntry;
+    pendingHistoryEntry = null;
+    if (entry.a !== undefined && entry.b !== undefined) {
+      // ファイルの読込が完了するまで待つ
+      const wait = setInterval(() => {
+        if (localMedia && localMedia.readyState >= 1) {
+          clearInterval(wait);
+          localPointA = entry.a;
+          localPointB = entry.b;
+          if (entry.memo) document.getElementById('localMemo').value = entry.memo;
+          updateLocalABDisplay();
+          localMedia.currentTime = entry.a;
+          showToast('✅ AB点を復元しました');
+        }
+      }, 200);
+    }
+  } else {
+    pendingHistoryEntry = null;
+  }
 });
 
 async function loadLocalFile(file) {
@@ -3502,13 +3525,46 @@ function saveLocalFilesHistory(arr) {
 }
 function addLocalFileToHistory(fileName, fileType) {
   let arr = loadLocalFilesHistory();
-  // 重複削除
+  // 重複削除（同じファイル名）
   arr = arr.filter(h => h.name !== fileName);
   arr.unshift({ name: fileName, type: fileType, openedAt: Date.now() });
   if (arr.length > 20) arr = arr.slice(0, 20);
   saveLocalFilesHistory(arr);
   renderLocalFilesHistory();
 }
+
+// AB点付きで履歴を保存
+function saveCurrentABToHistory() {
+  if (!localMedia) { showToast('ファイルを読み込んでください'); return; }
+  if (localPointA === null || localPointB === null) {
+    showToast('A点とB点を両方セットしてください');
+    return;
+  }
+  const fileName = document.getElementById('fileName').textContent.replace('📄 ', '');
+  if (!fileName) { showToast('ファイル名が取得できません'); return; }
+
+  let arr = loadLocalFilesHistory();
+  // 既存エントリを探す
+  const existingIdx = arr.findIndex(h => h.name === fileName);
+  const fileType = localMedia.tagName === 'AUDIO' ? 'audio/' : 'video/';
+  const entry = {
+    name: fileName,
+    type: fileType,
+    openedAt: Date.now(),
+    a: localPointA,
+    b: localPointB,
+    memo: document.getElementById('localMemo').value.trim()
+  };
+  if (existingIdx >= 0) arr.splice(existingIdx, 1);
+  arr.unshift(entry);
+  if (arr.length > 20) arr = arr.slice(0, 20);
+  saveLocalFilesHistory(arr);
+  renderLocalFilesHistory();
+  showToast('💾 履歴に保存しました');
+}
+
+// 保存ボタンのイベント
+document.getElementById('localSaveBtn').addEventListener('click', saveCurrentABToHistory);
 function renderLocalFilesHistory() {
   const list = document.getElementById('localFilesHistory');
   const arr = loadLocalFilesHistory();
@@ -3524,11 +3580,17 @@ function renderLocalFilesHistory() {
     item.className = 'channel-item';
     const date = new Date(entry.openedAt);
     const dateStr = `${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
+    // AB点情報
+    const hasAB = (entry.a !== undefined && entry.b !== undefined);
+    const abStr = hasAB ? `A: ${fmtTime(entry.a)} → B: ${fmtTime(entry.b)}` : '';
+    const memoStr = entry.memo ? `📝 ${entry.memo}` : '';
     item.innerHTML = `
       <div class="channel-icon">${isVideo ? '🎬' : isAudio ? '🎵' : '📄'}</div>
       <div class="channel-info">
         <div class="channel-name">${escapeHtml(entry.name)}</div>
-        <div class="channel-url">${dateStr}</div>
+        ${hasAB ? `<div class="history-ab" style="font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);margin-top:2px">${abStr}</div>` : ''}
+        ${memoStr ? `<div class="history-memo" style="font-size:10px;color:var(--text-dim);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(memoStr)}</div>` : ''}
+        <div class="channel-url" style="margin-top:2px">${dateStr}</div>
       </div>
       <div class="channel-del" data-lh-del="${i}">✕</div>
     `;
@@ -3541,11 +3603,21 @@ function renderLocalFilesHistory() {
         renderLocalFilesHistory();
         return;
       }
-      showToast('📁 同じファイルを再度選択してください');
+      // ファイル再選択を促す → 自動でAB点復元
+      pendingHistoryEntry = entry;
+      document.getElementById('fileInput').click();
+      if (hasAB) {
+        showToast('📁 同じファイル「' + entry.name + '」を選択してください');
+      } else {
+        showToast('📁 同じファイルを再度選択してください');
+      }
     });
     list.appendChild(item);
   });
 }
+
+// 履歴クリック→ファイル選択時のAB点自動復元用
+let pendingHistoryEntry = null;
 
 // loadLocalFileに履歴追加処理を組み込む
 const _origLoadLocalFile = loadLocalFile;
