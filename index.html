@@ -900,26 +900,29 @@
   }
   .ab-time.unset { color: var(--text-dim); font-size: 16px; }
 
-  /* AB時刻と±0.5ボタンを横並びに */
+  /* AB時刻と±0.5ボタンを横並び（時刻を左、ボタンを右） */
   .ab-time-row {
     display: flex !important;
     align-items: center;
+    justify-content: space-between;
     gap: 6px;
     margin: 4px 0 6px;
   }
   .ab-time-row .ab-time {
-    flex: 1;
-    font-size: 18px;
+    font-size: 22px;
+    flex: 0 0 auto;
   }
+  .ab-time-row .ab-time.unset { font-size: 18px; }
   .ab-time-row .ab-adjust {
     display: flex;
-    gap: 3px;
+    gap: 4px;
     flex-shrink: 0;
+    margin: 0;
   }
   .ab-time-row .adj-btn {
-    padding: 4px 6px;
-    font-size: 9px;
-    min-width: 36px;
+    padding: 5px 8px;
+    font-size: 10px;
+    min-width: 38px;
     flex: 0 0 auto;
   }
 
