@@ -550,26 +550,124 @@
   .modal-btn.primary { border-color: var(--accent); color: var(--accent); }
   .modal-btn:active { opacity: 0.6; }
 
-  /* 設定ボタン */
+  /* 設定ボタン（目立つように） */
   .settings-btn {
     position: fixed;
-    top: 16px;
-    right: 16px;
-    background: rgba(0,0,0,0.5);
-    border: 1px solid var(--border);
-    border-radius: 50%;
-    width: 38px;
-    height: 38px;
+    top: 14px;
+    right: 14px;
+    background: var(--accent);
+    border: 2px solid var(--accent);
+    border-radius: 12px;
+    padding: 8px 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--text-dim);
+    gap: 6px;
+    color: #000;
     cursor: pointer;
-    font-size: 18px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Space Mono', monospace;
     z-index: 100;
     transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
   }
-  .settings-btn:active { color: var(--accent); border-color: var(--accent); }
+  .settings-btn:active { transform: scale(0.95); opacity: 0.8; }
+  .settings-btn-icon { font-size: 16px; }
+
+  /* 設定モーダル（広めに） */
+  #settingsModal .modal {
+    max-width: 400px;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+  .settings-section {
+    border-top: 1px solid var(--border);
+    padding-top: 14px;
+    margin-top: 8px;
+  }
+  .settings-section:first-of-type {
+    border-top: none;
+    padding-top: 0;
+    margin-top: 0;
+  }
+  .settings-section-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+  .settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    gap: 10px;
+    font-size: 13px;
+  }
+  .settings-row-label {
+    color: var(--text);
+    flex: 1;
+  }
+  .settings-row-sub {
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+  .settings-input-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface2);
+    border-radius: 6px;
+    padding: 4px 8px;
+  }
+  .settings-input {
+    background: transparent;
+    border: none;
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    width: 50px;
+    text-align: center;
+    outline: none;
+    -webkit-appearance: none;
+  }
+  .settings-input::-webkit-outer-spin-button,
+  .settings-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .settings-action-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 14px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .settings-action-btn:active { opacity: 0.6; }
+  .settings-action-btn.danger { color: #ff6b6b; border-color: #ff6b6b; }
+  .help-content {
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--text-dim);
+    display: none;
+  }
+  .help-content.show { display: block; }
+  .help-content strong { color: var(--text); font-weight: 700; }
+  .version-info {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    text-align: center;
+    padding-top: 8px;
+  }
 
   /* テーマ選択 */
   .theme-grid {
@@ -1823,64 +1921,131 @@
 <div class="toast" id="toast"></div>
 
 <!-- 設定ボタン -->
-<button class="settings-btn" id="settingsBtn" title="設定">⚙</button>
+<button class="settings-btn" id="settingsBtn" title="設定"><span class="settings-btn-icon">⚙</span>設定</button>
 
 <!-- 設定モーダル -->
 <div class="modal-bg" id="settingsModal">
-  <div class="modal" style="max-width:380px">
-    <div class="modal-title">⚙ カラーテーマ</div>
-    <div class="theme-grid" id="themeGrid">
-      <div class="theme-card" data-theme="a">
-        <div class="theme-name">A：水色＆ピンク</div>
-        <div class="theme-preview">
-          <span class="theme-preview-a" style="color:#00e5ff">Clip</span><span class="theme-preview-b" style="color:#ff3d71">Loop</span>
+  <div class="modal">
+    <div class="modal-title">⚙ 設定</div>
+
+    <!-- カラーテーマ -->
+    <div class="settings-section">
+      <div class="settings-section-title">🎨 カラーテーマ</div>
+      <div class="theme-grid" id="themeGrid">
+        <div class="theme-card" data-theme="a">
+          <div class="theme-name">A：水色＆ピンク</div>
+          <div class="theme-preview"><span class="theme-preview-a" style="color:#00e5ff">Clip</span><span class="theme-preview-b" style="color:#ff3d71">Loop</span></div>
+          <div class="theme-dots"><div class="theme-dot" style="background:#00e5ff"></div><div class="theme-dot" style="background:#ff3d71"></div></div>
         </div>
-        <div class="theme-dots">
-          <div class="theme-dot" style="background:#00e5ff"></div>
-          <div class="theme-dot" style="background:#ff3d71"></div>
+        <div class="theme-card" data-theme="b">
+          <div class="theme-name">B：シルバー＆ゴールド</div>
+          <div class="theme-preview"><span class="theme-preview-a" style="color:#d4d4dc">Clip</span><span class="theme-preview-b" style="color:#d4a857">Loop</span></div>
+          <div class="theme-dots"><div class="theme-dot" style="background:#d4d4dc"></div><div class="theme-dot" style="background:#d4a857"></div></div>
         </div>
-      </div>
-      <div class="theme-card" data-theme="b">
-        <div class="theme-name">B：シルバー＆ゴールド</div>
-        <div class="theme-preview">
-          <span class="theme-preview-a" style="color:#d4d4dc">Clip</span><span class="theme-preview-b" style="color:#d4a857">Loop</span>
+        <div class="theme-card" data-theme="c">
+          <div class="theme-name">C：クールブルー</div>
+          <div class="theme-preview"><span class="theme-preview-a" style="color:#6ec1e4">Clip</span><span class="theme-preview-b" style="color:#f0a868">Loop</span></div>
+          <div class="theme-dots"><div class="theme-dot" style="background:#6ec1e4"></div><div class="theme-dot" style="background:#f0a868"></div></div>
         </div>
-        <div class="theme-dots">
-          <div class="theme-dot" style="background:#d4d4dc"></div>
-          <div class="theme-dot" style="background:#d4a857"></div>
+        <div class="theme-card" data-theme="d">
+          <div class="theme-name">D：グリーン＆オレンジ</div>
+          <div class="theme-preview"><span class="theme-preview-a" style="color:#4ade80">Clip</span><span class="theme-preview-b" style="color:#fb923c">Loop</span></div>
+          <div class="theme-dots"><div class="theme-dot" style="background:#4ade80"></div><div class="theme-dot" style="background:#fb923c"></div></div>
         </div>
-      </div>
-      <div class="theme-card" data-theme="c">
-        <div class="theme-name">C：クールブルー</div>
-        <div class="theme-preview">
-          <span class="theme-preview-a" style="color:#6ec1e4">Clip</span><span class="theme-preview-b" style="color:#f0a868">Loop</span>
-        </div>
-        <div class="theme-dots">
-          <div class="theme-dot" style="background:#6ec1e4"></div>
-          <div class="theme-dot" style="background:#f0a868"></div>
-        </div>
-      </div>
-      <div class="theme-card" data-theme="d">
-        <div class="theme-name">D：グリーン＆オレンジ</div>
-        <div class="theme-preview">
-          <span class="theme-preview-a" style="color:#4ade80">Clip</span><span class="theme-preview-b" style="color:#fb923c">Loop</span>
-        </div>
-        <div class="theme-dots">
-          <div class="theme-dot" style="background:#4ade80"></div>
-          <div class="theme-dot" style="background:#fb923c"></div>
-        </div>
-      </div>
-      <div class="theme-card" data-theme="e">
-        <div class="theme-name">E：パープル＆ピンク</div>
-        <div class="theme-preview">
-          <span class="theme-preview-a" style="color:#a78bfa">Clip</span><span class="theme-preview-b" style="color:#f472b6">Loop</span>
-        </div>
-        <div class="theme-dots">
-          <div class="theme-dot" style="background:#a78bfa"></div>
-          <div class="theme-dot" style="background:#f472b6"></div>
+        <div class="theme-card" data-theme="e">
+          <div class="theme-name">E：パープル＆ピンク</div>
+          <div class="theme-preview"><span class="theme-preview-a" style="color:#a78bfa">Clip</span><span class="theme-preview-b" style="color:#f472b6">Loop</span></div>
+          <div class="theme-dots"><div class="theme-dot" style="background:#a78bfa"></div><div class="theme-dot" style="background:#f472b6"></div></div>
         </div>
       </div>
     </div>
+
+    <!-- 再生設定 -->
+    <div class="settings-section">
+      <div class="settings-section-title">⚡ 再生設定</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">デフォルト再生速度</div>
+          <div class="settings-row-sub">アプリ起動時の初期速度</div>
+        </div>
+        <div class="settings-input-group">
+          <button class="tempo-up-btn" data-set-target="settingDefaultSpeed" data-set-delta="-5">−</button>
+          <input type="number" class="settings-input" id="settingDefaultSpeed" min="25" max="200" step="5" value="100">
+          <span class="tempo-up-unit">%</span>
+          <button class="tempo-up-btn" data-set-target="settingDefaultSpeed" data-set-delta="5">＋</button>
+        </div>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">A点セット時に自動ジャンプ</div>
+          <div class="settings-row-sub">A点を押した瞬間にその位置へ移動</div>
+        </div>
+        <button class="tempo-up-onoff" id="settingAutoJumpToA" style="min-width:60px;padding:6px 14px">OFF</button>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">ループ通知音</div>
+          <div class="settings-row-sub">ループの瞬間にビープ音</div>
+        </div>
+        <button class="tempo-up-onoff" id="settingLoopBeep" style="min-width:60px;padding:6px 14px">OFF</button>
+      </div>
+    </div>
+
+    <!-- データ管理 -->
+    <div class="settings-section">
+      <div class="settings-section-title">💾 データ管理</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">履歴・スロット・設定をすべて削除</div>
+          <div class="settings-row-sub">⚠️ 復元できません</div>
+        </div>
+        <button class="settings-action-btn danger" id="settingClearAll">削除</button>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">データをエクスポート</div>
+          <div class="settings-row-sub">JSONファイルとして保存</div>
+        </div>
+        <button class="settings-action-btn" id="settingExport">📤 出力</button>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">データをインポート</div>
+          <div class="settings-row-sub">JSONファイルから復元</div>
+        </div>
+        <button class="settings-action-btn" id="settingImport">📥 入力</button>
+        <input type="file" id="settingImportFile" accept=".json" style="display:none">
+      </div>
+    </div>
+
+    <!-- 使い方ガイド -->
+    <div class="settings-section">
+      <div class="settings-section-title">❓ 使い方ガイド</div>
+      <div class="settings-row">
+        <div class="settings-row-label">使い方を表示</div>
+        <button class="settings-action-btn" id="settingShowHelp">📖 開く</button>
+      </div>
+      <div class="help-content" id="helpContent">
+        <strong>📺 YouTubeモード</strong><br>
+        1. YouTubeのURLを貼り付けて「読込」<br>
+        2. 再生中に「ここをAにセット」「ここをBにセット」<br>
+        3. 🔁ボタンでAB間リピート開始<br><br>
+        <strong>📁 ローカルモード</strong><br>
+        動画・音源ファイルを選択して同じ操作が可能。音源は波形表示・L/R音量調整も対応。<br><br>
+        <strong>🚀 テンポ自動アップ</strong><br>
+        ループするたびに自動で速度UP。楽器練習に最適。<br><br>
+        <strong>💾 AB区間スロット</strong><br>
+        1〜10の番号にAB点とメモを保存・呼び出し可能。<br><br>
+        <strong>⛶ フルスクリーン</strong><br>
+        動画を全画面表示。画面タップで操作パネル表示/非表示。
+      </div>
+    </div>
+
+    <!-- バージョン情報 -->
+    <div class="settings-section">
+      <div class="version-info">ClipLoop v1.0.0</div>
+    </div>
+
     <div class="modal-btns">
       <button class="modal-btn primary" id="settingsCloseBtn">閉じる</button>
     </div>
@@ -3431,6 +3596,188 @@ document.querySelectorAll('.theme-card').forEach(card => {
     showToast('カラーテーマを変更しました');
   });
 });
+
+// 設定 +/- ボタン
+document.querySelectorAll('[data-set-target]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const id = btn.dataset.setTarget;
+    const delta = parseInt(btn.dataset.setDelta);
+    const input = document.getElementById(id);
+    const min = parseInt(input.min) || 0;
+    const max = parseInt(input.max) || 999;
+    let val = parseInt(input.value) || 0;
+    val = Math.max(min, Math.min(max, val + delta));
+    input.value = val;
+    saveSettings();
+  });
+});
+
+// 設定保存/読込
+function loadSettings() {
+  try { return JSON.parse(localStorage.getItem('cliploop_settings') || '{}'); }
+  catch { return {}; }
+}
+function saveSettings() {
+  const s = {
+    defaultSpeed: parseInt(document.getElementById('settingDefaultSpeed').value) || 100,
+    autoJumpToA: document.getElementById('settingAutoJumpToA').classList.contains('on'),
+    loopBeep: document.getElementById('settingLoopBeep').classList.contains('on')
+  };
+  localStorage.setItem('cliploop_settings', JSON.stringify(s));
+}
+function applySettings() {
+  const s = loadSettings();
+  document.getElementById('settingDefaultSpeed').value = s.defaultSpeed || 100;
+  const autoBtn = document.getElementById('settingAutoJumpToA');
+  autoBtn.classList.toggle('on', !!s.autoJumpToA);
+  autoBtn.textContent = s.autoJumpToA ? 'ON' : 'OFF';
+  const beepBtn = document.getElementById('settingLoopBeep');
+  beepBtn.classList.toggle('on', !!s.loopBeep);
+  beepBtn.textContent = s.loopBeep ? 'ON' : 'OFF';
+}
+
+// デフォルト速度入力時にも保存
+document.getElementById('settingDefaultSpeed').addEventListener('change', saveSettings);
+
+// 自動ジャンプトグル
+document.getElementById('settingAutoJumpToA').addEventListener('click', () => {
+  const btn = document.getElementById('settingAutoJumpToA');
+  btn.classList.toggle('on');
+  btn.textContent = btn.classList.contains('on') ? 'ON' : 'OFF';
+  saveSettings();
+});
+
+// ループ通知音トグル
+document.getElementById('settingLoopBeep').addEventListener('click', () => {
+  const btn = document.getElementById('settingLoopBeep');
+  btn.classList.toggle('on');
+  btn.textContent = btn.classList.contains('on') ? 'ON' : 'OFF';
+  saveSettings();
+  if (btn.classList.contains('on')) playBeep();
+});
+
+// 通知音再生
+let beepAudioCtx = null;
+function playBeep() {
+  try {
+    if (!beepAudioCtx) beepAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (beepAudioCtx.state === 'suspended') beepAudioCtx.resume();
+    const osc = beepAudioCtx.createOscillator();
+    const gain = beepAudioCtx.createGain();
+    osc.frequency.value = 880;
+    gain.gain.setValueAtTime(0.15, beepAudioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, beepAudioCtx.currentTime + 0.1);
+    osc.connect(gain);
+    gain.connect(beepAudioCtx.destination);
+    osc.start();
+    osc.stop(beepAudioCtx.currentTime + 0.1);
+  } catch {}
+}
+
+// 全削除
+document.getElementById('settingClearAll').addEventListener('click', () => {
+  if (!confirm('履歴・スロット・設定をすべて削除しますか？\n（復元できません）')) return;
+  const keysToRemove = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith('cliploop_') || key.startsWith('ytloop_')) {
+      keysToRemove.push(key);
+    }
+  }
+  keysToRemove.forEach(k => localStorage.removeItem(k));
+  showToast('すべて削除しました');
+  setTimeout(() => location.reload(), 500);
+});
+
+// エクスポート
+document.getElementById('settingExport').addEventListener('click', () => {
+  const data = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && (key.startsWith('cliploop_') || key.startsWith('ytloop_'))) {
+      data[key] = localStorage.getItem(key);
+    }
+  }
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'cliploop_backup_' + new Date().toISOString().split('T')[0] + '.json';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  showToast('📤 エクスポートしました');
+});
+
+// インポート
+document.getElementById('settingImport').addEventListener('click', () => {
+  document.getElementById('settingImportFile').click();
+});
+document.getElementById('settingImportFile').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (!confirm('現在のデータを上書きしてインポートしますか？')) return;
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
+    Object.keys(data).forEach(key => {
+      if (key.startsWith('cliploop_') || key.startsWith('ytloop_')) {
+        localStorage.setItem(key, data[key]);
+      }
+    });
+    showToast('📥 インポートしました');
+    setTimeout(() => location.reload(), 500);
+  } catch (err) {
+    showToast('インポート失敗: ' + err.message);
+  }
+});
+
+// 使い方表示
+document.getElementById('settingShowHelp').addEventListener('click', () => {
+  document.getElementById('helpContent').classList.toggle('show');
+});
+
+// A点セット時に自動ジャンプ機能
+const _origSetA = document.getElementById('setABtn').onclick;
+// 既存処理に追加するため、別途リスナーを追加
+function applyAutoJumpToA() {
+  const s = loadSettings();
+  if (!s.autoJumpToA) return;
+  if (playerReady && pointA !== null) {
+    player.seekTo(pointA, true);
+  }
+  if (localMedia && localPointA !== null) {
+    localMedia.currentTime = localPointA;
+  }
+}
+
+// 既存のsetABtnイベントの後でautoJumpを呼ぶ
+const setABtnOrig = document.getElementById('setABtn');
+setABtnOrig.addEventListener('click', () => setTimeout(applyAutoJumpToA, 50));
+document.getElementById('localSetA').addEventListener('click', () => setTimeout(applyAutoJumpToA, 50));
+
+// ループ時にビープ音を鳴らす
+const _origYtPollForBeep = pollPosition;
+pollPosition = function() {
+  const prev = loopCount;
+  _origYtPollForBeep();
+  if (loopCount > prev) {
+    const s = loadSettings();
+    if (s.loopBeep) playBeep();
+  }
+};
+
+const _origLocalPollForBeep = pollLocalPosition;
+pollLocalPosition = function() {
+  const prev = localLoopCount;
+  _origLocalPollForBeep();
+  if (localLoopCount > prev) {
+    const s = loadSettings();
+    if (s.loopBeep) playBeep();
+  }
+};
+
+// 設定適用
+applySettings();
 
 // ─── Init ───
 renderHistory();
