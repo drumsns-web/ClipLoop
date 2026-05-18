@@ -19,9 +19,9 @@
     --border: #2a2a3a;
     --radius: 12px;
   }
-  /* カラーテーマ */
-  body.theme-a { --accent: #00e5ff; --accent2: #ff3d71; }
-  body.theme-b { --accent: #d4d4dc; --accent2: #d4a857; }
+  /* カラーテーマ（シルバー＆ゴールドがデフォルト=A） */
+  body.theme-a { --accent: #d4d4dc; --accent2: #d4a857; }
+  body.theme-b { --accent: #00e5ff; --accent2: #ff3d71; }
   body.theme-c { --accent: #6ec1e4; --accent2: #f0a868; }
   body.theme-d { --accent: #4ade80; --accent2: #fb923c; }
   body.theme-e { --accent: #a78bfa; --accent2: #f472b6; }
@@ -30,6 +30,37 @@
   body.theme-h { --accent: #ffffff; --accent2: #e63946; }
   body.theme-i { --accent: #a3d977; --accent2: #c08c5c; }
   body.theme-j { --accent: #4dd0e1; --accent2: #5e72e4; }
+
+  /* 背景テーマ */
+  body.bg-1 { --bg: #0a0a0f; --surface: #13131a; --surface2: #1c1c28; --border: #2a2a3a; --text: #e8e8f0; --text-dim: #6b6b80; }
+  body.bg-2 { --bg: #1f1f23; --surface: #2a2a2f; --surface2: #353539; --border: #3a3a40; --text: #e8e8f0; --text-dim: #8b8b95; }
+  body.bg-3 { --bg: #0f1729; --surface: #1a2440; --surface2: #243152; --border: #2a3550; --text: #e8e8f0; --text-dim: #7a8aa8; }
+  body.bg-4 { --bg: #1f1814; --surface: #2a2118; --surface2: #352a1f; --border: #3a2f25; --text: #f0e8dc; --text-dim: #95867a; }
+  body.bg-5 { --bg: #181820; --surface: #232330; --surface2: #2c2c3e; --border: #353545; --text: #e8e8f0; --text-dim: #7a7a90; }
+  /* 明るい背景：文字色を黒系に自動調整 */
+  body.bg-6 { --bg: #f5f1ea; --surface: #ffffff; --surface2: #ebe6dd; --border: #d4cfc4; --text: #1a1a1a; --text-dim: #6b6b6b; }
+  body.bg-7 { --bg: #ffffff; --surface: #f5f5f5; --surface2: #ebebeb; --border: #d0d0d0; --text: #1a1a1a; --text-dim: #707070; }
+
+  /* 明るい背景の時のaccent調整（コントラスト確保） */
+  body.bg-6.theme-a, body.bg-7.theme-a { --accent: #6b7280; --accent2: #b8860b; }
+  body.bg-6.theme-b, body.bg-7.theme-b { --accent: #0099aa; --accent2: #c92858; }
+  body.bg-6.theme-c, body.bg-7.theme-c { --accent: #2b87b3; --accent2: #c97e3a; }
+  body.bg-6.theme-d, body.bg-7.theme-d { --accent: #2da866; --accent2: #d97725; }
+  body.bg-6.theme-e, body.bg-7.theme-e { --accent: #7c5cd6; --accent2: #d04794; }
+  body.bg-6.theme-f, body.bg-7.theme-f { --accent: #1ec90a; --accent2: #c10ab5; }
+  body.bg-6.theme-g, body.bg-7.theme-g { --accent: #d94e7d; --accent2: #c79c2c; }
+  body.bg-6.theme-h, body.bg-7.theme-h { --accent: #1a1a1a; --accent2: #c52837; }
+  body.bg-6.theme-i, body.bg-7.theme-i { --accent: #6db347; --accent2: #8c6234; }
+  body.bg-6.theme-j, body.bg-7.theme-j { --accent: #2b9eb0; --accent2: #3d52c0; }
+
+  /* 明るい背景時の波形カーソル（A点マーカーなど）も調整 */
+  body.bg-6 .waveform-cursor, body.bg-7 .waveform-cursor { background: #d04794; }
+  /* 明るい背景時の各種微調整 */
+  body.bg-6 .url-input, body.bg-7 .url-input { color: var(--text); }
+  body.bg-6 .memo-input, body.bg-7 .memo-input { color: var(--text); }
+  body.bg-6 .modal-input, body.bg-7 .modal-input { color: var(--text); }
+  body.bg-6 .tempo-up-section, body.bg-7 .tempo-up-section { background: var(--surface2); }
+  body.bg-6 .video-placeholder, body.bg-7 .video-placeholder { background: var(--surface); }
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
@@ -46,21 +77,21 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 16px 16px 0;
+    padding: 12px 12px 0;
   }
 
   /* モード切替タブ */
   .mode-tabs {
     display: flex;
     gap: 4px;
-    padding: 12px 16px 0;
+    padding: 8px 12px 0;
   }
   .mode-tab {
     flex: 1;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 10px;
-    padding: 10px;
+    padding: 8px;
     color: var(--text-dim);
     font-family: 'Space Mono', monospace;
     font-size: 12px;
@@ -208,7 +239,7 @@
 
   /* 左右バランススライダー */
   .balance-section {
-    padding: 12px 14px;
+    padding: 8px 10px;
     border-top: 1px solid var(--border);
     display: none;
   }
@@ -276,7 +307,7 @@
 
   /* ─── テンポ自動アップ ─── */
   .tempo-up-section {
-    padding: 14px;
+    padding: 10px;
     border-top: 1px solid var(--border);
     background: var(--surface2);
   }
@@ -430,7 +461,7 @@
 
   /* ─── YouTubeチャンネル/プレイリスト ─── */
   .channels-section {
-    margin: 0 16px 14px;
+    margin: 0 12px 10px;
   }
   .channels-header {
     font-family: 'Space Mono', monospace;
@@ -1954,14 +1985,14 @@
       <div class="settings-section-title">🎨 カラーテーマ</div>
       <div class="theme-grid" id="themeGrid">
         <div class="theme-card" data-theme="a">
-          <div class="theme-name">A：水色＆ピンク</div>
-          <div class="theme-preview"><span class="theme-preview-a" style="color:#00e5ff">Clip</span><span class="theme-preview-b" style="color:#ff3d71">Loop</span></div>
-          <div class="theme-dots"><div class="theme-dot" style="background:#00e5ff"></div><div class="theme-dot" style="background:#ff3d71"></div></div>
-        </div>
-        <div class="theme-card" data-theme="b">
-          <div class="theme-name">B：シルバー＆ゴールド</div>
+          <div class="theme-name">A：シルバー＆ゴールド</div>
           <div class="theme-preview"><span class="theme-preview-a" style="color:#d4d4dc">Clip</span><span class="theme-preview-b" style="color:#d4a857">Loop</span></div>
           <div class="theme-dots"><div class="theme-dot" style="background:#d4d4dc"></div><div class="theme-dot" style="background:#d4a857"></div></div>
+        </div>
+        <div class="theme-card" data-theme="b">
+          <div class="theme-name">B：水色＆ピンク</div>
+          <div class="theme-preview"><span class="theme-preview-a" style="color:#00e5ff">Clip</span><span class="theme-preview-b" style="color:#ff3d71">Loop</span></div>
+          <div class="theme-dots"><div class="theme-dot" style="background:#00e5ff"></div><div class="theme-dot" style="background:#ff3d71"></div></div>
         </div>
         <div class="theme-card" data-theme="c">
           <div class="theme-name">C：クールブルー</div>
@@ -2002,6 +2033,41 @@
           <div class="theme-name">J：オーシャン</div>
           <div class="theme-preview"><span class="theme-preview-a" style="color:#4dd0e1">Clip</span><span class="theme-preview-b" style="color:#5e72e4">Loop</span></div>
           <div class="theme-dots"><div class="theme-dot" style="background:#4dd0e1"></div><div class="theme-dot" style="background:#5e72e4"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 背景色 -->
+    <div class="settings-section">
+      <div class="settings-section-title">🎨 背景色</div>
+      <div class="theme-grid" id="bgGrid">
+        <div class="theme-card" data-bg="1" style="background:#0a0a0f">
+          <div class="theme-name">① ダークブラック</div>
+          <div class="theme-preview"><span class="theme-preview-a" style="color:#d4d4dc">Sample</span></div>
+        </div>
+        <div class="theme-card" data-bg="2" style="background:#1f1f23">
+          <div class="theme-name">② ダークグレー</div>
+          <div class="theme-preview"><span class="theme-preview-a" style="color:#d4d4dc">Sample</span></div>
+        </div>
+        <div class="theme-card" data-bg="3" style="background:#0f1729">
+          <div class="theme-name">③ ダークネイビー</div>
+          <div class="theme-preview"><span class="theme-preview-a" style="color:#d4d4dc">Sample</span></div>
+        </div>
+        <div class="theme-card" data-bg="4" style="background:#1f1814">
+          <div class="theme-name">④ ダークブラウン</div>
+          <div class="theme-preview"><span class="theme-preview-a" style="color:#d4d4dc">Sample</span></div>
+        </div>
+        <div class="theme-card" data-bg="5" style="background:#181820">
+          <div class="theme-name">⑤ スラットブラック</div>
+          <div class="theme-preview"><span class="theme-preview-a" style="color:#d4d4dc">Sample</span></div>
+        </div>
+        <div class="theme-card" data-bg="6" style="background:#f5f1ea">
+          <div class="theme-name" style="color:#666">⑥ クリーム</div>
+          <div class="theme-preview"><span class="theme-preview-a" style="color:#1a1a1a">Sample</span></div>
+        </div>
+        <div class="theme-card" data-bg="7" style="background:#ffffff">
+          <div class="theme-name" style="color:#666">⑦ ホワイト</div>
+          <div class="theme-preview"><span class="theme-preview-a" style="color:#1a1a1a">Sample</span></div>
         </div>
       </div>
     </div>
@@ -3706,11 +3772,30 @@ document.getElementById('settingsModal').addEventListener('click', e => {
   }
 });
 
-// テーマカード
-document.querySelectorAll('.theme-card').forEach(card => {
+// テーマカード（カラー）
+document.querySelectorAll('.theme-card[data-theme]').forEach(card => {
   card.addEventListener('click', () => {
     applyTheme(card.dataset.theme);
     showToast('カラーテーマを変更しました');
+  });
+});
+
+// 背景色カード
+function applyBg(bg) {
+  document.body.classList.remove('bg-1', 'bg-2', 'bg-3', 'bg-4', 'bg-5', 'bg-6', 'bg-7');
+  document.body.classList.add('bg-' + bg);
+  document.querySelectorAll('.theme-card[data-bg]').forEach(c => c.classList.toggle('active', c.dataset.bg === bg));
+  localStorage.setItem('cliploop_bg', bg);
+}
+function loadBg() {
+  return localStorage.getItem('cliploop_bg') || '1';
+}
+applyBg(loadBg());
+
+document.querySelectorAll('.theme-card[data-bg]').forEach(card => {
+  card.addEventListener('click', () => {
+    applyBg(card.dataset.bg);
+    showToast('背景色を変更しました');
   });
 });
 
