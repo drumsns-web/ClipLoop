@@ -25,6 +25,11 @@
   body.theme-c { --accent: #6ec1e4; --accent2: #f0a868; }
   body.theme-d { --accent: #4ade80; --accent2: #fb923c; }
   body.theme-e { --accent: #a78bfa; --accent2: #f472b6; }
+  body.theme-f { --accent: #39ff14; --accent2: #ff10f0; }
+  body.theme-g { --accent: #ff6b9d; --accent2: #ffd166; }
+  body.theme-h { --accent: #ffffff; --accent2: #e63946; }
+  body.theme-i { --accent: #a3d977; --accent2: #c08c5c; }
+  body.theme-j { --accent: #4dd0e1; --accent2: #5e72e4; }
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
@@ -1973,6 +1978,31 @@
           <div class="theme-preview"><span class="theme-preview-a" style="color:#a78bfa">Clip</span><span class="theme-preview-b" style="color:#f472b6">Loop</span></div>
           <div class="theme-dots"><div class="theme-dot" style="background:#a78bfa"></div><div class="theme-dot" style="background:#f472b6"></div></div>
         </div>
+        <div class="theme-card" data-theme="f">
+          <div class="theme-name">F：ネオン</div>
+          <div class="theme-preview"><span class="theme-preview-a" style="color:#39ff14">Clip</span><span class="theme-preview-b" style="color:#ff10f0">Loop</span></div>
+          <div class="theme-dots"><div class="theme-dot" style="background:#39ff14"></div><div class="theme-dot" style="background:#ff10f0"></div></div>
+        </div>
+        <div class="theme-card" data-theme="g">
+          <div class="theme-name">G：サンセット</div>
+          <div class="theme-preview"><span class="theme-preview-a" style="color:#ff6b9d">Clip</span><span class="theme-preview-b" style="color:#ffd166">Loop</span></div>
+          <div class="theme-dots"><div class="theme-dot" style="background:#ff6b9d"></div><div class="theme-dot" style="background:#ffd166"></div></div>
+        </div>
+        <div class="theme-card" data-theme="h">
+          <div class="theme-name">H：モノクローム</div>
+          <div class="theme-preview"><span class="theme-preview-a" style="color:#ffffff">Clip</span><span class="theme-preview-b" style="color:#e63946">Loop</span></div>
+          <div class="theme-dots"><div class="theme-dot" style="background:#ffffff"></div><div class="theme-dot" style="background:#e63946"></div></div>
+        </div>
+        <div class="theme-card" data-theme="i">
+          <div class="theme-name">I：フォレスト</div>
+          <div class="theme-preview"><span class="theme-preview-a" style="color:#a3d977">Clip</span><span class="theme-preview-b" style="color:#c08c5c">Loop</span></div>
+          <div class="theme-dots"><div class="theme-dot" style="background:#a3d977"></div><div class="theme-dot" style="background:#c08c5c"></div></div>
+        </div>
+        <div class="theme-card" data-theme="j">
+          <div class="theme-name">J：オーシャン</div>
+          <div class="theme-preview"><span class="theme-preview-a" style="color:#4dd0e1">Clip</span><span class="theme-preview-b" style="color:#5e72e4">Loop</span></div>
+          <div class="theme-dots"><div class="theme-dot" style="background:#4dd0e1"></div><div class="theme-dot" style="background:#5e72e4"></div></div>
+        </div>
       </div>
     </div>
 
@@ -3650,7 +3680,7 @@ document.getElementById('localTempoUpHelp').addEventListener('click', () => {
 
 // ─── テーマ切替 ───
 function applyTheme(theme) {
-  document.body.classList.remove('theme-a', 'theme-b', 'theme-c', 'theme-d', 'theme-e');
+  document.body.classList.remove('theme-a', 'theme-b', 'theme-c', 'theme-d', 'theme-e', 'theme-f', 'theme-g', 'theme-h', 'theme-i', 'theme-j');
   document.body.classList.add('theme-' + theme);
   // 選択状態を更新
   document.querySelectorAll('.theme-card').forEach(c => c.classList.toggle('active', c.dataset.theme === theme));
