@@ -942,9 +942,12 @@
 
   /* メモ欄 */
   .memo-section {
-    padding: 10px 14px;
-    border-top: 1px solid var(--border);
+    padding: 0;
+    border-top: none;
+    margin-bottom: 8px;
+    display: none;
   }
+  .memo-section.open { display: block; }
   .memo-label {
     font-family: 'Space Mono', monospace;
     font-size: 10px;
