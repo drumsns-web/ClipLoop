@@ -1902,6 +1902,21 @@
   </div>
 </div>
 
+<!-- AB区間トリミング保存 -->
+<div class="channels-section" id="trimSection" style="display:none">
+  <div class="channels-header">
+    <span>✂️ AB区間を切り出して保存</span>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;display:flex;flex-direction:column;gap:10px">
+    <div style="font-size:12px;color:var(--text-dim);line-height:1.5">
+      設定したAB区間（<span id="trimRangeDisplay" style="color:var(--accent);font-family:'Space Mono',monospace">未設定</span>）をWAVファイルとして保存します。
+    </div>
+    <button class="settings-action-btn" id="trimSaveBtn" style="padding:12px;font-size:13px;border-color:var(--accent);color:var(--accent)">
+      ✂️ AB区間をWAVファイルで保存
+    </button>
+  </div>
+</div>
+
 <!-- ローカルファイル履歴 -->
 <div class="channels-section">
   <div class="channels-header">
@@ -3774,6 +3789,150 @@ pollLocalPosition = function() {
     const s = loadSettings();
     if (s.loopBeep) playBeep();
   }
+};
+
+// ─── AB区間トリミング → WAV保存 ───
+function showTrimSection() {
+  const section = document.getElementById('trimSection');
+  if (!audioBuffer) {
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = 'block';
+  updateTrimRangeDisplay();
+}
+
+function updateTrimRangeDisplay() {
+  const display = document.getElementById('trimRangeDisplay');
+  if (localPointA !== null && localPointB !== null) {
+    const dur = localPointB - localPointA;
+    display.textContent = `${fmtTime(localPointA)} 〜 ${fmtTime(localPointB)} (${dur.toFixed(1)}秒)`;
+  } else {
+    display.textContent = '未設定';
+  }
+}
+
+document.getElementById('trimSaveBtn').addEventListener('click', () => {
+  if (!audioBuffer) { showToast('音源を読み込んでください'); return; }
+  if (localPointA === null || localPointB === null) { showToast('A点とB点を両方セットしてください'); return; }
+  trimAndSave();
+});
+
+async function trimAndSave() {
+  try {
+    const sampleRate = audioBuffer.sampleRate;
+    const startSample = Math.floor(localPointA * sampleRate);
+    const endSample = Math.floor(localPointB * sampleRate);
+    const length = endSample - startSample;
+    const numCh = audioBuffer.numberOfChannels;
+
+    if (length <= 0) { showToast('AB区間が無効です'); return; }
+
+    showToast('✂️ トリミング処理中...');
+
+    // 新しいAudioBufferを作成
+    const trimmedBuffer = new AudioBuffer({
+      length: length,
+      numberOfChannels: numCh,
+      sampleRate: sampleRate
+    });
+
+    // 各チャンネルのデータをコピー
+    for (let ch = 0; ch < numCh; ch++) {
+      const srcData = audioBuffer.getChannelData(ch);
+      const dstData = trimmedBuffer.getChannelData(ch);
+      for (let i = 0; i < length; i++) {
+        dstData[i] = srcData[startSample + i];
+      }
+    }
+
+    // WAVエンコード
+    const wavBlob = audioBufferToWav(trimmedBuffer);
+    const url = URL.createObjectURL(wavBlob);
+
+    // ファイル名を生成（元のファイル名 + AB点の時刻）
+    const origName = document.getElementById('fileName').textContent.replace('📄 ', '').replace(/\.[^.]+$/, '');
+    const fileName = `${origName}_${fmtTimeForFilename(localPointA)}-${fmtTimeForFilename(localPointB)}.wav`;
+
+    // ダウンロード
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+    showToast('✅ 保存しました: ' + fileName);
+  } catch (e) {
+    console.warn('Trim failed:', e);
+    showToast('❌ トリミング失敗: ' + e.message);
+  }
+}
+
+function fmtTimeForFilename(s) {
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return `${m}m${sec.toString().padStart(2, '0')}s`;
+}
+
+// AudioBuffer → WAV Blob 変換
+function audioBufferToWav(buffer) {
+  const numChannels = buffer.numberOfChannels;
+  const sampleRate = buffer.sampleRate;
+  const length = buffer.length * numChannels * 2 + 44; // 16bit PCM + ヘッダー
+  const arrayBuffer = new ArrayBuffer(length);
+  const view = new DataView(arrayBuffer);
+
+  // WAVヘッダー
+  writeString(view, 0, 'RIFF');
+  view.setUint32(4, length - 8, true);
+  writeString(view, 8, 'WAVE');
+  writeString(view, 12, 'fmt ');
+  view.setUint32(16, 16, true); // fmtチャンクサイズ
+  view.setUint16(20, 1, true);  // PCM
+  view.setUint16(22, numChannels, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * numChannels * 2, true); // バイトレート
+  view.setUint16(32, numChannels * 2, true); // ブロックアライン
+  view.setUint16(34, 16, true); // ビット深度
+  writeString(view, 36, 'data');
+  view.setUint32(40, length - 44, true);
+
+  // PCMデータ（インターリーブ）
+  let offset = 44;
+  const channels = [];
+  for (let ch = 0; ch < numChannels; ch++) {
+    channels.push(buffer.getChannelData(ch));
+  }
+  for (let i = 0; i < buffer.length; i++) {
+    for (let ch = 0; ch < numChannels; ch++) {
+      let sample = Math.max(-1, Math.min(1, channels[ch][i]));
+      sample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+      view.setInt16(offset, sample, true);
+      offset += 2;
+    }
+  }
+
+  return new Blob([arrayBuffer], { type: 'audio/wav' });
+}
+
+function writeString(view, offset, str) {
+  for (let i = 0; i < str.length; i++) {
+    view.setUint8(offset + i, str.charCodeAt(i));
+  }
+}
+
+// 既存のupdateLocalABDisplayにフック
+const _origUpdateLocalABDisplay = updateLocalABDisplay;
+updateLocalABDisplay = function() {
+  _origUpdateLocalABDisplay();
+  if (audioBuffer) updateTrimRangeDisplay();
+};
+
+// 既存のloadLocalFileにトリミングセクション表示を追加
+const _origLoadLocalFileForTrim = loadLocalFile;
+loadLocalFile = async function(file) {
+  await _origLoadLocalFileForTrim(file);
+  showTrimSection();
 };
 
 // 設定適用
