@@ -1597,8 +1597,11 @@
   </div>
 
   <!-- メモ -->
-  <div class="memo-section">
-    <div class="memo-label">MEMO</div>
+  <div class="memo-section" id="ytMemoSection">
+    <div class="memo-toggle" data-memo-toggle="yt">
+      <div class="memo-label">📝 MEMO</div>
+      <span class="memo-toggle-arrow">▶</span>
+    </div>
     <textarea class="memo-input" id="memoInput" placeholder="このAB区間のメモを入力..."></textarea>
   </div>
 
@@ -1793,8 +1796,11 @@
     </div>
   </div>
 
-  <div class="memo-section">
-    <div class="memo-label">MEMO</div>
+  <div class="memo-section" id="localMemoSection">
+    <div class="memo-toggle" data-memo-toggle="local">
+      <div class="memo-label">📝 MEMO</div>
+      <span class="memo-toggle-arrow">▶</span>
+    </div>
     <textarea class="memo-input" id="localMemo" placeholder="このAB区間のメモを入力..."></textarea>
   </div>
 
@@ -3744,6 +3750,26 @@ document.getElementById('localTempoUpHelp').addEventListener('click', () => {
   document.getElementById('localTempoUpDescription').classList.toggle('show');
 });
 
+// ─── メモ折りたたみ ───
+document.querySelectorAll('[data-memo-toggle]').forEach(toggle => {
+  toggle.addEventListener('click', () => {
+    const section = toggle.closest('.memo-section');
+    section.classList.toggle('open');
+  });
+});
+
+// メモに内容がある場合は自動で開く
+function autoOpenMemoIfHasContent() {
+  const ytMemo = document.getElementById('memoInput');
+  const localMemo = document.getElementById('localMemo');
+  if (ytMemo && ytMemo.value.trim()) {
+    document.getElementById('ytMemoSection').classList.add('open');
+  }
+  if (localMemo && localMemo.value.trim()) {
+    document.getElementById('localMemoSection').classList.add('open');
+  }
+}
+
 // ─── テーマ切替 ───
 function applyTheme(theme) {
   document.body.classList.remove('theme-a', 'theme-b', 'theme-c', 'theme-d', 'theme-e', 'theme-f', 'theme-g', 'theme-h', 'theme-i', 'theme-j');
@@ -4124,6 +4150,21 @@ loadLocalFile = async function(file) {
 
 // 設定適用
 applySettings();
+
+// メモに既に内容がある場合は開いておく
+setTimeout(autoOpenMemoIfHasContent, 100);
+
+// メモ復元時にも自動展開（loadFromSlot, loadFromLocalSlot, history復元）
+const _origLoadFromSlot = loadFromSlot;
+loadFromSlot = function(idx) {
+  _origLoadFromSlot(idx);
+  setTimeout(autoOpenMemoIfHasContent, 50);
+};
+const _origLoadFromLocalSlot = loadFromLocalSlot;
+loadFromLocalSlot = function(idx) {
+  _origLoadFromLocalSlot(idx);
+  setTimeout(autoOpenMemoIfHasContent, 50);
+};
 
 // ─── Init ───
 renderHistory();
