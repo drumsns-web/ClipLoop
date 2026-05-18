@@ -265,25 +265,52 @@
 
   /* ─── テンポ自動アップ ─── */
   .tempo-up-section {
-    padding: 12px 14px;
+    padding: 14px;
     border-top: 1px solid var(--border);
+    background: var(--surface2);
   }
   .tempo-up-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 8px;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .tempo-up-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
   }
   .tempo-up-title {
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    color: var(--text-dim);
-    letter-spacing: 0.08em;
+    font-size: 13px;
+    color: var(--text);
+    font-weight: 700;
   }
+  .tempo-up-help {
+    font-size: 11px;
+    color: var(--text-dim);
+    cursor: pointer;
+    padding: 0 4px;
+  }
+  .tempo-up-help:active { color: var(--accent); }
+  .tempo-up-description {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    background: rgba(0,229,255,0.08);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    margin-bottom: 10px;
+    display: none;
+  }
+  .tempo-up-description.show { display: block; }
   .tempo-up-body {
     display: none;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
+    margin-top: 8px;
   }
   .tempo-up-body.show { display: flex; }
   .tempo-up-row {
@@ -292,29 +319,82 @@
     gap: 8px;
     font-size: 12px;
     color: var(--text);
-  }
-  .tempo-up-label {
-    color: var(--text-dim);
-    min-width: 100px;
-    font-size: 11px;
-  }
-  .tempo-up-input {
-    background: var(--surface2);
+    background: var(--surface);
     border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+  .tempo-up-label-block {
+    flex: 1;
+  }
+  .tempo-up-main-label {
+    font-size: 12px;
+    color: var(--text);
+    font-weight: 700;
+  }
+  .tempo-up-sub-label {
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+  .tempo-up-input-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--surface2);
     border-radius: 6px;
-    padding: 5px 8px;
+    padding: 4px 6px;
+  }
+  .tempo-up-btn {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
     color: var(--text);
     font-family: 'Space Mono', monospace;
-    font-size: 12px;
-    width: 60px;
+    font-size: 14px;
+    font-weight: 700;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .tempo-up-btn:active { background: var(--accent); color: #000; }
+  .tempo-up-input {
+    background: transparent;
+    border: none;
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    width: 50px;
     text-align: center;
     -webkit-appearance: none;
+    outline: none;
+  }
+  .tempo-up-input::-webkit-outer-spin-button,
+  .tempo-up-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .tempo-up-unit {
+    color: var(--text-dim);
+    font-size: 11px;
   }
   .tempo-up-status {
     font-family: 'Space Mono', monospace;
-    font-size: 11px;
+    font-size: 12px;
     color: var(--accent);
+    text-align: center;
+    padding: 8px;
+    background: rgba(0,229,255,0.08);
+    border-radius: 6px;
+    border: 1px solid rgba(0,229,255,0.2);
     margin-top: 4px;
+  }
+  .tempo-up-status.empty {
+    color: var(--text-dim);
+    background: transparent;
+    border-color: var(--border);
   }
 
   /* ─── YouTubeチャンネル/プレイリスト ─── */
@@ -1373,37 +1453,56 @@
   <!-- テンポ自動アップ（YouTube） -->
   <div class="tempo-up-section">
     <div class="tempo-up-header">
-      <span class="tempo-up-title">🚀 テンポ自動アップ</span>
+      <div class="tempo-up-title-wrap">
+        <span class="tempo-up-title">🚀 テンポ自動アップ</span>
+        <span class="tempo-up-help" id="ytTempoUpHelp">❓</span>
+      </div>
       <div class="toggle-switch" id="ytTempoUpToggle"></div>
+    </div>
+    <div class="tempo-up-description" id="ytTempoUpDescription">
+      ABループを繰り返すたびに自動で再生速度を上げていく練習機能です。<br>
+      例：「5回ごとに+5%」なら、ループ5回ごとに0.5×→0.55×→0.6×と速くなります。
     </div>
     <div class="tempo-up-body" id="ytTempoUpBody">
       <div class="tempo-up-row">
-        <span class="tempo-up-label">ループ回数ごと</span>
-        <input type="number" class="tempo-up-input" id="ytTempoUpLoops" min="1" max="20" value="5">
-        <span style="color:var(--text-dim);font-size:11px">回</span>
+        <div class="tempo-up-label-block">
+          <div class="tempo-up-main-label">何回ループしたら？</div>
+          <div class="tempo-up-sub-label">ループ回数ごとに速度アップ</div>
+        </div>
+        <div class="tempo-up-input-group">
+          <button class="tempo-up-btn" data-tempo-target="ytTempoUpLoops" data-tempo-delta="-1">−</button>
+          <input type="number" class="tempo-up-input" id="ytTempoUpLoops" min="1" max="20" value="5">
+          <span class="tempo-up-unit">回</span>
+          <button class="tempo-up-btn" data-tempo-target="ytTempoUpLoops" data-tempo-delta="1">＋</button>
+        </div>
       </div>
       <div class="tempo-up-row">
-        <span class="tempo-up-label">速度を上げる量</span>
-        <input type="number" class="tempo-up-input" id="ytTempoUpStep" min="1" max="50" value="5">
-        <span style="color:var(--text-dim);font-size:11px">%</span>
+        <div class="tempo-up-label-block">
+          <div class="tempo-up-main-label">どれくらい速くする？</div>
+          <div class="tempo-up-sub-label">1回のアップで上げる速度</div>
+        </div>
+        <div class="tempo-up-input-group">
+          <button class="tempo-up-btn" data-tempo-target="ytTempoUpStep" data-tempo-delta="-1">−</button>
+          <input type="number" class="tempo-up-input" id="ytTempoUpStep" min="1" max="50" value="5">
+          <span class="tempo-up-unit">%</span>
+          <button class="tempo-up-btn" data-tempo-target="ytTempoUpStep" data-tempo-delta="1">＋</button>
+        </div>
       </div>
       <div class="tempo-up-row">
-        <span class="tempo-up-label">最大速度</span>
-        <input type="number" class="tempo-up-input" id="ytTempoUpMax" min="100" max="200" step="5" value="100">
-        <span style="color:var(--text-dim);font-size:11px">%</span>
+        <div class="tempo-up-label-block">
+          <div class="tempo-up-main-label">最大速度</div>
+          <div class="tempo-up-sub-label">この速度に達したら止まる</div>
+        </div>
+        <div class="tempo-up-input-group">
+          <button class="tempo-up-btn" data-tempo-target="ytTempoUpMax" data-tempo-delta="-5">−</button>
+          <input type="number" class="tempo-up-input" id="ytTempoUpMax" min="50" max="200" step="5" value="100">
+          <span class="tempo-up-unit">%</span>
+          <button class="tempo-up-btn" data-tempo-target="ytTempoUpMax" data-tempo-delta="5">＋</button>
+        </div>
       </div>
-      <div class="tempo-up-status" id="ytTempoUpStatus"></div>
+      <div class="tempo-up-status empty" id="ytTempoUpStatus">ABループ開始後に表示されます</div>
     </div>
   </div>
-</div>
-
-<!-- お気に入りチャンネル/プレイリスト -->
-<div class="channels-section">
-  <div class="channels-header">
-    <span>⭐ お気に入りチャンネル / プレイリスト</span>
-    <button class="channels-add-btn" id="addChannelBtn">+ 追加</button>
-  </div>
-  <div class="channels-list" id="channelsList"></div>
 </div>
 
 </div><!-- /YouTube mode -->
@@ -1545,26 +1644,54 @@
   <!-- テンポ自動アップ（ローカル） -->
   <div class="tempo-up-section">
     <div class="tempo-up-header">
-      <span class="tempo-up-title">🚀 テンポ自動アップ</span>
+      <div class="tempo-up-title-wrap">
+        <span class="tempo-up-title">🚀 テンポ自動アップ</span>
+        <span class="tempo-up-help" id="localTempoUpHelp">❓</span>
+      </div>
       <div class="toggle-switch" id="localTempoUpToggle"></div>
+    </div>
+    <div class="tempo-up-description" id="localTempoUpDescription">
+      ABループを繰り返すたびに自動で再生速度を上げていく練習機能です。<br>
+      例：「5回ごとに+5%」なら、ループ5回ごとに0.5×→0.55×→0.6×と速くなります。
     </div>
     <div class="tempo-up-body" id="localTempoUpBody">
       <div class="tempo-up-row">
-        <span class="tempo-up-label">ループ回数ごと</span>
-        <input type="number" class="tempo-up-input" id="localTempoUpLoops" min="1" max="20" value="5">
-        <span style="color:var(--text-dim);font-size:11px">回</span>
+        <div class="tempo-up-label-block">
+          <div class="tempo-up-main-label">何回ループしたら？</div>
+          <div class="tempo-up-sub-label">ループ回数ごとに速度アップ</div>
+        </div>
+        <div class="tempo-up-input-group">
+          <button class="tempo-up-btn" data-tempo-target="localTempoUpLoops" data-tempo-delta="-1">−</button>
+          <input type="number" class="tempo-up-input" id="localTempoUpLoops" min="1" max="20" value="5">
+          <span class="tempo-up-unit">回</span>
+          <button class="tempo-up-btn" data-tempo-target="localTempoUpLoops" data-tempo-delta="1">＋</button>
+        </div>
       </div>
       <div class="tempo-up-row">
-        <span class="tempo-up-label">速度を上げる量</span>
-        <input type="number" class="tempo-up-input" id="localTempoUpStep" min="1" max="50" value="5">
-        <span style="color:var(--text-dim);font-size:11px">%</span>
+        <div class="tempo-up-label-block">
+          <div class="tempo-up-main-label">どれくらい速くする？</div>
+          <div class="tempo-up-sub-label">1回のアップで上げる速度</div>
+        </div>
+        <div class="tempo-up-input-group">
+          <button class="tempo-up-btn" data-tempo-target="localTempoUpStep" data-tempo-delta="-1">−</button>
+          <input type="number" class="tempo-up-input" id="localTempoUpStep" min="1" max="50" value="5">
+          <span class="tempo-up-unit">%</span>
+          <button class="tempo-up-btn" data-tempo-target="localTempoUpStep" data-tempo-delta="1">＋</button>
+        </div>
       </div>
       <div class="tempo-up-row">
-        <span class="tempo-up-label">最大速度</span>
-        <input type="number" class="tempo-up-input" id="localTempoUpMax" min="100" max="200" step="5" value="100">
-        <span style="color:var(--text-dim);font-size:11px">%</span>
+        <div class="tempo-up-label-block">
+          <div class="tempo-up-main-label">最大速度</div>
+          <div class="tempo-up-sub-label">この速度に達したら止まる</div>
+        </div>
+        <div class="tempo-up-input-group">
+          <button class="tempo-up-btn" data-tempo-target="localTempoUpMax" data-tempo-delta="-5">−</button>
+          <input type="number" class="tempo-up-input" id="localTempoUpMax" min="50" max="200" step="5" value="100">
+          <span class="tempo-up-unit">%</span>
+          <button class="tempo-up-btn" data-tempo-target="localTempoUpMax" data-tempo-delta="5">＋</button>
+        </div>
       </div>
-      <div class="tempo-up-status" id="localTempoUpStatus"></div>
+      <div class="tempo-up-status empty" id="localTempoUpStatus">ABループ開始後に表示されます</div>
     </div>
   </div>
 
@@ -1597,18 +1724,7 @@
 
 <div class="toast" id="toast"></div>
 
-<!-- チャンネル追加モーダル -->
-<div class="modal-bg" id="channelModal">
-  <div class="modal">
-    <div class="modal-title">⭐ チャンネル/プレイリストを追加</div>
-    <input type="text" class="modal-input" id="channelNameInput" placeholder="名前（例：My Drumming Playlist）">
-    <input type="url" class="modal-input" id="channelUrlInput" placeholder="YouTubeのURL">
-    <div class="modal-btns">
-      <button class="modal-btn" id="channelCancelBtn">キャンセル</button>
-      <button class="modal-btn primary" id="channelSaveBtn">追加</button>
-    </div>
-  </div>
-</div>
+
 
 <!-- タップ検知レイヤー -->
 <div class="fs-tap-layer" id="fsTapLayer"></div>
@@ -2925,13 +3041,17 @@ document.getElementById('ytTempoUpToggle').addEventListener('click', () => {
 });
 
 function updateYtTempoUpStatus() {
-  if (!ytTempoUpEnabled) return;
+  const el = document.getElementById('ytTempoUpStatus');
+  if (!ytTempoUpEnabled) {
+    el.textContent = 'ABループ開始後に表示されます';
+    el.classList.add('empty');
+    return;
+  }
   const loopsPerStep = parseInt(document.getElementById('ytTempoUpLoops').value) || 5;
-  const step = parseFloat(document.getElementById('ytTempoUpStep').value) || 5;
   const currentLoops = loopCount - ytTempoUpLoopsAtStart;
   const nextAt = loopsPerStep - (currentLoops % loopsPerStep);
-  document.getElementById('ytTempoUpStatus').textContent =
-    `現在 ${(currentSpeed * 100).toFixed(0)}% / 次UP: あと${nextAt}回`;
+  el.textContent = `現在 ${(currentSpeed * 100).toFixed(0)}% / あと${nextAt}回でUP`;
+  el.classList.remove('empty');
 }
 
 // pollPositionにテンポアップ判定を追加（YouTube）
@@ -2980,12 +3100,17 @@ document.getElementById('localTempoUpToggle').addEventListener('click', () => {
 });
 
 function updateLocalTempoUpStatus() {
-  if (!localTempoUpEnabled) return;
+  const el = document.getElementById('localTempoUpStatus');
+  if (!localTempoUpEnabled) {
+    el.textContent = 'ABループ開始後に表示されます';
+    el.classList.add('empty');
+    return;
+  }
   const loopsPerStep = parseInt(document.getElementById('localTempoUpLoops').value) || 5;
   const currentLoops = localLoopCount - localTempoUpLoopsAtStart;
   const nextAt = loopsPerStep - (currentLoops % loopsPerStep);
-  document.getElementById('localTempoUpStatus').textContent =
-    `現在 ${(localSpeed * 100).toFixed(0)}% / 次UP: あと${nextAt}回`;
+  el.textContent = `現在 ${(localSpeed * 100).toFixed(0)}% / あと${nextAt}回でUP`;
+  el.classList.remove('empty');
 }
 
 // pollLocalPositionにテンポアップ判定を追加
@@ -3015,81 +3140,11 @@ function checkLocalTempoUp() {
   }
 }
 
-// ─── YouTubeチャンネル/プレイリスト ───
-function loadChannels() {
-  try { return JSON.parse(localStorage.getItem('cliploop_channels') || '[]'); } catch { return []; }
-}
-function saveChannels(arr) {
-  localStorage.setItem('cliploop_channels', JSON.stringify(arr));
-}
-function renderChannels() {
-  const list = document.getElementById('channelsList');
-  const channels = loadChannels();
-  list.innerHTML = '';
-  if (!channels.length) {
-    list.innerHTML = '<div style="color:var(--text-dim);font-size:12px;padding:8px;text-align:center">登録されていません</div>';
-    return;
-  }
-  channels.forEach((c, i) => {
-    const item = document.createElement('div');
-    item.className = 'channel-item';
-    const isPlaylist = c.url.includes('playlist') || c.url.includes('list=');
-    item.innerHTML = `
-      <div class="channel-icon">${isPlaylist ? '📋' : '📺'}</div>
-      <div class="channel-info">
-        <div class="channel-name">${escapeHtml(c.name)}</div>
-        <div class="channel-url">${escapeHtml(c.url)}</div>
-      </div>
-      <div class="channel-del" data-ch-del="${i}">✕</div>
-    `;
-    item.addEventListener('click', e => {
-      if (e.target.dataset.chDel !== undefined) {
-        e.stopPropagation();
-        const arr = loadChannels();
-        arr.splice(i, 1);
-        saveChannels(arr);
-        renderChannels();
-        return;
-      }
-      // チャンネル/プレイリストURLは外部で開く
-      window.open(c.url, '_blank');
-    });
-    list.appendChild(item);
-  });
-}
-
 function escapeHtml(s) {
   const div = document.createElement('div');
   div.textContent = s;
   return div.innerHTML;
 }
-
-document.getElementById('addChannelBtn').addEventListener('click', () => {
-  document.getElementById('channelNameInput').value = '';
-  document.getElementById('channelUrlInput').value = '';
-  document.getElementById('channelModal').classList.add('show');
-});
-document.getElementById('channelCancelBtn').addEventListener('click', () => {
-  document.getElementById('channelModal').classList.remove('show');
-});
-document.getElementById('channelSaveBtn').addEventListener('click', () => {
-  const name = document.getElementById('channelNameInput').value.trim();
-  const url = document.getElementById('channelUrlInput').value.trim();
-  if (!name || !url) { showToast('名前とURLを入力してください'); return; }
-  const arr = loadChannels();
-  arr.unshift({ name, url });
-  if (arr.length > 30) arr.pop();
-  saveChannels(arr);
-  renderChannels();
-  document.getElementById('channelModal').classList.remove('show');
-  showToast('⭐ 追加しました');
-});
-// モーダルの外をタップで閉じる
-document.getElementById('channelModal').addEventListener('click', e => {
-  if (e.target.id === 'channelModal') {
-    document.getElementById('channelModal').classList.remove('show');
-  }
-});
 
 // ─── ローカルファイル履歴 ───
 function loadLocalFilesHistory() {
@@ -3152,11 +3207,32 @@ loadLocalFile = async function(file) {
   addLocalFileToHistory(file.name, file.type);
 };
 
+// ─── テンポアップ +/- ボタン ───
+document.querySelectorAll('[data-tempo-target]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const id = btn.dataset.tempoTarget;
+    const delta = parseInt(btn.dataset.tempoDelta);
+    const input = document.getElementById(id);
+    const min = parseInt(input.min) || 0;
+    const max = parseInt(input.max) || 999;
+    let val = parseInt(input.value) || 0;
+    val = Math.max(min, Math.min(max, val + delta));
+    input.value = val;
+  });
+});
+
+// ─── テンポアップ ヘルプボタン ───
+document.getElementById('ytTempoUpHelp').addEventListener('click', () => {
+  document.getElementById('ytTempoUpDescription').classList.toggle('show');
+});
+document.getElementById('localTempoUpHelp').addEventListener('click', () => {
+  document.getElementById('localTempoUpDescription').classList.toggle('show');
+});
+
 // ─── Init ───
 renderHistory();
 renderSlots();
 renderLocalSlots();
-renderChannels();
 renderLocalFilesHistory();
 </script>
 </body>
