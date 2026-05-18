@@ -900,6 +900,29 @@
   }
   .ab-time.unset { color: var(--text-dim); font-size: 16px; }
 
+  /* AB時刻と±0.5ボタンを横並びに */
+  .ab-time-row {
+    display: flex !important;
+    align-items: center;
+    gap: 6px;
+    margin: 4px 0 6px;
+  }
+  .ab-time-row .ab-time {
+    flex: 1;
+    font-size: 18px;
+  }
+  .ab-time-row .ab-adjust {
+    display: flex;
+    gap: 3px;
+    flex-shrink: 0;
+  }
+  .ab-time-row .adj-btn {
+    padding: 4px 6px;
+    font-size: 9px;
+    min-width: 36px;
+    flex: 0 0 auto;
+  }
+
   /* AB微調整ボタン */
   .ab-adjust {
     display: flex;
@@ -1585,19 +1608,23 @@
   <div class="ab-grid">
     <div class="ab-cell">
       <div class="ab-label"><span class="point-letter a-letter">A</span>開始点</div>
-      <div class="ab-time unset" id="aTimeDisplay">-- : --</div>
-      <div class="ab-adjust">
-        <button class="adj-btn a-adj" id="aMinus">-0.5</button>
-        <button class="adj-btn a-adj" id="aPlus">+0.5</button>
+      <div class="ab-time-row">
+        <div class="ab-time unset" id="aTimeDisplay">-- : --</div>
+        <div class="ab-adjust">
+          <button class="adj-btn a-adj" id="aMinus">-0.5</button>
+          <button class="adj-btn a-adj" id="aPlus">+0.5</button>
+        </div>
       </div>
       <button class="ab-btn a-btn" id="setABtn">ここをAにセット</button>
     </div>
     <div class="ab-cell">
       <div class="ab-label"><span class="point-letter b-letter">B</span>終了点</div>
-      <div class="ab-time unset" id="bTimeDisplay">-- : --</div>
-      <div class="ab-adjust">
-        <button class="adj-btn b-adj" id="bMinus">-0.5</button>
-        <button class="adj-btn b-adj" id="bPlus">+0.5</button>
+      <div class="ab-time-row">
+        <div class="ab-time unset" id="bTimeDisplay">-- : --</div>
+        <div class="ab-adjust">
+          <button class="adj-btn b-adj" id="bMinus">-0.5</button>
+          <button class="adj-btn b-adj" id="bPlus">+0.5</button>
+        </div>
       </div>
       <button class="ab-btn b-btn" id="setBBtn">ここをBにセット</button>
     </div>
