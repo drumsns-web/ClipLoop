@@ -1574,6 +1574,10 @@
 </div>
 
 <div class="panel">
+  <div class="ab-grid-header">
+    <span class="ab-grid-title">AB区間</span>
+    <button class="memo-btn" id="ytMemoBtn">📝 メモ</button>
+  </div>
   <!-- AB Points -->
   <div class="ab-grid">
     <div class="ab-cell">
@@ -1596,12 +1600,8 @@
     </div>
   </div>
 
-  <!-- メモ -->
+  <!-- メモ（折りたたみ式） -->
   <div class="memo-section" id="ytMemoSection">
-    <div class="memo-toggle" data-memo-toggle="yt">
-      <div class="memo-label">📝 MEMO</div>
-      <span class="memo-toggle-arrow">▶</span>
-    </div>
     <textarea class="memo-input" id="memoInput" placeholder="このAB区間のメモを入力..."></textarea>
   </div>
 
@@ -1775,6 +1775,10 @@
 </div>
 
 <div class="panel">
+  <div class="ab-grid-header">
+    <span class="ab-grid-title">AB区間</span>
+    <button class="memo-btn" id="localMemoBtn">📝 メモ</button>
+  </div>
   <div class="ab-grid">
     <div class="ab-cell">
       <div class="ab-label"><span class="point-letter a-letter">A</span>開始点</div>
@@ -1797,10 +1801,6 @@
   </div>
 
   <div class="memo-section" id="localMemoSection">
-    <div class="memo-toggle" data-memo-toggle="local">
-      <div class="memo-label">📝 MEMO</div>
-      <span class="memo-toggle-arrow">▶</span>
-    </div>
     <textarea class="memo-input" id="localMemo" placeholder="このAB区間のメモを入力..."></textarea>
   </div>
 
@@ -3750,15 +3750,38 @@ document.getElementById('localTempoUpHelp').addEventListener('click', () => {
   document.getElementById('localTempoUpDescription').classList.toggle('show');
 });
 
-// ─── メモ折りたたみ ───
-document.querySelectorAll('[data-memo-toggle]').forEach(toggle => {
-  toggle.addEventListener('click', () => {
-    const section = toggle.closest('.memo-section');
-    section.classList.toggle('open');
-  });
-});
+// ─── メモボタン（安全に要素チェック） ───
+const ytMemoBtn = document.getElementById('ytMemoBtn');
+const ytMemoSection = document.getElementById('ytMemoSection');
+const localMemoBtn = document.getElementById('localMemoBtn');
+const localMemoSection = document.getElementById('localMemoSection');
+const memoInputEl = document.getElementById('memoInput');
+const localMemoEl = document.getElementById('localMemo');
 
-// メモに内容がある場合は自動で開く
+if (ytMemoBtn && ytMemoSection) {
+  ytMemoBtn.addEventListener('click', () => {
+    ytMemoSection.classList.toggle('open');
+  });
+}
+if (localMemoBtn && localMemoSection) {
+  localMemoBtn.addEventListener('click', () => {
+    localMemoSection.classList.toggle('open');
+  });
+}
+
+function updateMemoBtnState() {
+  if (memoInputEl && ytMemoBtn) {
+    ytMemoBtn.classList.toggle('has-content', !!memoInputEl.value.trim());
+  }
+  if (localMemoEl && localMemoBtn) {
+    localMemoBtn.classList.toggle('has-content', !!localMemoEl.value.trim());
+  }
+}
+
+if (memoInputEl) memoInputEl.addEventListener('input', updateMemoBtnState);
+if (localMemoEl) localMemoEl.addEventListener('input', updateMemoBtnState);
+
+// 内容あり時に自動展開
 function autoOpenMemoIfHasContent() {
   const ytMemo = document.getElementById('memoInput');
   const localMemo = document.getElementById('localMemo');
@@ -3768,6 +3791,7 @@ function autoOpenMemoIfHasContent() {
   if (localMemo && localMemo.value.trim()) {
     document.getElementById('localMemoSection').classList.add('open');
   }
+  updateMemoBtnState();
 }
 
 // ─── テーマ切替 ───
@@ -3779,7 +3803,7 @@ function applyTheme(theme) {
   localStorage.setItem('cliploop_theme', theme);
 }
 function loadTheme() {
-  return localStorage.getItem('cliploop_theme') || 'b';
+  return localStorage.getItem('cliploop_theme') || 'a';
 }
 
 // 初期テーマ適用
@@ -4148,11 +4172,11 @@ loadLocalFile = async function(file) {
   showTrimSection();
 };
 
-// 設定適用
-applySettings();
-
-// メモに既に内容がある場合は開いておく
-setTimeout(autoOpenMemoIfHasContent, 100);
+// 設定適用（遅延）
+setTimeout(() => {
+  applySettings();
+  autoOpenMemoIfHasContent();
+}, 50);
 
 // メモ復元時にも自動展開（loadFromSlot, loadFromLocalSlot, history復元）
 const _origLoadFromSlot = loadFromSlot;
@@ -4166,11 +4190,23 @@ loadFromLocalSlot = function(idx) {
   setTimeout(autoOpenMemoIfHasContent, 50);
 };
 
-// ─── Init ───
-renderHistory();
-renderSlots();
-renderLocalSlots();
-renderLocalFilesHistory();
+// ─── Init（遅延実行で起動を高速化） ───
+// 最低限の初期化のみ即実行（テーマと背景は applyTheme/applyBg で既に実行済み）
+// 重い処理は requestIdleCallback または setTimeout で遅延
+
+function deferredInit() {
+  renderHistory();
+  renderSlots();
+  renderLocalSlots();
+  renderLocalFilesHistory();
+}
+
+// 画面描画後に遅延実行
+if (window.requestIdleCallback) {
+  requestIdleCallback(deferredInit, { timeout: 1000 });
+} else {
+  setTimeout(deferredInit, 100);
+}
 </script>
 </body>
 </html>
