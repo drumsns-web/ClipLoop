@@ -1801,8 +1801,8 @@
 
   <!-- タイムスタンプ共有 -->
   <div class="share-row">
-    <button class="share-btn primary" id="shareABBtn">🔗 AB点URLをコピー</button>
-    <button class="share-btn" id="shareCurrentBtn">📍 現在位置URLをコピー</button>
+    <button class="share-btn primary" id="shareABBtn">🔁 ループ区間を共有</button>
+    <button class="share-btn" id="shareCurrentBtn">⏱ タイムスタンプ共有</button>
   </div>
 
   <!-- Speed -->
@@ -2662,7 +2662,7 @@ document.getElementById('shareABBtn').addEventListener('click', () => {
   if (pointA === null || pointB === null) { showToast('A点とB点を両方セットしてください'); return; }
   const url = `https://drumsns-web.github.io/ClipLoop/?v=${videoId}&a=${pointA.toFixed(1)}&b=${pointB.toFixed(1)}`;
   copyToClipboard(url);
-  showToast('🔗 AB点URLをコピーしました！');
+  showToast('🔁 ループ区間URLをコピーしました！');
 });
 
 document.getElementById('shareCurrentBtn').addEventListener('click', () => {
@@ -2670,7 +2670,7 @@ document.getElementById('shareCurrentBtn').addEventListener('click', () => {
   const cur = player.getCurrentTime() || 0;
   const url = `https://drumsns-web.github.io/ClipLoop/?v=${videoId}&a=${cur.toFixed(1)}`;
   copyToClipboard(url);
-  showToast('📍 現在位置URLをコピーしました！');
+  showToast('⏱ タイムスタンプURLをコピーしました！');
 });
 
 function copyToClipboard(text) {
