@@ -881,6 +881,14 @@
     color: var(--text-dim);
     letter-spacing: 0.1em;
     text-transform: uppercase;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .ab-label-text {
+    display: flex;
+    flex-direction: column;
   }
   .ab-label .point-letter {
     font-size: 18px;
@@ -904,10 +912,38 @@
   .ab-time-row {
     display: flex !important;
     align-items: center;
-    justify-content: space-between;
     gap: 6px;
-    margin: 4px 0 6px;
+    margin: 4px 0 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed var(--border);
   }
+  .ab-jump-btn {
+    flex: 1;
+    background: var(--surface);
+    border: 1.5px solid;
+    border-radius: 8px;
+    padding: 7px 4px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+  }
+  .ab-jump-btn.a-jump {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(212, 212, 220, 0.1);
+  }
+  .ab-jump-btn.b-jump {
+    border-color: var(--accent2);
+    color: var(--accent2);
+    background: rgba(212, 168, 87, 0.1);
+  }
+  .ab-jump-btn:active { transform: scale(0.95); opacity: 0.7; }
   .ab-time-row .ab-time {
     font-size: 22px;
     flex: 0 0 auto;
@@ -920,11 +956,85 @@
     margin: 0;
   }
   .ab-time-row .adj-btn {
-    padding: 5px 8px;
-    font-size: 10px;
-    min-width: 38px;
+    padding: 7px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    min-width: 42px;
     flex: 0 0 auto;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    transition: all 0.15s;
   }
+  .ab-time-row .adj-btn.a-adj {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .ab-time-row .adj-btn.b-adj {
+    border-color: var(--accent2);
+    color: var(--accent2);
+  }
+  .ab-time-row .adj-btn:active {
+    transform: scale(0.92);
+    opacity: 0.7;
+  }
+
+  /* AB区間ヘッダー */
+  .ab-grid-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    gap: 8px;
+  }
+  .ab-grid-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* メモボタン（コンパクト） */
+  .memo-btn {
+    background: linear-gradient(135deg, var(--surface2), var(--surface));
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    flex-shrink: 0;
+  }
+  /* B側のスペーサー（A側のメモボタンと同じ高さ） */
+  .memo-btn-spacer {
+    height: 28px;
+    flex-shrink: 0;
+  }
+  .memo-btn::before {
+    content: '📝';
+    font-size: 13px;
+  }
+  .memo-btn .memo-btn-text {
+    letter-spacing: 0.08em;
+  }
+  .memo-btn.has-content {
+    color: var(--accent2);
+    border-color: var(--accent2);
+    background: linear-gradient(135deg, rgba(212, 168, 87, 0.15), rgba(212, 168, 87, 0.05));
+    box-shadow: 0 1px 6px rgba(212, 168, 87, 0.3);
+  }
+  .memo-btn:active { transform: scale(0.95); opacity: 0.8; }
 
   /* AB微調整ボタン */
   .ab-adjust {
@@ -1603,16 +1713,16 @@
 </div>
 
 <div class="panel">
-  <div class="ab-grid-header">
-    <span class="ab-grid-title">AB区間</span>
-    <button class="memo-btn" id="ytMemoBtn">📝 メモ</button>
-  </div>
   <!-- AB Points -->
   <div class="ab-grid">
     <div class="ab-cell">
-      <div class="ab-label"><span class="point-letter a-letter">A</span>開始点</div>
+      <div class="ab-label">
+        <div class="ab-label-text"><span class="point-letter a-letter">A</span>開始点</div>
+        <button class="memo-btn" id="ytMemoBtn"><span class="memo-btn-text">メモ</span></button>
+      </div>
       <div class="ab-time-row">
         <div class="ab-time unset" id="aTimeDisplay">-- : --</div>
+        <button class="ab-jump-btn a-jump" id="aJumpBtn">⏮ A点へ</button>
         <div class="ab-adjust">
           <button class="adj-btn a-adj" id="aMinus">-0.5</button>
           <button class="adj-btn a-adj" id="aPlus">+0.5</button>
@@ -1621,9 +1731,13 @@
       <button class="ab-btn a-btn" id="setABtn">ここをAにセット</button>
     </div>
     <div class="ab-cell">
-      <div class="ab-label"><span class="point-letter b-letter">B</span>終了点</div>
+      <div class="ab-label">
+        <div class="ab-label-text"><span class="point-letter b-letter">B</span>終了点</div>
+        <div class="memo-btn-spacer"></div>
+      </div>
       <div class="ab-time-row">
         <div class="ab-time unset" id="bTimeDisplay">-- : --</div>
+        <button class="ab-jump-btn b-jump" id="bJumpBtn">⏭ B点へ</button>
         <div class="ab-adjust">
           <button class="adj-btn b-adj" id="bMinus">-0.5</button>
           <button class="adj-btn b-adj" id="bPlus">+0.5</button>
@@ -1808,15 +1922,15 @@
 </div>
 
 <div class="panel">
-  <div class="ab-grid-header">
-    <span class="ab-grid-title">AB区間</span>
-    <button class="memo-btn" id="localMemoBtn">📝 メモ</button>
-  </div>
   <div class="ab-grid">
     <div class="ab-cell">
-      <div class="ab-label"><span class="point-letter a-letter">A</span>開始点</div>
+      <div class="ab-label">
+        <div class="ab-label-text"><span class="point-letter a-letter">A</span>開始点</div>
+        <button class="memo-btn" id="localMemoBtn"><span class="memo-btn-text">メモ</span></button>
+      </div>
       <div class="ab-time-row">
         <div class="ab-time unset" id="localATime">-- : --</div>
+        <button class="ab-jump-btn a-jump" id="localAJumpBtn">⏮ A点へ</button>
         <div class="ab-adjust">
           <button class="adj-btn a-adj" id="localAMinus">-0.5</button>
           <button class="adj-btn a-adj" id="localAPlus">+0.5</button>
@@ -1825,9 +1939,13 @@
       <button class="ab-btn a-btn" id="localSetA">ここをAにセット</button>
     </div>
     <div class="ab-cell">
-      <div class="ab-label"><span class="point-letter b-letter">B</span>終了点</div>
+      <div class="ab-label">
+        <div class="ab-label-text"><span class="point-letter b-letter">B</span>終了点</div>
+        <div class="memo-btn-spacer"></div>
+      </div>
       <div class="ab-time-row">
         <div class="ab-time unset" id="localBTime">-- : --</div>
+        <button class="ab-jump-btn b-jump" id="localBJumpBtn">⏭ B点へ</button>
         <div class="ab-adjust">
           <button class="adj-btn b-adj" id="localBMinus">-0.5</button>
           <button class="adj-btn b-adj" id="localBPlus">+0.5</button>
@@ -4226,6 +4344,30 @@ loadFromLocalSlot = function(idx) {
   _origLoadFromLocalSlot(idx);
   setTimeout(autoOpenMemoIfHasContent, 50);
 };
+
+// ─── A点・B点へジャンプボタン ───
+// YouTube
+document.getElementById('aJumpBtn').addEventListener('click', () => {
+  if (!playerReady || pointA === null) { showToast('A点をセットしてください'); return; }
+  player.seekTo(pointA, true);
+  showToast('⏮ A点へジャンプ');
+});
+document.getElementById('bJumpBtn').addEventListener('click', () => {
+  if (!playerReady || pointB === null) { showToast('B点をセットしてください'); return; }
+  player.seekTo(pointB, true);
+  showToast('⏭ B点へジャンプ');
+});
+// ローカル
+document.getElementById('localAJumpBtn').addEventListener('click', () => {
+  if (!localMedia || localPointA === null) { showToast('A点をセットしてください'); return; }
+  localMedia.currentTime = localPointA;
+  showToast('⏮ A点へジャンプ');
+});
+document.getElementById('localBJumpBtn').addEventListener('click', () => {
+  if (!localMedia || localPointB === null) { showToast('B点をセットしてください'); return; }
+  localMedia.currentTime = localPointB;
+  showToast('⏭ B点へジャンプ');
+});
 
 // ─── Init（遅延実行で起動を高速化） ───
 // 最低限の初期化のみ即実行（テーマと背景は applyTheme/applyBg で既に実行済み）
