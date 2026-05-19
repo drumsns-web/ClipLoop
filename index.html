@@ -662,6 +662,31 @@
   }
   .settings-action-btn:active { opacity: 0.6; }
   .settings-action-btn.danger { color: #ff6b6b; border-color: #ff6b6b; }
+
+  /* FPS選択チップ */
+  .settings-fps-chips {
+    display: flex;
+    gap: 4px;
+  }
+  .settings-fps-chip {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: var(--text-dim);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 38px;
+  }
+  .settings-fps-chip.active {
+    background: rgba(212, 168, 87, 0.15);
+    border-color: var(--accent2);
+    color: var(--accent2);
+  }
+  .settings-fps-chip:active { opacity: 0.7; }
   .help-content {
     background: var(--surface2);
     border-radius: 8px;
@@ -921,10 +946,11 @@
   }
   .ab-jump-btn:active { transform: scale(0.95); opacity: 0.7; }
   .ab-time-row .ab-time {
-    font-size: 18px;
+    font-size: 15px;
     flex: 0 0 auto;
+    white-space: nowrap;
   }
-  .ab-time-row .ab-time.unset { font-size: 16px; }
+  .ab-time-row .ab-time.unset { font-size: 14px; }
   .ab-time-row .ab-adjust {
     display: flex;
     gap: 4px;
@@ -1735,6 +1761,12 @@
           <button class="adj-btn a-adj" id="aPlus005">+0.05</button>
           <button class="adj-btn a-adj" id="aPlus01">+0.1</button>
         </div>
+        <div class="ab-adjust">
+          <button class="adj-btn a-adj" id="aMinus2f">-2f</button>
+          <button class="adj-btn a-adj" id="aMinus1f">-1f</button>
+          <button class="adj-btn a-adj" id="aPlus1f">+1f</button>
+          <button class="adj-btn a-adj" id="aPlus2f">+2f</button>
+        </div>
       </div>
       <button class="ab-btn a-btn" id="setABtn">ここをAにセット</button>
     </div>
@@ -1757,6 +1789,12 @@
           <button class="adj-btn b-adj" id="bMinus005">-0.05</button>
           <button class="adj-btn b-adj" id="bPlus005">+0.05</button>
           <button class="adj-btn b-adj" id="bPlus01">+0.1</button>
+        </div>
+        <div class="ab-adjust">
+          <button class="adj-btn b-adj" id="bMinus2f">-2f</button>
+          <button class="adj-btn b-adj" id="bMinus1f">-1f</button>
+          <button class="adj-btn b-adj" id="bPlus1f">+1f</button>
+          <button class="adj-btn b-adj" id="bPlus2f">+2f</button>
         </div>
       </div>
       <button class="ab-btn b-btn" id="setBBtn">ここをBにセット</button>
@@ -1966,6 +2004,18 @@
           <button class="adj-btn a-adj" id="localAPlus005">+0.05</button>
           <button class="adj-btn a-adj" id="localAPlus01">+0.1</button>
         </div>
+        <div class="ab-adjust">
+          <button class="adj-btn a-adj" id="localAMinus2f">-2f</button>
+          <button class="adj-btn a-adj" id="localAMinus1f">-1f</button>
+          <button class="adj-btn a-adj" id="localAPlus1f">+1f</button>
+          <button class="adj-btn a-adj" id="localAPlus2f">+2f</button>
+        </div>
+        <div class="ab-adjust">
+          <button class="adj-btn a-adj" id="localAMinus5ms">-5ms</button>
+          <button class="adj-btn a-adj" id="localAMinus1ms">-1ms</button>
+          <button class="adj-btn a-adj" id="localAPlus1ms">+1ms</button>
+          <button class="adj-btn a-adj" id="localAPlus5ms">+5ms</button>
+        </div>
       </div>
       <button class="ab-btn a-btn" id="localSetA">ここをAにセット</button>
     </div>
@@ -1988,6 +2038,18 @@
           <button class="adj-btn b-adj" id="localBMinus005">-0.05</button>
           <button class="adj-btn b-adj" id="localBPlus005">+0.05</button>
           <button class="adj-btn b-adj" id="localBPlus01">+0.1</button>
+        </div>
+        <div class="ab-adjust">
+          <button class="adj-btn b-adj" id="localBMinus2f">-2f</button>
+          <button class="adj-btn b-adj" id="localBMinus1f">-1f</button>
+          <button class="adj-btn b-adj" id="localBPlus1f">+1f</button>
+          <button class="adj-btn b-adj" id="localBPlus2f">+2f</button>
+        </div>
+        <div class="ab-adjust">
+          <button class="adj-btn b-adj" id="localBMinus5ms">-5ms</button>
+          <button class="adj-btn b-adj" id="localBMinus1ms">-1ms</button>
+          <button class="adj-btn b-adj" id="localBPlus1ms">+1ms</button>
+          <button class="adj-btn b-adj" id="localBPlus5ms">+5ms</button>
         </div>
       </div>
       <button class="ab-btn b-btn" id="localSetB">ここをBにセット</button>
@@ -2277,6 +2339,17 @@
           <div class="settings-row-sub">ループの瞬間にビープ音</div>
         </div>
         <button class="tempo-up-onoff" id="settingLoopBeep" style="min-width:60px;padding:6px 14px">OFF</button>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">動画のFPS</div>
+          <div class="settings-row-sub">「±1f」ボタンの移動量に使用</div>
+        </div>
+        <div class="settings-fps-chips" id="settingFps">
+          <button class="settings-fps-chip" data-fps="24">24</button>
+          <button class="settings-fps-chip" data-fps="30">30</button>
+          <button class="settings-fps-chip active" data-fps="60">60</button>
+        </div>
       </div>
     </div>
 
@@ -2589,7 +2662,7 @@ document.getElementById('aPlus1s').addEventListener('click', () => {
 // A点 微調整（±0.1, ±0.05）
 function adjustPointA(delta) {
   if (pointA === null) { showToast('A点を先にセットしてください'); return; }
-  let newA = parseFloat((pointA + delta).toFixed(2));
+  let newA = parseFloat((pointA + delta).toFixed(3));
   newA = Math.max(0, newA);
   if (pointB !== null) newA = Math.min(pointB - 0.05, newA);
   pointA = newA;
@@ -2601,6 +2674,12 @@ document.getElementById('aMinus01').addEventListener('click', () => adjustPointA
 document.getElementById('aMinus005').addEventListener('click', () => adjustPointA(-0.05));
 document.getElementById('aPlus005').addEventListener('click', () => adjustPointA(0.05));
 document.getElementById('aPlus01').addEventListener('click', () => adjustPointA(0.1));
+// フレーム単位（設定で可変）
+let currentFrameSec = 1 / 60;
+document.getElementById('aMinus2f').addEventListener('click', () => adjustPointA(-currentFrameSec * 2));
+document.getElementById('aMinus1f').addEventListener('click', () => adjustPointA(-currentFrameSec));
+document.getElementById('aPlus1f').addEventListener('click', () => adjustPointA(currentFrameSec));
+document.getElementById('aPlus2f').addEventListener('click', () => adjustPointA(currentFrameSec * 2));
 document.getElementById('bMinus').addEventListener('click', () => {
   if (pointB === null) { showToast('B点を先にセットしてください'); return; }
   pointB = pointA !== null ? Math.max(pointA + 0.5, pointB - 0.5) : Math.max(0, pointB - 0.5);
@@ -2628,7 +2707,7 @@ document.getElementById('bPlus1s').addEventListener('click', () => {
 // B点 微調整（±0.1, ±0.05）
 function adjustPointB(delta) {
   if (pointB === null) { showToast('B点を先にセットしてください'); return; }
-  let newB = parseFloat((pointB + delta).toFixed(2));
+  let newB = parseFloat((pointB + delta).toFixed(3));
   newB = Math.min(duration || 99999, newB);
   if (pointA !== null) newB = Math.max(pointA + 0.05, newB);
   pointB = newB;
@@ -2639,6 +2718,10 @@ document.getElementById('bMinus01').addEventListener('click', () => adjustPointB
 document.getElementById('bMinus005').addEventListener('click', () => adjustPointB(-0.05));
 document.getElementById('bPlus005').addEventListener('click', () => adjustPointB(0.05));
 document.getElementById('bPlus01').addEventListener('click', () => adjustPointB(0.1));
+document.getElementById('bMinus2f').addEventListener('click', () => adjustPointB(-currentFrameSec * 2));
+document.getElementById('bMinus1f').addEventListener('click', () => adjustPointB(-currentFrameSec));
+document.getElementById('bPlus1f').addEventListener('click', () => adjustPointB(currentFrameSec));
+document.getElementById('bPlus2f').addEventListener('click', () => adjustPointB(currentFrameSec * 2));
 
 // YouTube スピード微細調整
 document.querySelectorAll('[data-yt-speed-delta]').forEach(btn => {
@@ -3460,7 +3543,7 @@ document.getElementById('localAPlus1s').addEventListener('click', () => {
 // ローカル A点 微調整
 function adjustLocalPointA(delta) {
   if (localPointA === null) { showToast('A点をセット'); return; }
-  let newA = parseFloat((localPointA + delta).toFixed(2));
+  let newA = parseFloat((localPointA + delta).toFixed(3));
   newA = Math.max(0, newA);
   if (localPointB !== null) newA = Math.min(localPointB - 0.05, newA);
   localPointA = newA;
@@ -3471,6 +3554,15 @@ document.getElementById('localAMinus01').addEventListener('click', () => adjustL
 document.getElementById('localAMinus005').addEventListener('click', () => adjustLocalPointA(-0.05));
 document.getElementById('localAPlus005').addEventListener('click', () => adjustLocalPointA(0.05));
 document.getElementById('localAPlus01').addEventListener('click', () => adjustLocalPointA(0.1));
+document.getElementById('localAMinus2f').addEventListener('click', () => adjustLocalPointA(-currentFrameSec * 2));
+document.getElementById('localAMinus1f').addEventListener('click', () => adjustLocalPointA(-currentFrameSec));
+document.getElementById('localAPlus1f').addEventListener('click', () => adjustLocalPointA(currentFrameSec));
+document.getElementById('localAPlus2f').addEventListener('click', () => adjustLocalPointA(currentFrameSec * 2));
+// ms単位
+document.getElementById('localAMinus5ms').addEventListener('click', () => adjustLocalPointA(-0.005));
+document.getElementById('localAMinus1ms').addEventListener('click', () => adjustLocalPointA(-0.001));
+document.getElementById('localAPlus1ms').addEventListener('click', () => adjustLocalPointA(0.001));
+document.getElementById('localAPlus5ms').addEventListener('click', () => adjustLocalPointA(0.005));
 document.getElementById('localBMinus1s').addEventListener('click', () => {
   if (localPointB === null) { showToast('B点をセット'); return; }
   localPointB = localPointA !== null ? Math.max(localPointA + 0.5, localPointB - 1) : Math.max(0, localPointB - 1);
@@ -3485,7 +3577,7 @@ document.getElementById('localBPlus1s').addEventListener('click', () => {
 // ローカル B点 微調整
 function adjustLocalPointB(delta) {
   if (localPointB === null) { showToast('B点をセット'); return; }
-  let newB = parseFloat((localPointB + delta).toFixed(2));
+  let newB = parseFloat((localPointB + delta).toFixed(3));
   const dur = localMedia ? localMedia.duration : 99999;
   newB = Math.min(dur, newB);
   if (localPointA !== null) newB = Math.max(localPointA + 0.05, newB);
@@ -3496,6 +3588,15 @@ document.getElementById('localBMinus01').addEventListener('click', () => adjustL
 document.getElementById('localBMinus005').addEventListener('click', () => adjustLocalPointB(-0.05));
 document.getElementById('localBPlus005').addEventListener('click', () => adjustLocalPointB(0.05));
 document.getElementById('localBPlus01').addEventListener('click', () => adjustLocalPointB(0.1));
+document.getElementById('localBMinus2f').addEventListener('click', () => adjustLocalPointB(-currentFrameSec * 2));
+document.getElementById('localBMinus1f').addEventListener('click', () => adjustLocalPointB(-currentFrameSec));
+document.getElementById('localBPlus1f').addEventListener('click', () => adjustLocalPointB(currentFrameSec));
+document.getElementById('localBPlus2f').addEventListener('click', () => adjustLocalPointB(currentFrameSec * 2));
+// ms単位
+document.getElementById('localBMinus5ms').addEventListener('click', () => adjustLocalPointB(-0.005));
+document.getElementById('localBMinus1ms').addEventListener('click', () => adjustLocalPointB(-0.001));
+document.getElementById('localBPlus1ms').addEventListener('click', () => adjustLocalPointB(0.001));
+document.getElementById('localBPlus5ms').addEventListener('click', () => adjustLocalPointB(0.005));
 // ローカル スピード微細調整
 document.querySelectorAll('[data-local-speed-delta]').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -4175,9 +4276,12 @@ function saveSettings() {
   const s = {
     defaultSpeed: parseInt(document.getElementById('settingDefaultSpeed').value) || 100,
     autoJumpToA: document.getElementById('settingAutoJumpToA').classList.contains('on'),
-    loopBeep: document.getElementById('settingLoopBeep').classList.contains('on')
+    loopBeep: document.getElementById('settingLoopBeep').classList.contains('on'),
+    fps: parseInt(document.querySelector('.settings-fps-chip.active')?.dataset.fps) || 60
   };
   localStorage.setItem('cliploop_settings', JSON.stringify(s));
+  // フレーム時間を更新
+  currentFrameSec = 1 / s.fps;
 }
 function applySettings() {
   const s = loadSettings();
@@ -4188,7 +4292,24 @@ function applySettings() {
   const beepBtn = document.getElementById('settingLoopBeep');
   beepBtn.classList.toggle('on', !!s.loopBeep);
   beepBtn.textContent = s.loopBeep ? 'ON' : 'OFF';
+  // FPS設定を反映
+  const fps = s.fps || 60;
+  document.querySelectorAll('.settings-fps-chip').forEach(c => {
+    c.classList.toggle('active', parseInt(c.dataset.fps) === fps);
+  });
+  currentFrameSec = 1 / fps;
 }
+
+// FPSチップのクリック
+document.querySelectorAll('.settings-fps-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.settings-fps-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    saveSettings();
+    const fps = parseInt(chip.dataset.fps);
+    showToast(`動画FPSを ${fps}fps に変更`);
+  });
+});
 
 // デフォルト速度入力時にも保存
 document.getElementById('settingDefaultSpeed').addEventListener('change', saveSettings);
