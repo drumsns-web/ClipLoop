@@ -909,21 +909,42 @@
   }
   .ab-time.unset { color: var(--text-dim); font-size: 16px; }
 
-  /* AB時刻と±0.5ボタンを横並び（時刻を左、ボタンを右） */
+  /* 時刻表示行（時刻 + A点へボタン） */
   .ab-time-row {
     display: flex !important;
     align-items: center;
     gap: 6px;
-    margin: 4px 0 14px;
-    padding-bottom: 10px;
-    border-bottom: 1px dashed var(--border);
+    margin: 0 0 6px;
+    padding: 0;
+  }
+  .ab-time-row .ab-time {
+    flex: 1;
+    min-width: 0;
+  }
+  .ab-time-row .ab-jump-btn {
+    flex-shrink: 0;
+  }
+  /* ±ボタン群（width 100% で時刻行の下に） */
+  .ab-adjust-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+  }
+  .ab-adjust-row {
+    display: flex;
+    gap: 4px;
+    width: 100%;
+  }
+  .ab-adjust-row .adj-btn {
+    flex: 1;
+    min-width: 0;
   }
   .ab-jump-btn {
-    flex: 1;
     background: var(--surface);
     border: 1.5px solid;
     border-radius: 8px;
-    padding: 7px 4px;
+    padding: 7px 8px;
     font-family: 'Space Mono', monospace;
     font-size: 11px;
     font-weight: 700;
@@ -933,6 +954,7 @@
     align-items: center;
     justify-content: center;
     gap: 3px;
+    flex-shrink: 0;
   }
   .ab-jump-btn.a-jump {
     border-color: var(--accent);
@@ -957,18 +979,25 @@
     flex-shrink: 0;
     margin: 0;
   }
-  .ab-time-row .adj-btn {
-    padding: 6px 6px;
-    font-size: 10px;
+  .adj-btn {
+    padding: 5px 2px;
+    font-size: 9px;
     font-weight: 700;
-    min-width: 34px;
-    flex: 0 0 auto;
     background: var(--surface);
     border: 1.5px solid var(--border);
     border-radius: 6px;
     color: var(--text);
     box-shadow: 0 1px 2px rgba(0,0,0,0.3);
     transition: all 0.15s;
+    min-width: 0;
+  }
+  .adj-btn.a-adj {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .adj-btn.b-adj {
+    border-color: var(--accent2);
+    color: var(--accent2);
   }
   .ab-time-row .adj-btn.a-adj {
     border-color: var(--accent);
@@ -1746,58 +1775,62 @@
         <div class="ab-label-text"><span class="point-letter a-letter">A</span>開始点</div>
         <button class="memo-btn" id="ytMemoBtn"><span class="memo-btn-text">メモ</span></button>
       </div>
+      <button class="ab-btn a-btn" id="setABtn">ここをAにセット</button>
       <div class="ab-time-row">
         <div class="ab-time unset" id="aTimeDisplay">-- : --</div>
         <button class="ab-jump-btn a-jump" id="aJumpBtn">⏮ A点へ</button>
-        <div class="ab-adjust">
+      </div>
+      <div class="ab-adjust-group">
+        <div class="ab-adjust-row">
           <button class="adj-btn a-adj" id="aMinus1s">-1s</button>
           <button class="adj-btn a-adj" id="aMinus">-0.5</button>
           <button class="adj-btn a-adj" id="aPlus">+0.5</button>
           <button class="adj-btn a-adj" id="aPlus1s">+1s</button>
         </div>
-        <div class="ab-adjust">
+        <div class="ab-adjust-row">
           <button class="adj-btn a-adj" id="aMinus01">-0.1</button>
           <button class="adj-btn a-adj" id="aMinus005">-0.05</button>
           <button class="adj-btn a-adj" id="aPlus005">+0.05</button>
           <button class="adj-btn a-adj" id="aPlus01">+0.1</button>
         </div>
-        <div class="ab-adjust">
+        <div class="ab-adjust-row">
           <button class="adj-btn a-adj" id="aMinus2f">-2f</button>
           <button class="adj-btn a-adj" id="aMinus1f">-1f</button>
           <button class="adj-btn a-adj" id="aPlus1f">+1f</button>
           <button class="adj-btn a-adj" id="aPlus2f">+2f</button>
         </div>
       </div>
-      <button class="ab-btn a-btn" id="setABtn">ここをAにセット</button>
     </div>
     <div class="ab-cell">
       <div class="ab-label">
         <div class="ab-label-text"><span class="point-letter b-letter">B</span>終了点</div>
         <div class="memo-btn-spacer"></div>
       </div>
+      <button class="ab-btn b-btn" id="setBBtn">ここをBにセット</button>
       <div class="ab-time-row">
         <div class="ab-time unset" id="bTimeDisplay">-- : --</div>
         <button class="ab-jump-btn b-jump" id="bJumpBtn">⏭ B点へ</button>
-        <div class="ab-adjust">
+      </div>
+      <div class="ab-adjust-group">
+        <div class="ab-adjust-row">
           <button class="adj-btn b-adj" id="bMinus1s">-1s</button>
           <button class="adj-btn b-adj" id="bMinus">-0.5</button>
           <button class="adj-btn b-adj" id="bPlus">+0.5</button>
           <button class="adj-btn b-adj" id="bPlus1s">+1s</button>
         </div>
-        <div class="ab-adjust">
+        <div class="ab-adjust-row">
           <button class="adj-btn b-adj" id="bMinus01">-0.1</button>
           <button class="adj-btn b-adj" id="bMinus005">-0.05</button>
           <button class="adj-btn b-adj" id="bPlus005">+0.05</button>
           <button class="adj-btn b-adj" id="bPlus01">+0.1</button>
         </div>
-        <div class="ab-adjust">
+        <div class="ab-adjust-row">
           <button class="adj-btn b-adj" id="bMinus2f">-2f</button>
           <button class="adj-btn b-adj" id="bMinus1f">-1f</button>
           <button class="adj-btn b-adj" id="bPlus1f">+1f</button>
           <button class="adj-btn b-adj" id="bPlus2f">+2f</button>
         </div>
       </div>
-      <button class="ab-btn b-btn" id="setBBtn">ここをBにセット</button>
     </div>
   </div>
 
@@ -1989,70 +2022,74 @@
         <div class="ab-label-text"><span class="point-letter a-letter">A</span>開始点</div>
         <button class="memo-btn" id="localMemoBtn"><span class="memo-btn-text">メモ</span></button>
       </div>
+      <button class="ab-btn a-btn" id="localSetA">ここをAにセット</button>
       <div class="ab-time-row">
         <div class="ab-time unset" id="localATime">-- : --</div>
         <button class="ab-jump-btn a-jump" id="localAJumpBtn">⏮ A点へ</button>
-        <div class="ab-adjust">
+      </div>
+      <div class="ab-adjust-group">
+        <div class="ab-adjust-row">
           <button class="adj-btn a-adj" id="localAMinus1s">-1s</button>
           <button class="adj-btn a-adj" id="localAMinus">-0.5</button>
           <button class="adj-btn a-adj" id="localAPlus">+0.5</button>
           <button class="adj-btn a-adj" id="localAPlus1s">+1s</button>
         </div>
-        <div class="ab-adjust">
+        <div class="ab-adjust-row">
           <button class="adj-btn a-adj" id="localAMinus01">-0.1</button>
           <button class="adj-btn a-adj" id="localAMinus005">-0.05</button>
           <button class="adj-btn a-adj" id="localAPlus005">+0.05</button>
           <button class="adj-btn a-adj" id="localAPlus01">+0.1</button>
         </div>
-        <div class="ab-adjust">
+        <div class="ab-adjust-row">
           <button class="adj-btn a-adj" id="localAMinus2f">-2f</button>
           <button class="adj-btn a-adj" id="localAMinus1f">-1f</button>
           <button class="adj-btn a-adj" id="localAPlus1f">+1f</button>
           <button class="adj-btn a-adj" id="localAPlus2f">+2f</button>
         </div>
-        <div class="ab-adjust">
+        <div class="ab-adjust-row">
           <button class="adj-btn a-adj" id="localAMinus5ms">-5ms</button>
           <button class="adj-btn a-adj" id="localAMinus1ms">-1ms</button>
           <button class="adj-btn a-adj" id="localAPlus1ms">+1ms</button>
           <button class="adj-btn a-adj" id="localAPlus5ms">+5ms</button>
         </div>
       </div>
-      <button class="ab-btn a-btn" id="localSetA">ここをAにセット</button>
     </div>
     <div class="ab-cell">
       <div class="ab-label">
         <div class="ab-label-text"><span class="point-letter b-letter">B</span>終了点</div>
         <div class="memo-btn-spacer"></div>
       </div>
+      <button class="ab-btn b-btn" id="localSetB">ここをBにセット</button>
       <div class="ab-time-row">
         <div class="ab-time unset" id="localBTime">-- : --</div>
         <button class="ab-jump-btn b-jump" id="localBJumpBtn">⏭ B点へ</button>
-        <div class="ab-adjust">
+      </div>
+      <div class="ab-adjust-group">
+        <div class="ab-adjust-row">
           <button class="adj-btn b-adj" id="localBMinus1s">-1s</button>
           <button class="adj-btn b-adj" id="localBMinus">-0.5</button>
           <button class="adj-btn b-adj" id="localBPlus">+0.5</button>
           <button class="adj-btn b-adj" id="localBPlus1s">+1s</button>
         </div>
-        <div class="ab-adjust">
+        <div class="ab-adjust-row">
           <button class="adj-btn b-adj" id="localBMinus01">-0.1</button>
           <button class="adj-btn b-adj" id="localBMinus005">-0.05</button>
           <button class="adj-btn b-adj" id="localBPlus005">+0.05</button>
           <button class="adj-btn b-adj" id="localBPlus01">+0.1</button>
         </div>
-        <div class="ab-adjust">
+        <div class="ab-adjust-row">
           <button class="adj-btn b-adj" id="localBMinus2f">-2f</button>
           <button class="adj-btn b-adj" id="localBMinus1f">-1f</button>
           <button class="adj-btn b-adj" id="localBPlus1f">+1f</button>
           <button class="adj-btn b-adj" id="localBPlus2f">+2f</button>
         </div>
-        <div class="ab-adjust">
+        <div class="ab-adjust-row">
           <button class="adj-btn b-adj" id="localBMinus5ms">-5ms</button>
           <button class="adj-btn b-adj" id="localBMinus1ms">-1ms</button>
           <button class="adj-btn b-adj" id="localBPlus1ms">+1ms</button>
           <button class="adj-btn b-adj" id="localBPlus5ms">+5ms</button>
         </div>
       </div>
-      <button class="ab-btn b-btn" id="localSetB">ここをBにセット</button>
     </div>
   </div>
 
