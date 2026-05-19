@@ -23,13 +23,9 @@
   body.theme-a { --accent: #d4d4dc; --accent2: #d4a857; }
   body.theme-b { --accent: #00e5ff; --accent2: #ff3d71; }
   body.theme-c { --accent: #6ec1e4; --accent2: #f0a868; }
-  body.theme-d { --accent: #4ade80; --accent2: #fb923c; }
-  body.theme-e { --accent: #a78bfa; --accent2: #f472b6; }
-  body.theme-f { --accent: #39ff14; --accent2: #ff10f0; }
-  body.theme-g { --accent: #ff6b9d; --accent2: #ffd166; }
-  body.theme-h { --accent: #ffffff; --accent2: #e63946; }
-  body.theme-i { --accent: #a3d977; --accent2: #c08c5c; }
-  body.theme-j { --accent: #4dd0e1; --accent2: #5e72e4; }
+  body.theme-d { --accent: #a78bfa; --accent2: #f472b6; }
+  body.theme-e { --accent: #a3d977; --accent2: #c08c5c; }
+  body.theme-f { --accent: #4dd0e1; --accent2: #5e72e4; }
 
   /* 背景テーマ */
   body.bg-1 { --bg: #0a0a0f; --surface: #13131a; --surface2: #1c1c28; --border: #2a2a3a; --text: #e8e8f0; --text-dim: #6b6b80; }
@@ -38,29 +34,11 @@
   body.bg-4 { --bg: #1f1814; --surface: #2a2118; --surface2: #352a1f; --border: #3a2f25; --text: #f0e8dc; --text-dim: #95867a; }
   body.bg-5 { --bg: #181820; --surface: #232330; --surface2: #2c2c3e; --border: #353545; --text: #e8e8f0; --text-dim: #7a7a90; }
   /* 明るい背景：文字色を黒系に自動調整 */
-  body.bg-6 { --bg: #f5f1ea; --surface: #ffffff; --surface2: #ebe6dd; --border: #d4cfc4; --text: #1a1a1a; --text-dim: #6b6b6b; }
-  body.bg-7 { --bg: #ffffff; --surface: #f5f5f5; --surface2: #ebebeb; --border: #d0d0d0; --text: #1a1a1a; --text-dim: #707070; }
 
   /* 明るい背景の時のaccent調整（コントラスト確保） */
-  body.bg-6.theme-a, body.bg-7.theme-a { --accent: #6b7280; --accent2: #b8860b; }
-  body.bg-6.theme-b, body.bg-7.theme-b { --accent: #0099aa; --accent2: #c92858; }
-  body.bg-6.theme-c, body.bg-7.theme-c { --accent: #2b87b3; --accent2: #c97e3a; }
-  body.bg-6.theme-d, body.bg-7.theme-d { --accent: #2da866; --accent2: #d97725; }
-  body.bg-6.theme-e, body.bg-7.theme-e { --accent: #7c5cd6; --accent2: #d04794; }
-  body.bg-6.theme-f, body.bg-7.theme-f { --accent: #1ec90a; --accent2: #c10ab5; }
-  body.bg-6.theme-g, body.bg-7.theme-g { --accent: #d94e7d; --accent2: #c79c2c; }
-  body.bg-6.theme-h, body.bg-7.theme-h { --accent: #1a1a1a; --accent2: #c52837; }
-  body.bg-6.theme-i, body.bg-7.theme-i { --accent: #6db347; --accent2: #8c6234; }
-  body.bg-6.theme-j, body.bg-7.theme-j { --accent: #2b9eb0; --accent2: #3d52c0; }
 
   /* 明るい背景時の波形カーソル（A点マーカーなど）も調整 */
-  body.bg-6 .waveform-cursor, body.bg-7 .waveform-cursor { background: #d04794; }
   /* 明るい背景時の各種微調整 */
-  body.bg-6 .url-input, body.bg-7 .url-input { color: var(--text); }
-  body.bg-6 .memo-input, body.bg-7 .memo-input { color: var(--text); }
-  body.bg-6 .modal-input, body.bg-7 .modal-input { color: var(--text); }
-  body.bg-6 .tempo-up-section, body.bg-7 .tempo-up-section { background: var(--surface2); }
-  body.bg-6 .video-placeholder, body.bg-7 .video-placeholder { background: var(--surface); }
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
@@ -78,6 +56,7 @@
     align-items: center;
     gap: 10px;
     padding: 12px 12px 0;
+    justify-content: space-between;
   }
 
   /* モード切替タブ */
@@ -586,30 +565,27 @@
   .modal-btn.primary { border-color: var(--accent); color: var(--accent); }
   .modal-btn:active { opacity: 0.6; }
 
-  /* 設定ボタン（目立つように） */
+  /* 設定ボタン（ヘッダー内） */
   .settings-btn {
-    position: fixed;
-    top: 14px;
-    right: 14px;
     background: var(--accent);
     border: 2px solid var(--accent);
-    border-radius: 12px;
-    padding: 8px 14px;
+    border-radius: 10px;
+    padding: 7px 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 4px;
     color: #000;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     font-family: 'Space Mono', monospace;
-    z-index: 100;
     transition: all 0.2s;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    flex-shrink: 0;
   }
   .settings-btn:active { transform: scale(0.95); opacity: 0.8; }
-  .settings-btn-icon { font-size: 16px; }
+  .settings-btn-icon { font-size: 14px; }
 
   /* 設定モーダル（広めに） */
   #settingsModal .modal {
@@ -1683,6 +1659,7 @@
     <div class="logo">Clip<span>Loop</span></div>
     <div class="tagline">A→B 区間リピート</div>
   </div>
+  <button class="settings-btn" id="settingsBtn" title="設定"><span class="settings-btn-icon">⚙</span>設定</button>
 </header>
 
 <!-- モード切替タブ -->
@@ -2134,8 +2111,6 @@
 <div class="toast" id="toast"></div>
 
 <!-- 設定ボタン -->
-<button class="settings-btn" id="settingsBtn" title="設定"><span class="settings-btn-icon">⚙</span>設定</button>
-
 <!-- 設定モーダル -->
 <div class="modal-bg" id="settingsModal">
   <div class="modal">
@@ -2161,37 +2136,17 @@
           <div class="theme-dots"><div class="theme-dot" style="background:#6ec1e4"></div><div class="theme-dot" style="background:#f0a868"></div></div>
         </div>
         <div class="theme-card" data-theme="d">
-          <div class="theme-name">D：グリーン＆オレンジ</div>
-          <div class="theme-preview"><span class="theme-preview-a" style="color:#4ade80">Clip</span><span class="theme-preview-b" style="color:#fb923c">Loop</span></div>
-          <div class="theme-dots"><div class="theme-dot" style="background:#4ade80"></div><div class="theme-dot" style="background:#fb923c"></div></div>
-        </div>
-        <div class="theme-card" data-theme="e">
-          <div class="theme-name">E：パープル＆ピンク</div>
+          <div class="theme-name">D：パープル＆ピンク</div>
           <div class="theme-preview"><span class="theme-preview-a" style="color:#a78bfa">Clip</span><span class="theme-preview-b" style="color:#f472b6">Loop</span></div>
           <div class="theme-dots"><div class="theme-dot" style="background:#a78bfa"></div><div class="theme-dot" style="background:#f472b6"></div></div>
         </div>
-        <div class="theme-card" data-theme="f">
-          <div class="theme-name">F：ネオン</div>
-          <div class="theme-preview"><span class="theme-preview-a" style="color:#39ff14">Clip</span><span class="theme-preview-b" style="color:#ff10f0">Loop</span></div>
-          <div class="theme-dots"><div class="theme-dot" style="background:#39ff14"></div><div class="theme-dot" style="background:#ff10f0"></div></div>
-        </div>
-        <div class="theme-card" data-theme="g">
-          <div class="theme-name">G：サンセット</div>
-          <div class="theme-preview"><span class="theme-preview-a" style="color:#ff6b9d">Clip</span><span class="theme-preview-b" style="color:#ffd166">Loop</span></div>
-          <div class="theme-dots"><div class="theme-dot" style="background:#ff6b9d"></div><div class="theme-dot" style="background:#ffd166"></div></div>
-        </div>
-        <div class="theme-card" data-theme="h">
-          <div class="theme-name">H：モノクローム</div>
-          <div class="theme-preview"><span class="theme-preview-a" style="color:#ffffff">Clip</span><span class="theme-preview-b" style="color:#e63946">Loop</span></div>
-          <div class="theme-dots"><div class="theme-dot" style="background:#ffffff"></div><div class="theme-dot" style="background:#e63946"></div></div>
-        </div>
-        <div class="theme-card" data-theme="i">
-          <div class="theme-name">I：フォレスト</div>
+        <div class="theme-card" data-theme="e">
+          <div class="theme-name">E：フォレスト</div>
           <div class="theme-preview"><span class="theme-preview-a" style="color:#a3d977">Clip</span><span class="theme-preview-b" style="color:#c08c5c">Loop</span></div>
           <div class="theme-dots"><div class="theme-dot" style="background:#a3d977"></div><div class="theme-dot" style="background:#c08c5c"></div></div>
         </div>
-        <div class="theme-card" data-theme="j">
-          <div class="theme-name">J：オーシャン</div>
+        <div class="theme-card" data-theme="f">
+          <div class="theme-name">F：オーシャン</div>
           <div class="theme-preview"><span class="theme-preview-a" style="color:#4dd0e1">Clip</span><span class="theme-preview-b" style="color:#5e72e4">Loop</span></div>
           <div class="theme-dots"><div class="theme-dot" style="background:#4dd0e1"></div><div class="theme-dot" style="background:#5e72e4"></div></div>
         </div>
@@ -2221,14 +2176,6 @@
         <div class="theme-card" data-bg="5" style="background:#181820">
           <div class="theme-name">⑤ スラットブラック</div>
           <div class="theme-preview"><span class="theme-preview-a" style="color:#d4d4dc">Sample</span></div>
-        </div>
-        <div class="theme-card" data-bg="6" style="background:#f5f1ea">
-          <div class="theme-name" style="color:#666">⑥ クリーム</div>
-          <div class="theme-preview"><span class="theme-preview-a" style="color:#1a1a1a">Sample</span></div>
-        </div>
-        <div class="theme-card" data-bg="7" style="background:#ffffff">
-          <div class="theme-name" style="color:#666">⑦ ホワイト</div>
-          <div class="theme-preview"><span class="theme-preview-a" style="color:#1a1a1a">Sample</span></div>
         </div>
       </div>
     </div>
@@ -3951,14 +3898,21 @@ function autoOpenMemoIfHasContent() {
 
 // ─── テーマ切替 ───
 function applyTheme(theme) {
-  document.body.classList.remove('theme-a', 'theme-b', 'theme-c', 'theme-d', 'theme-e', 'theme-f', 'theme-g', 'theme-h', 'theme-i', 'theme-j');
+  document.body.classList.remove('theme-a', 'theme-b', 'theme-c', 'theme-d', 'theme-e', 'theme-f');
   document.body.classList.add('theme-' + theme);
   // 選択状態を更新
   document.querySelectorAll('.theme-card').forEach(c => c.classList.toggle('active', c.dataset.theme === theme));
   localStorage.setItem('cliploop_theme', theme);
 }
 function loadTheme() {
-  return localStorage.getItem('cliploop_theme') || 'a';
+  let t = localStorage.getItem('cliploop_theme') || 'a';
+  // 旧テーマ名から新テーマ名への移行
+  const migrate = { 'd': 'a', 'e': 'd', 'f': 'a', 'g': 'a', 'h': 'a', 'i': 'e', 'j': 'f' };
+  if (migrate[t]) {
+    t = migrate[t];
+    localStorage.setItem('cliploop_theme', t);
+  }
+  return t;
 }
 
 // 初期テーマ適用
@@ -3987,7 +3941,7 @@ document.querySelectorAll('.theme-card[data-theme]').forEach(card => {
 
 // 背景色カード
 function applyBg(bg) {
-  document.body.classList.remove('bg-1', 'bg-2', 'bg-3', 'bg-4', 'bg-5', 'bg-6', 'bg-7');
+  document.body.classList.remove('bg-1', 'bg-2', 'bg-3', 'bg-4', 'bg-5');
   document.body.classList.add('bg-' + bg);
   document.querySelectorAll('.theme-card[data-bg]').forEach(c => c.classList.toggle('active', c.dataset.bg === bg));
   localStorage.setItem('cliploop_bg', bg);
