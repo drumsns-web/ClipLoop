@@ -932,14 +932,14 @@
     margin: 0;
   }
   .ab-time-row .adj-btn {
-    padding: 7px 10px;
-    font-size: 11px;
+    padding: 6px 6px;
+    font-size: 10px;
     font-weight: 700;
-    min-width: 42px;
+    min-width: 34px;
     flex: 0 0 auto;
     background: var(--surface);
     border: 1.5px solid var(--border);
-    border-radius: 8px;
+    border-radius: 6px;
     color: var(--text);
     box-shadow: 0 1px 2px rgba(0,0,0,0.3);
     transition: all 0.15s;
@@ -1262,6 +1262,29 @@
     color: var(--text-dim);
     letter-spacing: 0.08em;
     min-width: 40px;
+  }
+  .speed-micro {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    margin-top: 6px;
+  }
+  .speed-micro-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 4px;
+    color: var(--text-dim);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .speed-micro-btn:active {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: scale(0.95);
   }
   .speed-fine-value {
     font-family: 'Space Mono', monospace;
@@ -1701,8 +1724,10 @@
         <div class="ab-time unset" id="aTimeDisplay">-- : --</div>
         <button class="ab-jump-btn a-jump" id="aJumpBtn">⏮ A点へ</button>
         <div class="ab-adjust">
+          <button class="adj-btn a-adj" id="aMinus1s">-1s</button>
           <button class="adj-btn a-adj" id="aMinus">-0.5</button>
           <button class="adj-btn a-adj" id="aPlus">+0.5</button>
+          <button class="adj-btn a-adj" id="aPlus1s">+1s</button>
         </div>
       </div>
       <button class="ab-btn a-btn" id="setABtn">ここをAにセット</button>
@@ -1716,8 +1741,10 @@
         <div class="ab-time unset" id="bTimeDisplay">-- : --</div>
         <button class="ab-jump-btn b-jump" id="bJumpBtn">⏭ B点へ</button>
         <div class="ab-adjust">
+          <button class="adj-btn b-adj" id="bMinus1s">-1s</button>
           <button class="adj-btn b-adj" id="bMinus">-0.5</button>
           <button class="adj-btn b-adj" id="bPlus">+0.5</button>
+          <button class="adj-btn b-adj" id="bPlus1s">+1s</button>
         </div>
       </div>
       <button class="ab-btn b-btn" id="setBBtn">ここをBにセット</button>
@@ -1807,6 +1834,13 @@
     <span class="speed-fine-label">FINE</span>
     <input type="range" class="speed-fine-slider" id="speedSlider" min="0.5" max="2" step="0.05" value="1">
     <span class="speed-fine-value" id="speedSliderValue">1.00×</span>
+  </div>
+  <!-- スピード微細調整ボタン -->
+  <div class="speed-micro">
+    <button class="speed-micro-btn" data-yt-speed-delta="-0.05">-0.05</button>
+    <button class="speed-micro-btn" data-yt-speed-delta="-0.01">-0.01</button>
+    <button class="speed-micro-btn" data-yt-speed-delta="0.01">+0.01</button>
+    <button class="speed-micro-btn" data-yt-speed-delta="0.05">+0.05</button>
   </div>
 
   <!-- テンポ自動アップ（YouTube） -->
@@ -1909,8 +1943,10 @@
         <div class="ab-time unset" id="localATime">-- : --</div>
         <button class="ab-jump-btn a-jump" id="localAJumpBtn">⏮ A点へ</button>
         <div class="ab-adjust">
+          <button class="adj-btn a-adj" id="localAMinus1s">-1s</button>
           <button class="adj-btn a-adj" id="localAMinus">-0.5</button>
           <button class="adj-btn a-adj" id="localAPlus">+0.5</button>
+          <button class="adj-btn a-adj" id="localAPlus1s">+1s</button>
         </div>
       </div>
       <button class="ab-btn a-btn" id="localSetA">ここをAにセット</button>
@@ -1924,8 +1960,10 @@
         <div class="ab-time unset" id="localBTime">-- : --</div>
         <button class="ab-jump-btn b-jump" id="localBJumpBtn">⏭ B点へ</button>
         <div class="ab-adjust">
+          <button class="adj-btn b-adj" id="localBMinus1s">-1s</button>
           <button class="adj-btn b-adj" id="localBMinus">-0.5</button>
           <button class="adj-btn b-adj" id="localBPlus">+0.5</button>
+          <button class="adj-btn b-adj" id="localBPlus1s">+1s</button>
         </div>
       </div>
       <button class="ab-btn b-btn" id="localSetB">ここをBにセット</button>
@@ -2010,6 +2048,13 @@
     <span class="speed-fine-label">FINE</span>
     <input type="range" class="speed-fine-slider" id="localSpeedSlider" min="0.5" max="2" step="0.05" value="1">
     <span class="speed-fine-value" id="localSpeedValue">1.00×</span>
+  </div>
+  <!-- スピード微細調整ボタン -->
+  <div class="speed-micro">
+    <button class="speed-micro-btn" data-local-speed-delta="-0.05">-0.05</button>
+    <button class="speed-micro-btn" data-local-speed-delta="-0.01">-0.01</button>
+    <button class="speed-micro-btn" data-local-speed-delta="0.01">+0.01</button>
+    <button class="speed-micro-btn" data-local-speed-delta="0.05">+0.05</button>
   </div>
 
   <!-- テンポ自動アップ（ローカル） -->
@@ -2503,6 +2548,20 @@ document.getElementById('aPlus').addEventListener('click', () => {
   if (playerReady) player.seekTo(pointA, true);
   showToast(`A点: ${fmtTime(pointA)}`);
 });
+document.getElementById('aMinus1s').addEventListener('click', () => {
+  if (pointA === null) { showToast('A点を先にセットしてください'); return; }
+  pointA = Math.max(0, pointA - 1);
+  updateABDisplay();
+  if (playerReady) player.seekTo(pointA, true);
+  showToast(`A点: ${fmtTime(pointA)}`);
+});
+document.getElementById('aPlus1s').addEventListener('click', () => {
+  if (pointA === null) { showToast('A点を先にセットしてください'); return; }
+  pointA = pointB !== null ? Math.min(pointB - 0.5, pointA + 1) : pointA + 1;
+  updateABDisplay();
+  if (playerReady) player.seekTo(pointA, true);
+  showToast(`A点: ${fmtTime(pointA)}`);
+});
 document.getElementById('bMinus').addEventListener('click', () => {
   if (pointB === null) { showToast('B点を先にセットしてください'); return; }
   pointB = pointA !== null ? Math.max(pointA + 0.5, pointB - 0.5) : Math.max(0, pointB - 0.5);
@@ -2514,6 +2573,27 @@ document.getElementById('bPlus').addEventListener('click', () => {
   pointB = Math.min(duration || 99999, pointB + 0.5);
   updateABDisplay();
   showToast(`B点: ${fmtTime(pointB)}`);
+});
+document.getElementById('bMinus1s').addEventListener('click', () => {
+  if (pointB === null) { showToast('B点を先にセットしてください'); return; }
+  pointB = pointA !== null ? Math.max(pointA + 0.5, pointB - 1) : Math.max(0, pointB - 1);
+  updateABDisplay();
+  showToast(`B点: ${fmtTime(pointB)}`);
+});
+document.getElementById('bPlus1s').addEventListener('click', () => {
+  if (pointB === null) { showToast('B点を先にセットしてください'); return; }
+  pointB = Math.min(duration || 99999, pointB + 1);
+  updateABDisplay();
+  showToast(`B点: ${fmtTime(pointB)}`);
+});
+
+// YouTube スピード微細調整
+document.querySelectorAll('[data-yt-speed-delta]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const delta = parseFloat(btn.dataset.ytSpeedDelta);
+    const newSpeed = Math.max(0.25, Math.min(2, parseFloat((currentSpeed + delta).toFixed(2))));
+    setSpeed(newSpeed);
+  });
 });
 
 document.getElementById('resetABBtn').addEventListener('click', () => {
@@ -3310,6 +3390,38 @@ document.getElementById('localBPlus').addEventListener('click', () => {
   const dur = localMedia ? localMedia.duration : 99999;
   localPointB = Math.min(dur, localPointB + 0.5);
   updateLocalABDisplay();
+});
+// ±1s ボタン（ローカル）
+document.getElementById('localAMinus1s').addEventListener('click', () => {
+  if (localPointA === null) { showToast('A点をセット'); return; }
+  localPointA = Math.max(0, localPointA - 1);
+  updateLocalABDisplay();
+  if (localMedia) localMedia.currentTime = localPointA;
+});
+document.getElementById('localAPlus1s').addEventListener('click', () => {
+  if (localPointA === null) { showToast('A点をセット'); return; }
+  localPointA = localPointB !== null ? Math.min(localPointB - 0.5, localPointA + 1) : localPointA + 1;
+  updateLocalABDisplay();
+  if (localMedia) localMedia.currentTime = localPointA;
+});
+document.getElementById('localBMinus1s').addEventListener('click', () => {
+  if (localPointB === null) { showToast('B点をセット'); return; }
+  localPointB = localPointA !== null ? Math.max(localPointA + 0.5, localPointB - 1) : Math.max(0, localPointB - 1);
+  updateLocalABDisplay();
+});
+document.getElementById('localBPlus1s').addEventListener('click', () => {
+  if (localPointB === null) { showToast('B点をセット'); return; }
+  const dur = localMedia ? localMedia.duration : 99999;
+  localPointB = Math.min(dur, localPointB + 1);
+  updateLocalABDisplay();
+});
+// ローカル スピード微細調整
+document.querySelectorAll('[data-local-speed-delta]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const delta = parseFloat(btn.dataset.localSpeedDelta);
+    const newSpeed = Math.max(0.25, Math.min(2, parseFloat((localSpeed + delta).toFixed(2))));
+    setLocalSpeed(newSpeed);
+  });
 });
 document.getElementById('localResetAB').addEventListener('click', () => {
   localPointA = null; localPointB = null;
