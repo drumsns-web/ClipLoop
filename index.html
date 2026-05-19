@@ -921,10 +921,10 @@
   }
   .ab-jump-btn:active { transform: scale(0.95); opacity: 0.7; }
   .ab-time-row .ab-time {
-    font-size: 22px;
+    font-size: 18px;
     flex: 0 0 auto;
   }
-  .ab-time-row .ab-time.unset { font-size: 18px; }
+  .ab-time-row .ab-time.unset { font-size: 16px; }
   .ab-time-row .ab-adjust {
     display: flex;
     gap: 4px;
@@ -1729,6 +1729,12 @@
           <button class="adj-btn a-adj" id="aPlus">+0.5</button>
           <button class="adj-btn a-adj" id="aPlus1s">+1s</button>
         </div>
+        <div class="ab-adjust">
+          <button class="adj-btn a-adj" id="aMinus01">-0.1</button>
+          <button class="adj-btn a-adj" id="aMinus005">-0.05</button>
+          <button class="adj-btn a-adj" id="aPlus005">+0.05</button>
+          <button class="adj-btn a-adj" id="aPlus01">+0.1</button>
+        </div>
       </div>
       <button class="ab-btn a-btn" id="setABtn">ここをAにセット</button>
     </div>
@@ -1745,6 +1751,12 @@
           <button class="adj-btn b-adj" id="bMinus">-0.5</button>
           <button class="adj-btn b-adj" id="bPlus">+0.5</button>
           <button class="adj-btn b-adj" id="bPlus1s">+1s</button>
+        </div>
+        <div class="ab-adjust">
+          <button class="adj-btn b-adj" id="bMinus01">-0.1</button>
+          <button class="adj-btn b-adj" id="bMinus005">-0.05</button>
+          <button class="adj-btn b-adj" id="bPlus005">+0.05</button>
+          <button class="adj-btn b-adj" id="bPlus01">+0.1</button>
         </div>
       </div>
       <button class="ab-btn b-btn" id="setBBtn">ここをBにセット</button>
@@ -1948,6 +1960,12 @@
           <button class="adj-btn a-adj" id="localAPlus">+0.5</button>
           <button class="adj-btn a-adj" id="localAPlus1s">+1s</button>
         </div>
+        <div class="ab-adjust">
+          <button class="adj-btn a-adj" id="localAMinus01">-0.1</button>
+          <button class="adj-btn a-adj" id="localAMinus005">-0.05</button>
+          <button class="adj-btn a-adj" id="localAPlus005">+0.05</button>
+          <button class="adj-btn a-adj" id="localAPlus01">+0.1</button>
+        </div>
       </div>
       <button class="ab-btn a-btn" id="localSetA">ここをAにセット</button>
     </div>
@@ -1964,6 +1982,12 @@
           <button class="adj-btn b-adj" id="localBMinus">-0.5</button>
           <button class="adj-btn b-adj" id="localBPlus">+0.5</button>
           <button class="adj-btn b-adj" id="localBPlus1s">+1s</button>
+        </div>
+        <div class="ab-adjust">
+          <button class="adj-btn b-adj" id="localBMinus01">-0.1</button>
+          <button class="adj-btn b-adj" id="localBMinus005">-0.05</button>
+          <button class="adj-btn b-adj" id="localBPlus005">+0.05</button>
+          <button class="adj-btn b-adj" id="localBPlus01">+0.1</button>
         </div>
       </div>
       <button class="ab-btn b-btn" id="localSetB">ここをBにセット</button>
@@ -2562,6 +2586,21 @@ document.getElementById('aPlus1s').addEventListener('click', () => {
   if (playerReady) player.seekTo(pointA, true);
   showToast(`A点: ${fmtTime(pointA)}`);
 });
+// A点 微調整（±0.1, ±0.05）
+function adjustPointA(delta) {
+  if (pointA === null) { showToast('A点を先にセットしてください'); return; }
+  let newA = parseFloat((pointA + delta).toFixed(2));
+  newA = Math.max(0, newA);
+  if (pointB !== null) newA = Math.min(pointB - 0.05, newA);
+  pointA = newA;
+  updateABDisplay();
+  if (playerReady) player.seekTo(pointA, true);
+  showToast(`A点: ${fmtTime(pointA)}`);
+}
+document.getElementById('aMinus01').addEventListener('click', () => adjustPointA(-0.1));
+document.getElementById('aMinus005').addEventListener('click', () => adjustPointA(-0.05));
+document.getElementById('aPlus005').addEventListener('click', () => adjustPointA(0.05));
+document.getElementById('aPlus01').addEventListener('click', () => adjustPointA(0.1));
 document.getElementById('bMinus').addEventListener('click', () => {
   if (pointB === null) { showToast('B点を先にセットしてください'); return; }
   pointB = pointA !== null ? Math.max(pointA + 0.5, pointB - 0.5) : Math.max(0, pointB - 0.5);
@@ -2586,6 +2625,20 @@ document.getElementById('bPlus1s').addEventListener('click', () => {
   updateABDisplay();
   showToast(`B点: ${fmtTime(pointB)}`);
 });
+// B点 微調整（±0.1, ±0.05）
+function adjustPointB(delta) {
+  if (pointB === null) { showToast('B点を先にセットしてください'); return; }
+  let newB = parseFloat((pointB + delta).toFixed(2));
+  newB = Math.min(duration || 99999, newB);
+  if (pointA !== null) newB = Math.max(pointA + 0.05, newB);
+  pointB = newB;
+  updateABDisplay();
+  showToast(`B点: ${fmtTime(pointB)}`);
+}
+document.getElementById('bMinus01').addEventListener('click', () => adjustPointB(-0.1));
+document.getElementById('bMinus005').addEventListener('click', () => adjustPointB(-0.05));
+document.getElementById('bPlus005').addEventListener('click', () => adjustPointB(0.05));
+document.getElementById('bPlus01').addEventListener('click', () => adjustPointB(0.1));
 
 // YouTube スピード微細調整
 document.querySelectorAll('[data-yt-speed-delta]').forEach(btn => {
@@ -3404,6 +3457,20 @@ document.getElementById('localAPlus1s').addEventListener('click', () => {
   updateLocalABDisplay();
   if (localMedia) localMedia.currentTime = localPointA;
 });
+// ローカル A点 微調整
+function adjustLocalPointA(delta) {
+  if (localPointA === null) { showToast('A点をセット'); return; }
+  let newA = parseFloat((localPointA + delta).toFixed(2));
+  newA = Math.max(0, newA);
+  if (localPointB !== null) newA = Math.min(localPointB - 0.05, newA);
+  localPointA = newA;
+  updateLocalABDisplay();
+  if (localMedia) localMedia.currentTime = localPointA;
+}
+document.getElementById('localAMinus01').addEventListener('click', () => adjustLocalPointA(-0.1));
+document.getElementById('localAMinus005').addEventListener('click', () => adjustLocalPointA(-0.05));
+document.getElementById('localAPlus005').addEventListener('click', () => adjustLocalPointA(0.05));
+document.getElementById('localAPlus01').addEventListener('click', () => adjustLocalPointA(0.1));
 document.getElementById('localBMinus1s').addEventListener('click', () => {
   if (localPointB === null) { showToast('B点をセット'); return; }
   localPointB = localPointA !== null ? Math.max(localPointA + 0.5, localPointB - 1) : Math.max(0, localPointB - 1);
@@ -3415,6 +3482,20 @@ document.getElementById('localBPlus1s').addEventListener('click', () => {
   localPointB = Math.min(dur, localPointB + 1);
   updateLocalABDisplay();
 });
+// ローカル B点 微調整
+function adjustLocalPointB(delta) {
+  if (localPointB === null) { showToast('B点をセット'); return; }
+  let newB = parseFloat((localPointB + delta).toFixed(2));
+  const dur = localMedia ? localMedia.duration : 99999;
+  newB = Math.min(dur, newB);
+  if (localPointA !== null) newB = Math.max(localPointA + 0.05, newB);
+  localPointB = newB;
+  updateLocalABDisplay();
+}
+document.getElementById('localBMinus01').addEventListener('click', () => adjustLocalPointB(-0.1));
+document.getElementById('localBMinus005').addEventListener('click', () => adjustLocalPointB(-0.05));
+document.getElementById('localBPlus005').addEventListener('click', () => adjustLocalPointB(0.05));
+document.getElementById('localBPlus01').addEventListener('click', () => adjustLocalPointB(0.1));
 // ローカル スピード微細調整
 document.querySelectorAll('[data-local-speed-delta]').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -3500,9 +3581,9 @@ document.querySelectorAll('[data-local-skip]').forEach(btn => {
 function updateLocalABDisplay() {
   const aEl = document.getElementById('localATime');
   const bEl = document.getElementById('localBTime');
-  if (localPointA !== null) { aEl.textContent = fmtTime(localPointA); aEl.classList.remove('unset'); }
+  if (localPointA !== null) { aEl.textContent = fmtTime(localPointA, true); aEl.classList.remove('unset'); }
   else { aEl.textContent = '-- : --'; aEl.classList.add('unset'); }
-  if (localPointB !== null) { bEl.textContent = fmtTime(localPointB); bEl.classList.remove('unset'); }
+  if (localPointB !== null) { bEl.textContent = fmtTime(localPointB, true); bEl.classList.remove('unset'); }
   else { bEl.textContent = '-- : --'; bEl.classList.add('unset'); }
   updateLocalABRegion();
   if (audioBuffer) updateWaveformOverlay();
