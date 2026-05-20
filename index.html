@@ -2343,8 +2343,11 @@
     <div class="seek-label">POSITION</div>
     <div class="seek-wrap">
       <div class="seek-track">
+        <div class="time-marks" id="timeMarks"></div>
         <div class="ab-region" id="abRegion"></div>
         <div class="seek-fill" id="seekFill"></div>
+        <div class="seek-marker a" id="seekMarkerA" style="display:none"></div>
+        <div class="seek-marker b" id="seekMarkerB" style="display:none"></div>
       </div>
       <input type="range" class="seek-input" id="seekBar" min="0" max="100" value="0" step="0.1">
     </div>
@@ -2599,6 +2602,7 @@
     <div class="seek-label">POSITION</div>
     <div class="seek-wrap">
       <div class="seek-track">
+        <div class="time-marks" id="localTimeMarks"></div>
         <div class="ab-region" id="localAbRegion"></div>
         <div class="seek-fill" id="localSeekFill"></div>
         <div class="seek-marker a" id="localSeekMarkerA" style="display:none"></div>
@@ -3875,6 +3879,7 @@ async function loadLocalFile(file) {
   localMedia.addEventListener('loadedmetadata', () => {
     document.getElementById('localTotalTime').textContent = fmtTime(localMedia.duration);
     document.getElementById('localSeekBar').max = localMedia.duration;
+    drawTimeMarks(localMedia.duration, "localTimeMarks");
     setLocalStatus('準備完了', '');
     startLocalPolling();
   });
