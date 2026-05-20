@@ -1093,7 +1093,7 @@
     color: var(--text-dim);
     font-size: 11px;
   }
-  .fps-help-btn {
+  .fps-help-btn, .fps-help-btn-extra {
     background: var(--surface);
     border: 1.5px solid var(--text-dim);
     color: var(--text-dim);
@@ -1111,7 +1111,51 @@
     line-height: 1;
     flex-shrink: 0;
   }
-  .fps-help-btn:active { opacity: 0.6; }
+  .fps-help-btn:active, .fps-help-btn-extra:active { opacity: 0.6; }
+  /* FPSバー（A/B共通：A点へ/B点へボタンの下に配置） */
+  .fps-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 10px 0;
+    padding: 8px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .fps-bar-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+    flex-wrap: wrap;
+  }
+  .fps-bar-unit {
+    font-size: 10px;
+    color: var(--text-dim);
+    font-weight: 400;
+    margin-left: 4px;
+  }
+  .fps-bar .fps-chip-group {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .fps-bar .fps-chip {
+    min-width: 38px;
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+
+  /* 微調整専用のセル（上部のラベル/セットボタンが無い） */
+  .ab-adjust-cell {
+    padding-top: 6px;
+  }
+
   /* A点へボタン + FPSチップ群 を縦に積む */
   .jump-fps-col {
     display: flex;
@@ -1558,10 +1602,66 @@
   .ab-region {
     position: absolute;
     height: 100%;
-    background: rgba(0, 229, 255, 0.25);
+    background: linear-gradient(90deg, rgba(212, 212, 220, 0.25), rgba(212, 168, 87, 0.25));
     border-radius: 2px;
     display: none;
+    z-index: 1;
   }
+
+  /* 時間マーカー（30秒刻み） */
+  .time-marks {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .time-mark {
+    position: absolute;
+    top: 0;
+    width: 1px;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.15);
+  }
+  .time-mark-label {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+  .time-mark.major {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  /* シークバーの上に時間ラベル用の余白 */
+  .seek-wrap { padding-top: 16px; }
+
+  /* AB点の縦ライン */
+  .seek-marker {
+    position: absolute;
+    top: -2px;
+    width: 2px;
+    height: calc(100% + 4px);
+    pointer-events: none;
+    z-index: 2;
+  }
+  .seek-marker.a { background: var(--accent); box-shadow: 0 0 4px var(--accent); }
+  .seek-marker.b { background: var(--accent2); box-shadow: 0 0 4px var(--accent2); }
+  .seek-marker::before {
+    content: attr(data-label);
+    position: absolute;
+    top: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .seek-marker.a::before { content: 'A'; color: var(--accent); }
+  .seek-marker.b::before { content: 'B'; color: var(--accent2); }
   .seek-input {
     position: absolute;
     left: 0; right: 0;
@@ -2155,15 +2255,15 @@
   <div class="seek-bar-quick">
     <div class="seek-bar-quick-label">⏱ 動画を進める/戻す</div>
     <div class="seek-bar-quick-row">
-      <button class="seek-quick-btn minus" data-yt-seek="-20">-20s</button>
-      <button class="seek-quick-btn minus" data-yt-seek="-15">-15s</button>
-      <button class="seek-quick-btn minus" data-yt-seek="-10">-10s</button>
-      <button class="seek-quick-btn minus" data-yt-seek="-5">-5s</button>
+      <button class="seek-quick-btn minus" data-yt-seek="-20">-20秒</button>
+      <button class="seek-quick-btn minus" data-yt-seek="-15">-15秒</button>
+      <button class="seek-quick-btn minus" data-yt-seek="-10">-10秒</button>
+      <button class="seek-quick-btn minus" data-yt-seek="-5">-5秒</button>
       <div class="seek-bar-quick-gap"></div>
-      <button class="seek-quick-btn plus" data-yt-seek="5">+5s</button>
-      <button class="seek-quick-btn plus" data-yt-seek="10">+10s</button>
-      <button class="seek-quick-btn plus" data-yt-seek="15">+15s</button>
-      <button class="seek-quick-btn plus" data-yt-seek="20">+20s</button>
+      <button class="seek-quick-btn plus" data-yt-seek="5">+5秒</button>
+      <button class="seek-quick-btn plus" data-yt-seek="10">+10秒</button>
+      <button class="seek-quick-btn plus" data-yt-seek="15">+15秒</button>
+      <button class="seek-quick-btn plus" data-yt-seek="20">+20秒</button>
     </div>
   </div>
   <!-- AB Points -->
@@ -2176,22 +2276,38 @@
       <button class="ab-btn a-btn" id="setABtn">ここをAにセット</button>
       <div class="ab-time-row">
         <div class="ab-time unset" id="aTimeDisplay">-- : --</div>
-        <div class="jump-fps-col">
-          <button class="ab-jump-btn a-jump" id="aJumpBtn">⏮ A点へ</button>
-          <div class="fps-chip-group">
-            <button class="fps-chip" data-fps="24">24</button>
-            <button class="fps-chip" data-fps="30">30</button>
-            <button class="fps-chip active" data-fps="60">60</button>
-          </div>
-        </div>
-        <div class="unit-info">
-          <div class="unit-row"><span class="unit-key">s</span><span class="unit-eq">=秒</span></div>
-          <div class="unit-row">
-            <span class="unit-key">f</span><span class="unit-eq">=コマ</span>
-            <button class="fps-help-btn" id="fpsHelpBtn" title="FPSとは？">?</button>
-          </div>
-        </div>
+        <button class="ab-jump-btn a-jump" id="aJumpBtn">⏮ A点へ</button>
       </div>
+    </div>
+    <div class="ab-cell">
+      <div class="ab-label">
+        <div class="ab-label-text"><span class="point-letter b-letter">B</span>終了点</div>
+        <div class="memo-btn-spacer"></div>
+      </div>
+      <button class="ab-btn b-btn" id="setBBtn">ここをBにセット</button>
+      <div class="ab-time-row">
+        <div class="ab-time unset" id="bTimeDisplay">-- : --</div>
+        <button class="ab-jump-btn b-jump" id="bJumpBtn">⏭ B点へ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FPS切替（A/B共通：A点へ/B点へボタンの下） -->
+  <div class="fps-bar">
+    <div class="fps-bar-label">
+      <span>動画フレームレート</span>
+      <button class="fps-help-btn" id="fpsHelpBtn" title="フレームレートとは？">?</button>
+    </div>
+    <div class="fps-chip-group">
+      <button class="fps-chip" data-fps="24">24</button>
+      <button class="fps-chip" data-fps="30">30</button>
+      <button class="fps-chip active" data-fps="60">60</button>
+    </div>
+  </div>
+
+  <!-- AB点微調整 -->
+  <div class="ab-grid">
+    <div class="ab-cell ab-adjust-cell">
       <div class="ab-adjust-group">
         <div class="ab-adjust-hint">
           <div>▽ A点を微調整</div>
@@ -2203,30 +2319,7 @@
         </div>
       </div>
     </div>
-    <div class="ab-cell">
-      <div class="ab-label">
-        <div class="ab-label-text"><span class="point-letter b-letter">B</span>終了点</div>
-        <div class="memo-btn-spacer"></div>
-      </div>
-      <button class="ab-btn b-btn" id="setBBtn">ここをBにセット</button>
-      <div class="ab-time-row">
-        <div class="ab-time unset" id="bTimeDisplay">-- : --</div>
-        <div class="jump-fps-col">
-          <button class="ab-jump-btn b-jump" id="bJumpBtn">⏭ B点へ</button>
-          <div class="fps-chip-group">
-            <button class="fps-chip" data-fps="24">24</button>
-            <button class="fps-chip" data-fps="30">30</button>
-            <button class="fps-chip active" data-fps="60">60</button>
-          </div>
-        </div>
-        <div class="unit-info">
-          <div class="unit-row"><span class="unit-key">s</span><span class="unit-eq">=秒</span></div>
-          <div class="unit-row">
-            <span class="unit-key">f</span><span class="unit-eq">=コマ</span>
-            <button class="fps-help-btn fps-help-btn-extra" title="FPSとは？">?</button>
-          </div>
-        </div>
-      </div>
+    <div class="ab-cell ab-adjust-cell">
       <div class="ab-adjust-group">
         <div class="ab-adjust-hint">
           <div>▽ B点を微調整</div>
@@ -2273,12 +2366,12 @@
 
   <!-- 早戻し/早送り -->
   <div class="skip-row">
-    <button class="skip-btn back" data-skip="-5">-5s</button>
+    <button class="skip-btn back" data-skip="-5">-5秒</button>
     <button class="skip-btn back" data-skip="-2">-2s</button>
     <button class="skip-btn back" data-skip="-1">-1s</button>
     <button class="skip-btn fwd" data-skip="1">+1s</button>
     <button class="skip-btn fwd" data-skip="2">+2s</button>
-    <button class="skip-btn fwd" data-skip="5">+5s</button>
+    <button class="skip-btn fwd" data-skip="5">+5秒</button>
   </div>
 
   <!-- AB区間スロット -->
@@ -2441,23 +2534,38 @@
       <button class="ab-btn a-btn" id="localSetA">ここをAにセット</button>
       <div class="ab-time-row">
         <div class="ab-time unset" id="localATime">-- : --</div>
-        <div class="jump-fps-col">
-          <button class="ab-jump-btn a-jump" id="localAJumpBtn">⏮ A点へ</button>
-          <div class="fps-chip-group">
-            <button class="fps-chip" data-fps="24">24</button>
-            <button class="fps-chip" data-fps="30">30</button>
-            <button class="fps-chip active" data-fps="60">60</button>
-          </div>
-        </div>
-        <div class="unit-info">
-          <div class="unit-row"><span class="unit-key">s</span><span class="unit-eq">=秒</span></div>
-          <div class="unit-row">
-            <span class="unit-key">f</span><span class="unit-eq">=コマ</span>
-            <button class="fps-help-btn fps-help-btn-extra" title="FPSとは？">?</button>
-          </div>
-          <div class="unit-row"><span class="unit-key">ms</span><span class="unit-eq">=1/1000秒</span></div>
-        </div>
+        <button class="ab-jump-btn a-jump" id="localAJumpBtn">⏮ A点へ</button>
       </div>
+    </div>
+    <div class="ab-cell">
+      <div class="ab-label">
+        <div class="ab-label-text"><span class="point-letter b-letter">B</span>終了点</div>
+        <div class="memo-btn-spacer"></div>
+      </div>
+      <button class="ab-btn b-btn" id="localSetB">ここをBにセット</button>
+      <div class="ab-time-row">
+        <div class="ab-time unset" id="localBTime">-- : --</div>
+        <button class="ab-jump-btn b-jump" id="localBJumpBtn">⏭ B点へ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FPS切替（A/B共通：A点へ/B点へボタンの下） -->
+  <div class="fps-bar">
+    <div class="fps-bar-label">
+      <span>動画フレームレート</span>
+      <button class="fps-help-btn fps-help-btn-extra" title="フレームレートとは？">?</button>
+    </div>
+    <div class="fps-chip-group">
+      <button class="fps-chip" data-fps="24">24</button>
+      <button class="fps-chip" data-fps="30">30</button>
+      <button class="fps-chip active" data-fps="60">60</button>
+    </div>
+  </div>
+
+  <!-- AB点微調整 -->
+  <div class="ab-grid">
+    <div class="ab-cell ab-adjust-cell">
       <div class="ab-adjust-group">
         <div class="ab-adjust-hint">
           <div>▽ A点を微調整</div>
@@ -2469,31 +2577,7 @@
         </div>
       </div>
     </div>
-    <div class="ab-cell">
-      <div class="ab-label">
-        <div class="ab-label-text"><span class="point-letter b-letter">B</span>終了点</div>
-        <div class="memo-btn-spacer"></div>
-      </div>
-      <button class="ab-btn b-btn" id="localSetB">ここをBにセット</button>
-      <div class="ab-time-row">
-        <div class="ab-time unset" id="localBTime">-- : --</div>
-        <div class="jump-fps-col">
-          <button class="ab-jump-btn b-jump" id="localBJumpBtn">⏭ B点へ</button>
-          <div class="fps-chip-group">
-            <button class="fps-chip" data-fps="24">24</button>
-            <button class="fps-chip" data-fps="30">30</button>
-            <button class="fps-chip active" data-fps="60">60</button>
-          </div>
-        </div>
-        <div class="unit-info">
-          <div class="unit-row"><span class="unit-key">s</span><span class="unit-eq">=秒</span></div>
-          <div class="unit-row">
-            <span class="unit-key">f</span><span class="unit-eq">=コマ</span>
-            <button class="fps-help-btn fps-help-btn-extra" title="FPSとは？">?</button>
-          </div>
-          <div class="unit-row"><span class="unit-key">ms</span><span class="unit-eq">=1/1000秒</span></div>
-        </div>
-      </div>
+    <div class="ab-cell ab-adjust-cell">
       <div class="ab-adjust-group">
         <div class="ab-adjust-hint">
           <div>▽ B点を微調整</div>
@@ -2517,6 +2601,8 @@
       <div class="seek-track">
         <div class="ab-region" id="localAbRegion"></div>
         <div class="seek-fill" id="localSeekFill"></div>
+        <div class="seek-marker a" id="localSeekMarkerA" style="display:none"></div>
+        <div class="seek-marker b" id="localSeekMarkerB" style="display:none"></div>
       </div>
       <input type="range" class="seek-input" id="localSeekBar" min="0" max="100" value="0" step="0.1">
     </div>
@@ -2535,12 +2621,12 @@
   </div>
 
   <div class="skip-row">
-    <button class="skip-btn back" data-local-skip="-5">-5s</button>
+    <button class="skip-btn back" data-local-skip="-5">-5秒</button>
     <button class="skip-btn back" data-local-skip="-2">-2s</button>
     <button class="skip-btn back" data-local-skip="-1">-1s</button>
     <button class="skip-btn fwd" data-local-skip="1">+1s</button>
     <button class="skip-btn fwd" data-local-skip="2">+2s</button>
-    <button class="skip-btn fwd" data-local-skip="5">+5s</button>
+    <button class="skip-btn fwd" data-local-skip="5">+5秒</button>
   </div>
 
   <!-- 左右バランス（音源のみ表示） -->
@@ -2920,12 +3006,12 @@
 <div class="modal-backdrop" id="fpsHelpModal" style="display:none">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title">🎬 動画FPSとは？</div>
+      <div class="modal-title">🎬 フレームレートとは？</div>
       <button class="modal-close" id="fpsHelpClose">×</button>
     </div>
     <div class="modal-body">
       <p style="margin: 0 0 12px; line-height: 1.6;">
-        <strong>FPS = フレーム/秒</strong><br>
+        <strong>フレームレート = フレーム/秒 (FPS)</strong><br>
         1秒間に動画が何コマ表示されるかを表します。
       </p>
       <div style="background: var(--surface2); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
@@ -2935,7 +3021,7 @@
       </div>
       <p style="margin: 0 0 12px; line-height: 1.6;">
         <strong>なぜ切り替えが必要？</strong><br>
-        「±1f」ボタンの移動量は <strong>1÷FPS</strong> 秒です。
+        「±1フレーム」ボタンの移動量は <strong>1÷フレームレート</strong> 秒です。
       </p>
       <div style="background: var(--surface2); border-radius: 8px; padding: 12px; margin-bottom: 12px; font-family: 'Space Mono', monospace; font-size: 13px;">
         24fps → 1f = 約 0.042秒<br>
@@ -2988,6 +3074,7 @@ function createPlayer(vid) {
 function onPlayerReady(e) {
   playerReady = true;
   duration = player.getDuration() || 0;
+  drawTimeMarks(duration);
   setStatus('準備完了', '');
   document.getElementById('totalTime').textContent = fmtTime(duration);
   document.getElementById('seekBar').max = duration;
@@ -3419,6 +3506,20 @@ function updateABDisplay() {
 
 function updateABRegion() {
   const region = document.getElementById('abRegion');
+  const markerA = document.getElementById('seekMarkerA');
+  const markerB = document.getElementById('seekMarkerB');
+  if (pointA !== null && duration) {
+    if (markerA) {
+      markerA.style.left = (pointA / duration * 100) + '%';
+      markerA.style.display = 'block';
+    }
+  } else if (markerA) markerA.style.display = 'none';
+  if (pointB !== null && duration) {
+    if (markerB) {
+      markerB.style.left = (pointB / duration * 100) + '%';
+      markerB.style.display = 'block';
+    }
+  } else if (markerB) markerB.style.display = 'none';
   if (pointA !== null && pointB !== null && duration) {
     const left = pointA / duration * 100;
     const width = (pointB - pointA) / duration * 100;
@@ -4120,6 +4221,20 @@ function updateLocalABDisplay() {
 function updateLocalABRegion() {
   const region = document.getElementById('localAbRegion');
   const dur = localMedia ? localMedia.duration : 0;
+  const markerA = document.getElementById('localSeekMarkerA');
+  const markerB = document.getElementById('localSeekMarkerB');
+  if (localPointA !== null && dur) {
+    if (markerA) {
+      markerA.style.left = (localPointA / dur * 100) + '%';
+      markerA.style.display = 'block';
+    }
+  } else if (markerA) markerA.style.display = 'none';
+  if (localPointB !== null && dur) {
+    if (markerB) {
+      markerB.style.left = (localPointB / dur * 100) + '%';
+      markerB.style.display = 'block';
+    }
+  } else if (markerB) markerB.style.display = 'none';
   if (localPointA !== null && localPointB !== null && dur) {
     region.style.left = (localPointA / dur * 100) + '%';
     region.style.width = ((localPointB - localPointA) / dur * 100) + '%';
@@ -4729,10 +4844,10 @@ function getAdjustAmounts(isLocal) {
   const yt = [
     { label: '1秒', value: 1, sub: '' },
     { label: '0.5秒', value: 0.5, sub: '' },
-    { label: `15コマ`, value: 'frame15', sub: `≈ ${frameToSec(15)}秒（${fps}fps時）` },
-    { label: `6コマ`, value: 'frame6', sub: `≈ ${frameToSec(6)}秒（${fps}fps時）` },
-    { label: `2コマ`, value: 'frame2', sub: `≈ ${frameToSec(2)}秒（${fps}fps時）` },
-    { label: `1コマ`, value: 'frame', sub: `≈ ${frameToSec(1)}秒（${fps}fps時）= 最小単位` },
+    { label: `15フレーム`, value: 'frame15', sub: `≈ ${frameToSec(15)}秒（${fps}fps時）` },
+    { label: `6フレーム`, value: 'frame6', sub: `≈ ${frameToSec(6)}秒（${fps}fps時）` },
+    { label: `2フレーム`, value: 'frame2', sub: `≈ ${frameToSec(2)}秒（${fps}fps時）` },
+    { label: `1フレーム`, value: 'frame', sub: `≈ ${frameToSec(1)}秒（${fps}fps時）= 最小単位` },
   ];
   if (!isLocal) return yt;
   return [
