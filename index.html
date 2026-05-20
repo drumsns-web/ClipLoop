@@ -1624,20 +1624,29 @@
   }
   .time-mark-label {
     position: absolute;
-    top: -14px;
+    top: -18px;
     left: 50%;
     transform: translateX(-50%);
     font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    color: var(--text-dim);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text);
     white-space: nowrap;
+    opacity: 0.7;
+    background: var(--surface);
+    padding: 1px 3px;
+    border-radius: 3px;
   }
   .time-mark.major {
     background: rgba(255, 255, 255, 0.3);
   }
+  .time-mark.major .time-mark-label {
+    opacity: 0.9;
+  }
 
   /* シークバーの上に時間ラベル用の余白 */
-  .seek-wrap { padding-top: 16px; }
+  .seek-wrap { padding-top: 22px; overflow: visible; }
+  .seek-track { overflow: visible !important; }
 
   /* AB点の縦ライン */
   .seek-marker {
