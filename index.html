@@ -714,6 +714,52 @@
     max-height: 85vh;
     overflow-y: auto;
   }
+  .kbd-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .kbd-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 8px;
+    background: var(--surface2);
+    border-radius: 6px;
+  }
+  .kbd-keys {
+    min-width: 70px;
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .kbd-row kbd {
+    display: inline-block;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent2);
+    box-shadow: 0 1px 0 var(--border);
+    min-width: 24px;
+    text-align: center;
+  }
+  .kbd-desc {
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.4;
+  }
+  .kbd-note {
+    font-size: 10px;
+    color: var(--text-dim);
+    font-weight: 400;
+    margin-left: 4px;
+  }
+
   .settings-section {
     border-top: 1px solid var(--border);
     padding-top: 14px;
@@ -2960,6 +3006,21 @@
       </div>
     </div>
 
+    <!-- キーボードショートカット -->
+    <div class="settings-section">
+      <div class="settings-section-title">⌨️ キーボードショートカット <span class="kbd-note">（PC専用）</span></div>
+      <div class="kbd-list">
+        <div class="kbd-row"><span class="kbd-keys"><kbd>Space</kbd></span><span class="kbd-desc">再生 / 一時停止</span></div>
+        <div class="kbd-row"><span class="kbd-keys"><kbd>A</kbd></span><span class="kbd-desc">A点をセット</span></div>
+        <div class="kbd-row"><span class="kbd-keys"><kbd>B</kbd></span><span class="kbd-desc">B点をセット</span></div>
+        <div class="kbd-row"><span class="kbd-keys"><kbd>←</kbd></span><span class="kbd-desc">5秒戻る</span></div>
+        <div class="kbd-row"><span class="kbd-keys"><kbd>→</kbd></span><span class="kbd-desc">5秒進む</span></div>
+        <div class="kbd-row"><span class="kbd-keys"><kbd>L</kbd></span><span class="kbd-desc">ABリピートのON/OFF</span></div>
+        <div class="kbd-row"><span class="kbd-keys"><kbd>R</kbd></span><span class="kbd-desc">A点へジャンプ</span></div>
+        <div class="kbd-row"><span class="kbd-keys"><kbd>Esc</kbd></span><span class="kbd-desc">モーダル閉じる / フルスクリーン解除</span></div>
+      </div>
+    </div>
+
     <!-- バージョン情報 -->
     <div class="settings-section">
       <div class="version-info">ClipLoop v1.0.0</div>
@@ -4839,6 +4900,126 @@ document.getElementById('settingsBtn').addEventListener('click', () => {
 document.getElementById('settingsCloseBtn').addEventListener('click', () => {
   document.getElementById('settingsModal').classList.remove('show');
 });
+
+// ========== キーボードショートカット ==========
+document.addEventListener('keydown', (e) => {
+  // 入力フィールドにフォーカス中は無効
+  const tag = (e.target.tagName || '').toLowerCase();
+  if (tag === 'input' || tag === 'textarea' || e.target.isContentEditable) return;
+  
+  // モーダル開いている時はEscのみ有効
+  const adjustModal = document.getElementById('adjustModal');
+  const fpsHelpModal = document.getElementById('fpsHelpModal');
+  const settingsModal = document.getElementById('settingsModal');
+  const anyModalOpen = (adjustModal && adjustModal.style.display === 'flex')
+    || (fpsHelpModal && fpsHelpModal.style.display === 'flex')
+    || (settingsModal && settingsModal.style.display === 'flex');
+  
+  if (e.key === 'Escape') {
+    if (adjustModal && adjustModal.style.display === 'flex') {
+      adjustModal.style.display = 'none';
+      e.preventDefault();
+      return;
+    }
+    if (fpsHelpModal && fpsHelpModal.style.display === 'flex') {
+      fpsHelpModal.style.display = 'none';
+      e.preventDefault();
+      return;
+    }
+    if (settingsModal && settingsModal.style.display === 'flex') {
+      settingsModal.style.display = 'none';
+      e.preventDefault();
+      return;
+    }
+  }
+  
+  if (anyModalOpen) return;
+  
+  // 現在のモード判定（YouTube or ローカル）
+  const ytMode = document.getElementById('ytMode');
+  const localMode = document.getElementById('localMode');
+  const isYouTube = ytMode && ytMode.classList.contains('active');
+  const isLocal = localMode && localMode.classList.contains('active');
+  
+  if (!isYouTube && !isLocal) return;
+  
+  const key = e.key.toLowerCase();
+  
+  // Space: 再生/停止
+  if (e.key === ' ' || e.code === 'Space') {
+    e.preventDefault();
+    if (isYouTube) {
+      const playBtn = document.getElementById('playBtn');
+      if (playBtn) playBtn.click();
+    } else {
+      const localPlayBtn = document.getElementById('localPlayBtn');
+      if (localPlayBtn) localPlayBtn.click();
+    }
+    return;
+  }
+  
+  // A: A点セット
+  if (key === 'a') {
+    e.preventDefault();
+    const btn = isYouTube ? document.getElementById('setABtn') : document.getElementById('localSetA');
+    if (btn) btn.click();
+    return;
+  }
+  
+  // B: B点セット
+  if (key === 'b') {
+    e.preventDefault();
+    const btn = isYouTube ? document.getElementById('setBBtn') : document.getElementById('localSetB');
+    if (btn) btn.click();
+    return;
+  }
+  
+  // ←: 5秒戻る
+  if (e.key === 'ArrowLeft') {
+    e.preventDefault();
+    if (isYouTube && playerReady) {
+      const cur = player.getCurrentTime();
+      player.seekTo(Math.max(0, cur - 5), true);
+      showToast('-5秒');
+    } else if (isLocal && localMedia) {
+      localMedia.currentTime = Math.max(0, localMedia.currentTime - 5);
+      showToast('-5秒');
+    }
+    return;
+  }
+  
+  // →: 5秒進む
+  if (e.key === 'ArrowRight') {
+    e.preventDefault();
+    if (isYouTube && playerReady) {
+      const cur = player.getCurrentTime();
+      const dur = player.getDuration() || 99999;
+      player.seekTo(Math.min(dur, cur + 5), true);
+      showToast('+5秒');
+    } else if (isLocal && localMedia) {
+      localMedia.currentTime = Math.min(localMedia.duration || 99999, localMedia.currentTime + 5);
+      showToast('+5秒');
+    }
+    return;
+  }
+  
+  // L: ループ切替
+  if (key === 'l') {
+    e.preventDefault();
+    const btn = isYouTube ? document.getElementById('loopBtn') : document.getElementById('localLoopBtn');
+    if (btn) btn.click();
+    return;
+  }
+  
+  // R: A点へジャンプ
+  if (key === 'r') {
+    e.preventDefault();
+    const btn = isYouTube ? document.getElementById('aJumpBtn') : document.getElementById('localAJumpBtn');
+    if (btn) btn.click();
+    return;
+  }
+});
+
 document.getElementById('settingsModal').addEventListener('click', e => {
   if (e.target.id === 'settingsModal') {
     document.getElementById('settingsModal').classList.remove('show');
