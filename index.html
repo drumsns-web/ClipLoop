@@ -924,28 +924,45 @@
   .ab-time-row .ab-jump-btn {
     flex-shrink: 0;
   }
-  /* 単位の説明 */
-  .unit-hint {
-    font-family: 'Space Mono', monospace;
-    font-size: 13px;
-    color: var(--text);
-    line-height: 1.5;
+  /* FPS切替（AB点行内） */
+  .fps-switcher {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
     flex-shrink: 0;
-    text-align: left;
-    padding-left: 10px;
+    padding-left: 6px;
     border-left: 2px solid var(--border);
+  }
+  .fps-switcher-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
     font-weight: 700;
   }
-  .unit-hint .unit-fps {
-    color: var(--accent2);
-    display: inline-block;
-    padding: 1px 5px;
-    background: rgba(212, 168, 87, 0.15);
-    border-radius: 4px;
-    border: 1px solid var(--accent2);
-    margin-left: 2px;
-    font-size: 11px;
+  .fps-chip-group {
+    display: flex;
+    gap: 2px;
   }
+  .fps-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 3px 5px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.15s;
+    min-width: 24px;
+  }
+  .fps-chip.active {
+    background: rgba(212, 168, 87, 0.2);
+    border-color: var(--accent2);
+    color: var(--accent2);
+  }
+  .fps-chip:active { opacity: 0.6; }
   /* ±ボタン群（width 100% で時刻行の下に） */
   .ab-adjust-group {
     display: flex;
@@ -1805,7 +1822,14 @@
       <div class="ab-time-row">
         <div class="ab-time unset" id="aTimeDisplay">-- : --</div>
         <button class="ab-jump-btn a-jump" id="aJumpBtn">⏮ A点へ</button>
-        <span class="unit-hint">s=秒<br>f=ｺﾏ <span class="unit-fps fps-hint">60fps</span></span>
+        <div class="fps-switcher">
+          <div class="fps-switcher-label">f=コマ</div>
+          <div class="fps-chip-group">
+            <button class="fps-chip" data-fps="24">24</button>
+            <button class="fps-chip" data-fps="30">30</button>
+            <button class="fps-chip active" data-fps="60">60</button>
+          </div>
+        </div>
       </div>
       <div class="ab-adjust-group">
         <div class="ab-adjust-row">
@@ -1837,7 +1861,14 @@
       <div class="ab-time-row">
         <div class="ab-time unset" id="bTimeDisplay">-- : --</div>
         <button class="ab-jump-btn b-jump" id="bJumpBtn">⏭ B点へ</button>
-        <span class="unit-hint">s=秒<br>f=ｺﾏ <span class="unit-fps fps-hint">60fps</span></span>
+        <div class="fps-switcher">
+          <div class="fps-switcher-label">f=コマ</div>
+          <div class="fps-chip-group">
+            <button class="fps-chip" data-fps="24">24</button>
+            <button class="fps-chip" data-fps="30">30</button>
+            <button class="fps-chip active" data-fps="60">60</button>
+          </div>
+        </div>
       </div>
       <div class="ab-adjust-group">
         <div class="ab-adjust-row">
@@ -2054,7 +2085,14 @@
       <div class="ab-time-row">
         <div class="ab-time unset" id="localATime">-- : --</div>
         <button class="ab-jump-btn a-jump" id="localAJumpBtn">⏮ A点へ</button>
-        <span class="unit-hint">s=秒<br>f=ｺﾏ <span class="unit-fps fps-hint">60fps</span><br>ms=1/1000秒</span>
+        <div class="fps-switcher">
+          <div class="fps-switcher-label">f=コマ</div>
+          <div class="fps-chip-group">
+            <button class="fps-chip" data-fps="24">24</button>
+            <button class="fps-chip" data-fps="30">30</button>
+            <button class="fps-chip active" data-fps="60">60</button>
+          </div>
+        </div>
       </div>
       <div class="ab-adjust-group">
         <div class="ab-adjust-row">
@@ -2092,7 +2130,14 @@
       <div class="ab-time-row">
         <div class="ab-time unset" id="localBTime">-- : --</div>
         <button class="ab-jump-btn b-jump" id="localBJumpBtn">⏭ B点へ</button>
-        <span class="unit-hint">s=秒<br>f=ｺﾏ <span class="unit-fps fps-hint">60fps</span><br>ms=1/1000秒</span>
+        <div class="fps-switcher">
+          <div class="fps-switcher-label">f=コマ</div>
+          <div class="fps-chip-group">
+            <button class="fps-chip" data-fps="24">24</button>
+            <button class="fps-chip" data-fps="30">30</button>
+            <button class="fps-chip active" data-fps="60">60</button>
+          </div>
+        </div>
       </div>
       <div class="ab-adjust-group">
         <div class="ab-adjust-row">
@@ -2406,17 +2451,6 @@
           <div class="settings-row-sub">ループの瞬間にビープ音</div>
         </div>
         <button class="tempo-up-onoff" id="settingLoopBeep" style="min-width:60px;padding:6px 14px">OFF</button>
-      </div>
-      <div class="settings-row">
-        <div>
-          <div class="settings-row-label">動画のFPS</div>
-          <div class="settings-row-sub">「±1f」ボタンの移動量に使用</div>
-        </div>
-        <div class="settings-fps-chips" id="settingFps">
-          <button class="settings-fps-chip" data-fps="24">24</button>
-          <button class="settings-fps-chip" data-fps="30">30</button>
-          <button class="settings-fps-chip active" data-fps="60">60</button>
-        </div>
       </div>
     </div>
 
@@ -4343,12 +4377,9 @@ function saveSettings() {
   const s = {
     defaultSpeed: parseInt(document.getElementById('settingDefaultSpeed').value) || 100,
     autoJumpToA: document.getElementById('settingAutoJumpToA').classList.contains('on'),
-    loopBeep: document.getElementById('settingLoopBeep').classList.contains('on'),
-    fps: parseInt(document.querySelector('.settings-fps-chip.active')?.dataset.fps) || 60
+    loopBeep: document.getElementById('settingLoopBeep').classList.contains('on')
   };
   localStorage.setItem('cliploop_settings', JSON.stringify(s));
-  // フレーム時間を更新
-  currentFrameSec = 1 / s.fps;
 }
 function applySettings() {
   const s = loadSettings();
@@ -4359,31 +4390,28 @@ function applySettings() {
   const beepBtn = document.getElementById('settingLoopBeep');
   beepBtn.classList.toggle('on', !!s.loopBeep);
   beepBtn.textContent = s.loopBeep ? 'ON' : 'OFF';
-  // FPS設定を反映
-  const fps = s.fps || 60;
-  document.querySelectorAll('.settings-fps-chip').forEach(c => {
-    c.classList.toggle('active', parseInt(c.dataset.fps) === fps);
-  });
-  currentFrameSec = 1 / fps;
-  updateFpsHints(fps);
 }
 
-// FPSチップのクリック
-function updateFpsHints(fps) {
-  document.querySelectorAll('.fps-hint').forEach(el => {
-    el.textContent = `${fps}fps`;
+// FPS切替（AB点行）
+function applyFps(fps) {
+  currentFrameSec = 1 / fps;
+  document.querySelectorAll('.fps-chip').forEach(c => {
+    c.classList.toggle('active', parseInt(c.dataset.fps) === fps);
   });
+  localStorage.setItem('cliploop_fps', String(fps));
 }
-document.querySelectorAll('.settings-fps-chip').forEach(chip => {
+document.querySelectorAll('.fps-chip').forEach(chip => {
   chip.addEventListener('click', () => {
-    document.querySelectorAll('.settings-fps-chip').forEach(c => c.classList.remove('active'));
-    chip.classList.add('active');
-    saveSettings();
     const fps = parseInt(chip.dataset.fps);
-    updateFpsHints(fps);
+    applyFps(fps);
     showToast(`動画FPSを ${fps}fps に変更`);
   });
 });
+// 初期化時に保存されたFPSを反映
+{
+  const savedFps = parseInt(localStorage.getItem('cliploop_fps')) || 60;
+  applyFps(savedFps);
+}
 
 // デフォルト速度入力時にも保存
 document.getElementById('settingDefaultSpeed').addEventListener('change', saveSettings);
