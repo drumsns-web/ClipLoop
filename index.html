@@ -3494,6 +3494,36 @@ function renderHistory() {
 }
 
 // ─── Helpers ───
+// 時間マーカー（30秒刻み）描画
+function drawTimeMarks(dur, containerId) {
+  containerId = containerId || 'timeMarks';
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  if (!dur || dur <= 0) {
+    container.innerHTML = '';
+    return;
+  }
+  container.innerHTML = '';
+  let interval = 30;
+  if (dur > 600) interval = 60;
+  if (dur > 1800) interval = 120;
+  if (dur > 3600) interval = 300;
+  for (let t = interval; t < dur; t += interval) {
+    const pct = (t / dur) * 100;
+    const mark = document.createElement('div');
+    mark.className = 'time-mark';
+    if (t % (interval * 2) === 0) mark.classList.add('major');
+    mark.style.left = pct + '%';
+    const label = document.createElement('div');
+    label.className = 'time-mark-label';
+    const m = Math.floor(t / 60);
+    const s = Math.floor(t % 60);
+    label.textContent = m + ':' + (s < 10 ? '0' + s : s);
+    mark.appendChild(label);
+    container.appendChild(mark);
+  }
+}
+
 function fmtTime(s) {
   if (!isFinite(s) || s < 0) return '0:00';
   const m = Math.floor(s / 60);
