@@ -1580,9 +1580,11 @@
   }
   .seek-wrap {
     position: relative;
-    height: 32px;
+    height: 52px;
     display: flex;
     align-items: center;
+    padding-top: 20px;
+    overflow: visible;
   }
   .seek-track {
     position: absolute;
@@ -1644,8 +1646,7 @@
     opacity: 0.9;
   }
 
-  /* シークバーの上に時間ラベル用の余白 */
-  .seek-wrap { padding-top: 22px; overflow: visible; }
+  /* シークバーラベル用の visible 強制 */
   .seek-track { overflow: visible !important; }
 
   /* AB点の縦ライン */
