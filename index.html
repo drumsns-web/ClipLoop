@@ -1108,7 +1108,22 @@
     line-height: 1;
   }
   .fps-help-btn:active { opacity: 0.6; }
-  /* FPSチップ群（大きく） */
+  /* A点へボタン + FPSチップ群 を縦に積む */
+  .jump-fps-col {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .jump-fps-col .ab-jump-btn {
+    width: 100%;
+  }
+  .jump-fps-col .fps-chip-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 3px;
+  }
+  /* FPSチップ群（A/B/ローカル全モード共通） */
   .fps-chip-group {
     display: flex;
     gap: 3px;
@@ -1117,14 +1132,14 @@
     background: var(--surface);
     border: 1.5px solid var(--border);
     border-radius: 6px;
-    padding: 6px 8px;
+    padding: 5px 4px;
     font-family: 'Space Mono', monospace;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     color: var(--text-dim);
     cursor: pointer;
     transition: all 0.15s;
-    min-width: 32px;
+    text-align: center;
   }
   .fps-chip.active {
     background: rgba(212, 168, 87, 0.2);
@@ -2019,17 +2034,19 @@
       <button class="ab-btn a-btn" id="setABtn">ここをAにセット</button>
       <div class="ab-time-row">
         <div class="ab-time unset" id="aTimeDisplay">-- : --</div>
-        <button class="ab-jump-btn a-jump" id="aJumpBtn">⏮ A点へ</button>
+        <div class="jump-fps-col">
+          <button class="ab-jump-btn a-jump" id="aJumpBtn">⏮ A点へ</button>
+          <div class="fps-chip-group">
+            <button class="fps-chip" data-fps="24">24</button>
+            <button class="fps-chip" data-fps="30">30</button>
+            <button class="fps-chip active" data-fps="60">60</button>
+          </div>
+        </div>
         <div class="unit-info">
           <div class="unit-row"><span class="unit-key">s</span><span class="unit-eq">=秒</span></div>
           <div class="unit-row">
             <span class="unit-key">f</span><span class="unit-eq">=コマ</span>
             <button class="fps-help-btn" id="fpsHelpBtn" title="FPSとは？">?</button>
-          </div>
-          <div class="fps-chip-group">
-            <button class="fps-chip" data-fps="24">24</button>
-            <button class="fps-chip" data-fps="30">30</button>
-            <button class="fps-chip active" data-fps="60">60</button>
           </div>
         </div>
       </div>
@@ -2067,17 +2084,19 @@
       <button class="ab-btn b-btn" id="setBBtn">ここをBにセット</button>
       <div class="ab-time-row">
         <div class="ab-time unset" id="bTimeDisplay">-- : --</div>
-        <button class="ab-jump-btn b-jump" id="bJumpBtn">⏭ B点へ</button>
+        <div class="jump-fps-col">
+          <button class="ab-jump-btn b-jump" id="bJumpBtn">⏭ B点へ</button>
+          <div class="fps-chip-group">
+            <button class="fps-chip" data-fps="24">24</button>
+            <button class="fps-chip" data-fps="30">30</button>
+            <button class="fps-chip active" data-fps="60">60</button>
+          </div>
+        </div>
         <div class="unit-info">
           <div class="unit-row"><span class="unit-key">s</span><span class="unit-eq">=秒</span></div>
           <div class="unit-row">
             <span class="unit-key">f</span><span class="unit-eq">=コマ</span>
             <button class="fps-help-btn fps-help-btn-extra" title="FPSとは？">?</button>
-          </div>
-          <div class="fps-chip-group">
-            <button class="fps-chip" data-fps="24">24</button>
-            <button class="fps-chip" data-fps="30">30</button>
-            <button class="fps-chip active" data-fps="60">60</button>
           </div>
         </div>
       </div>
@@ -2310,17 +2329,19 @@
       <button class="ab-btn a-btn" id="localSetA">ここをAにセット</button>
       <div class="ab-time-row">
         <div class="ab-time unset" id="localATime">-- : --</div>
-        <button class="ab-jump-btn a-jump" id="localAJumpBtn">⏮ A点へ</button>
+        <div class="jump-fps-col">
+          <button class="ab-jump-btn a-jump" id="localAJumpBtn">⏮ A点へ</button>
+          <div class="fps-chip-group">
+            <button class="fps-chip" data-fps="24">24</button>
+            <button class="fps-chip" data-fps="30">30</button>
+            <button class="fps-chip active" data-fps="60">60</button>
+          </div>
+        </div>
         <div class="unit-info">
           <div class="unit-row"><span class="unit-key">s</span><span class="unit-eq">=秒</span></div>
           <div class="unit-row">
             <span class="unit-key">f</span><span class="unit-eq">=コマ</span>
             <button class="fps-help-btn fps-help-btn-extra" title="FPSとは？">?</button>
-          </div>
-          <div class="fps-chip-group">
-            <button class="fps-chip" data-fps="24">24</button>
-            <button class="fps-chip" data-fps="30">30</button>
-            <button class="fps-chip active" data-fps="60">60</button>
           </div>
           <div class="unit-row"><span class="unit-key">ms</span><span class="unit-eq">=1/1000秒</span></div>
         </div>
@@ -2365,17 +2386,19 @@
       <button class="ab-btn b-btn" id="localSetB">ここをBにセット</button>
       <div class="ab-time-row">
         <div class="ab-time unset" id="localBTime">-- : --</div>
-        <button class="ab-jump-btn b-jump" id="localBJumpBtn">⏭ B点へ</button>
+        <div class="jump-fps-col">
+          <button class="ab-jump-btn b-jump" id="localBJumpBtn">⏭ B点へ</button>
+          <div class="fps-chip-group">
+            <button class="fps-chip" data-fps="24">24</button>
+            <button class="fps-chip" data-fps="30">30</button>
+            <button class="fps-chip active" data-fps="60">60</button>
+          </div>
+        </div>
         <div class="unit-info">
           <div class="unit-row"><span class="unit-key">s</span><span class="unit-eq">=秒</span></div>
           <div class="unit-row">
             <span class="unit-key">f</span><span class="unit-eq">=コマ</span>
             <button class="fps-help-btn fps-help-btn-extra" title="FPSとは？">?</button>
-          </div>
-          <div class="fps-chip-group">
-            <button class="fps-chip" data-fps="24">24</button>
-            <button class="fps-chip" data-fps="30">30</button>
-            <button class="fps-chip active" data-fps="60">60</button>
           </div>
           <div class="unit-row"><span class="unit-key">ms</span><span class="unit-eq">=1/1000秒</span></div>
         </div>
