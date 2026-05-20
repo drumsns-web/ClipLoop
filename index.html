@@ -1172,8 +1172,12 @@
   }
   .seek-bar-quick-row {
     display: grid;
-    grid-template-columns: repeat(8, 1fr);
+    grid-template-columns: repeat(4, 1fr) 8px repeat(4, 1fr);
     gap: 3px;
+    align-items: stretch;
+  }
+  .seek-bar-quick-gap {
+    /* 中央の見えない区切り */
   }
   .seek-quick-btn {
     background: var(--surface);
@@ -1206,11 +1210,26 @@
     text-align: center;
     margin-bottom: 6px;
     letter-spacing: 0.05em;
-    padding: 4px 0;
+    padding: 5px 4px;
     border-top: 1px dashed var(--border);
     border-bottom: 1px dashed var(--border);
     font-weight: 700;
-    opacity: 0.85;
+    line-height: 1.5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .ab-adjust-hint > div {
+    width: 100%;
+    text-align: center;
+  }
+  .ab-adjust-hint-note {
+    font-size: 10px;
+    color: var(--accent2);
+    font-weight: 700;
+    margin-top: 3px;
+    opacity: 0.95;
   }
   /* 戻る/進むラベル */
   .ab-adjust-header {
@@ -2078,6 +2097,7 @@
       <button class="seek-quick-btn minus" data-yt-seek="-15">-15s</button>
       <button class="seek-quick-btn minus" data-yt-seek="-10">-10s</button>
       <button class="seek-quick-btn minus" data-yt-seek="-5">-5s</button>
+      <div class="seek-bar-quick-gap"></div>
       <button class="seek-quick-btn plus" data-yt-seek="5">+5s</button>
       <button class="seek-quick-btn plus" data-yt-seek="10">+10s</button>
       <button class="seek-quick-btn plus" data-yt-seek="15">+15s</button>
@@ -2111,7 +2131,10 @@
         </div>
       </div>
       <div class="ab-adjust-group">
-        <div class="ab-adjust-hint">▽ AB点セット後の微調整</div>
+        <div class="ab-adjust-hint">
+          <div>▽ AB点セット後の微調整</div>
+          <div class="ab-adjust-hint-note">⚠ 動画を一時停止してから操作してください</div>
+        </div>
         <div class="ab-adjust-header">
           <div class="ab-adjust-header-label back">◀ 戻る</div>
           <div class="ab-adjust-header-label fwd">進む ▶</div>
@@ -2161,7 +2184,10 @@
         </div>
       </div>
       <div class="ab-adjust-group">
-        <div class="ab-adjust-hint">▽ AB点セット後の微調整</div>
+        <div class="ab-adjust-hint">
+          <div>▽ AB点セット後の微調整</div>
+          <div class="ab-adjust-hint-note">⚠ 動画を一時停止してから操作してください</div>
+        </div>
         <div class="ab-adjust-header">
           <div class="ab-adjust-header-label back">◀ 戻る</div>
           <div class="ab-adjust-header-label fwd">進む ▶</div>
@@ -2407,7 +2433,10 @@
         </div>
       </div>
       <div class="ab-adjust-group">
-        <div class="ab-adjust-hint">▽ AB点セット後の微調整</div>
+        <div class="ab-adjust-hint">
+          <div>▽ AB点セット後の微調整</div>
+          <div class="ab-adjust-hint-note">⚠ 動画を一時停止してから操作してください</div>
+        </div>
         <div class="ab-adjust-header">
           <div class="ab-adjust-header-label back">◀ 戻る</div>
           <div class="ab-adjust-header-label fwd">進む ▶</div>
@@ -2464,7 +2493,10 @@
         </div>
       </div>
       <div class="ab-adjust-group">
-        <div class="ab-adjust-hint">▽ AB点セット後の微調整</div>
+        <div class="ab-adjust-hint">
+          <div>▽ AB点セット後の微調整</div>
+          <div class="ab-adjust-hint-note">⚠ 動画を一時停止してから操作してください</div>
+        </div>
         <div class="ab-adjust-header">
           <div class="ab-adjust-header-label back">◀ 戻る</div>
           <div class="ab-adjust-header-label fwd">進む ▶</div>
