@@ -159,6 +159,78 @@
     cursor: pointer;
     touch-action: none;
   }
+  /* 波形ポップアップ */
+  .wave-popup {
+    position: absolute;
+    background: var(--surface);
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 8px;
+    z-index: 50;
+    transform: translate(-50%, -110%);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+    display: flex !important;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 160px;
+  }
+  .wave-popup-time {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent);
+    text-align: center;
+  }
+  .wave-popup-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .wave-popup-btn {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .wave-popup-btn.a {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .wave-popup-btn.b {
+    border-color: var(--accent2);
+    color: var(--accent2);
+  }
+  .wave-popup-btn.seek {
+    background: var(--surface2);
+  }
+  .wave-popup-btn:active { transform: scale(0.95); opacity: 0.7; }
+  .wave-popup-close {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    color: var(--text);
+    font-size: 14px;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+  /* 波形ラップに position: relative を確認 */
+  #waveformWrap { position: relative; }
+
   .waveform-canvas {
     position: absolute;
     inset: 0;
@@ -593,6 +665,32 @@
     max-height: 85vh;
     overflow-y: auto;
   }
+  /* アコーディオン用 */
+  .settings-section.collapsible .settings-section-title {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
+  }
+  .settings-section.collapsible .settings-section-title::after {
+    content: '▼';
+    font-size: 11px;
+    color: var(--text-dim);
+    transition: transform 0.2s;
+  }
+  .settings-section.collapsible.open .settings-section-title::after {
+    transform: rotate(180deg);
+  }
+  .settings-section.collapsible .settings-section-content {
+    display: none;
+    margin-top: 10px;
+  }
+  .settings-section.collapsible.open .settings-section-content {
+    display: block;
+  }
+  .settings-section.collapsible:active .settings-section-title { opacity: 0.7; }
+
   .settings-section {
     border-top: 1px solid var(--border);
     padding-top: 14px;
@@ -824,6 +922,26 @@
   }
   .video-placeholder .icon { font-size: 40px; opacity: 0.3; }
 
+  /* 動画タイトル表示 */
+  .video-title-display {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 13px;
+    color: var(--text);
+    padding: 4px 0 6px;
+    margin-top: 4px;
+    border-top: 1px solid var(--border);
+    line-height: 1.4;
+    word-break: break-word;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .video-title-display::before {
+    content: '🎬';
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
   .status-bar {
     display: flex;
     align-items: center;
@@ -924,45 +1042,76 @@
   .ab-time-row .ab-jump-btn {
     flex-shrink: 0;
   }
-  /* FPS切替（AB点行内） */
-  .fps-switcher {
+  /* 単位情報パネル */
+  .unit-info {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 3px;
+    align-items: flex-start;
+    gap: 4px;
     flex-shrink: 0;
-    padding-left: 6px;
+    padding-left: 8px;
     border-left: 2px solid var(--border);
   }
-  .fps-switcher-label {
+  .unit-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
     font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    color: var(--text-dim);
+    font-size: 12px;
     font-weight: 700;
+    color: var(--text);
+    line-height: 1;
   }
+  .unit-key {
+    color: var(--accent2);
+    min-width: 18px;
+  }
+  .unit-eq {
+    color: var(--text-dim);
+    font-size: 11px;
+  }
+  .fps-help-btn {
+    background: var(--surface);
+    border: 1.5px solid var(--text-dim);
+    color: var(--text-dim);
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 2px;
+    line-height: 1;
+  }
+  .fps-help-btn:active { opacity: 0.6; }
+  /* FPSチップ群（大きく） */
   .fps-chip-group {
     display: flex;
-    gap: 2px;
+    gap: 3px;
   }
   .fps-chip {
     background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 3px 5px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 8px;
     font-family: 'Space Mono', monospace;
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 700;
     color: var(--text-dim);
     cursor: pointer;
     transition: all 0.15s;
-    min-width: 24px;
+    min-width: 32px;
   }
   .fps-chip.active {
     background: rgba(212, 168, 87, 0.2);
     border-color: var(--accent2);
     color: var(--accent2);
   }
-  .fps-chip:active { opacity: 0.6; }
+  .fps-chip:active { opacity: 0.6; transform: scale(0.95); }
   /* ±ボタン群（width 100% で時刻行の下に） */
   .ab-adjust-group {
     display: flex;
@@ -970,6 +1119,22 @@
     gap: 4px;
     width: 100%;
   }
+  /* 戻る/進むラベル */
+  .ab-adjust-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    margin-bottom: 2px;
+  }
+  .ab-adjust-header-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 0.05em;
+  }
+  .ab-adjust-header-label.back { color: #ff6b6b; }
+  .ab-adjust-header-label.fwd { color: #6bdc8a; }
   .ab-adjust-row {
     display: flex;
     gap: 4px;
@@ -981,20 +1146,21 @@
   }
   .ab-jump-btn {
     background: var(--surface);
-    border: 1.5px solid;
-    border-radius: 8px;
-    padding: 7px 8px;
+    border: 2px solid;
+    border-radius: 10px;
+    padding: 10px 12px;
     font-family: 'Space Mono', monospace;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.2s;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 3px;
+    gap: 4px;
     flex-shrink: 0;
   }
+  .ab-jump-btn:active { transform: scale(0.95); }
   .ab-jump-btn.a-jump {
     border-color: var(--accent);
     color: var(--accent);
@@ -1822,8 +1988,12 @@
       <div class="ab-time-row">
         <div class="ab-time unset" id="aTimeDisplay">-- : --</div>
         <button class="ab-jump-btn a-jump" id="aJumpBtn">⏮ A点へ</button>
-        <div class="fps-switcher">
-          <div class="fps-switcher-label">f=コマ</div>
+        <div class="unit-info">
+          <div class="unit-row"><span class="unit-key">s</span><span class="unit-eq">=秒</span></div>
+          <div class="unit-row">
+            <span class="unit-key">f</span><span class="unit-eq">=コマ</span>
+            <button class="fps-help-btn" id="fpsHelpBtn" title="FPSとは？">?</button>
+          </div>
           <div class="fps-chip-group">
             <button class="fps-chip" data-fps="24">24</button>
             <button class="fps-chip" data-fps="30">30</button>
@@ -1832,6 +2002,10 @@
         </div>
       </div>
       <div class="ab-adjust-group">
+        <div class="ab-adjust-header">
+          <div class="ab-adjust-header-label back">◀ 戻る</div>
+          <div class="ab-adjust-header-label fwd">進む ▶</div>
+        </div>
         <div class="ab-adjust-row">
           <button class="adj-btn minus a-adj" id="aMinus1s">-1s</button>
           <button class="adj-btn minus a-adj" id="aMinus">-0.5</button>
@@ -1861,8 +2035,12 @@
       <div class="ab-time-row">
         <div class="ab-time unset" id="bTimeDisplay">-- : --</div>
         <button class="ab-jump-btn b-jump" id="bJumpBtn">⏭ B点へ</button>
-        <div class="fps-switcher">
-          <div class="fps-switcher-label">f=コマ</div>
+        <div class="unit-info">
+          <div class="unit-row"><span class="unit-key">s</span><span class="unit-eq">=秒</span></div>
+          <div class="unit-row">
+            <span class="unit-key">f</span><span class="unit-eq">=コマ</span>
+            <button class="fps-help-btn fps-help-btn-extra" title="FPSとは？">?</button>
+          </div>
           <div class="fps-chip-group">
             <button class="fps-chip" data-fps="24">24</button>
             <button class="fps-chip" data-fps="30">30</button>
@@ -1871,6 +2049,10 @@
         </div>
       </div>
       <div class="ab-adjust-group">
+        <div class="ab-adjust-header">
+          <div class="ab-adjust-header-label back">◀ 戻る</div>
+          <div class="ab-adjust-header-label fwd">進む ▶</div>
+        </div>
         <div class="ab-adjust-row">
           <button class="adj-btn minus b-adj" id="bMinus1s">-1s</button>
           <button class="adj-btn minus b-adj" id="bMinus">-0.5</button>
@@ -2059,6 +2241,16 @@
 <div class="waveform-section" id="waveformSection">
   <div class="waveform-wrap" id="waveformWrap">
     <canvas class="waveform-canvas" id="waveformCanvas"></canvas>
+    <!-- 波形タップ時のポップアップ -->
+    <div class="wave-popup" id="wavePopup" style="display:none">
+      <div class="wave-popup-time" id="wavePopupTime">0:00</div>
+      <div class="wave-popup-btns">
+        <button class="wave-popup-btn a" id="wavePopupA">A点に設定</button>
+        <button class="wave-popup-btn b" id="wavePopupB">B点に設定</button>
+        <button class="wave-popup-btn seek" id="wavePopupSeek">⏩ ジャンプ</button>
+      </div>
+      <button class="wave-popup-close" id="wavePopupClose">×</button>
+    </div>
     <div class="waveform-channel-label l" id="waveformLabelL">L</div>
     <div class="waveform-channel-label r" id="waveformLabelR">R</div>
     <div class="waveform-ab-overlay" id="waveformAbOverlay"></div>
@@ -2085,16 +2277,25 @@
       <div class="ab-time-row">
         <div class="ab-time unset" id="localATime">-- : --</div>
         <button class="ab-jump-btn a-jump" id="localAJumpBtn">⏮ A点へ</button>
-        <div class="fps-switcher">
-          <div class="fps-switcher-label">f=コマ</div>
+        <div class="unit-info">
+          <div class="unit-row"><span class="unit-key">s</span><span class="unit-eq">=秒</span></div>
+          <div class="unit-row">
+            <span class="unit-key">f</span><span class="unit-eq">=コマ</span>
+            <button class="fps-help-btn fps-help-btn-extra" title="FPSとは？">?</button>
+          </div>
           <div class="fps-chip-group">
             <button class="fps-chip" data-fps="24">24</button>
             <button class="fps-chip" data-fps="30">30</button>
             <button class="fps-chip active" data-fps="60">60</button>
           </div>
+          <div class="unit-row"><span class="unit-key">ms</span><span class="unit-eq">=1/1000秒</span></div>
         </div>
       </div>
       <div class="ab-adjust-group">
+        <div class="ab-adjust-header">
+          <div class="ab-adjust-header-label back">◀ 戻る</div>
+          <div class="ab-adjust-header-label fwd">進む ▶</div>
+        </div>
         <div class="ab-adjust-row">
           <button class="adj-btn minus a-adj" id="localAMinus1s">-1s</button>
           <button class="adj-btn minus a-adj" id="localAMinus">-0.5</button>
@@ -2130,16 +2331,25 @@
       <div class="ab-time-row">
         <div class="ab-time unset" id="localBTime">-- : --</div>
         <button class="ab-jump-btn b-jump" id="localBJumpBtn">⏭ B点へ</button>
-        <div class="fps-switcher">
-          <div class="fps-switcher-label">f=コマ</div>
+        <div class="unit-info">
+          <div class="unit-row"><span class="unit-key">s</span><span class="unit-eq">=秒</span></div>
+          <div class="unit-row">
+            <span class="unit-key">f</span><span class="unit-eq">=コマ</span>
+            <button class="fps-help-btn fps-help-btn-extra" title="FPSとは？">?</button>
+          </div>
           <div class="fps-chip-group">
             <button class="fps-chip" data-fps="24">24</button>
             <button class="fps-chip" data-fps="30">30</button>
             <button class="fps-chip active" data-fps="60">60</button>
           </div>
+          <div class="unit-row"><span class="unit-key">ms</span><span class="unit-eq">=1/1000秒</span></div>
         </div>
       </div>
       <div class="ab-adjust-group">
+        <div class="ab-adjust-header">
+          <div class="ab-adjust-header-label back">◀ 戻る</div>
+          <div class="ab-adjust-header-label fwd">進む ▶</div>
+        </div>
         <div class="ab-adjust-row">
           <button class="adj-btn minus b-adj" id="localBMinus1s">-1s</button>
           <button class="adj-btn minus b-adj" id="localBMinus">-0.5</button>
@@ -2360,8 +2570,9 @@
     <div class="modal-title">⚙ 設定</div>
 
     <!-- カラーテーマ -->
-    <div class="settings-section">
+    <div class="settings-section collapsible" data-section="theme">
       <div class="settings-section-title">🎨 カラーテーマ</div>
+      <div class="settings-section-content">
       <div class="theme-grid" id="themeGrid">
         <div class="theme-card" data-theme="a">
           <div class="theme-name">A：シルバー＆ゴールド</div>
@@ -2397,8 +2608,11 @@
     </div>
 
     <!-- 背景色 -->
-    <div class="settings-section">
+    </div></div>
+
+    <div class="settings-section collapsible" data-section="bg">
       <div class="settings-section-title">🎨 背景色</div>
+      <div class="settings-section-content">
       <div class="theme-grid" id="bgGrid">
         <div class="theme-card" data-bg="1" style="background:#0a0a0f">
           <div class="theme-name">① ダークブラック</div>
@@ -2424,8 +2638,11 @@
     </div>
 
     <!-- 再生設定 -->
-    <div class="settings-section">
+    </div></div>
+
+    <div class="settings-section collapsible open" data-section="playback">
       <div class="settings-section-title">⚡ 再生設定</div>
+      <div class="settings-section-content">
       <div class="settings-row">
         <div>
           <div class="settings-row-label">デフォルト再生速度</div>
@@ -2455,8 +2672,11 @@
     </div>
 
     <!-- データ管理 -->
-    <div class="settings-section">
+    </div></div>
+
+    <div class="settings-section collapsible" data-section="data">
       <div class="settings-section-title">💾 データ管理</div>
+      <div class="settings-section-content">
       <div class="settings-row">
         <div>
           <div class="settings-row-label">履歴・スロット・設定をすべて削除</div>
@@ -2482,8 +2702,11 @@
     </div>
 
     <!-- 使い方ガイド -->
-    <div class="settings-section">
+    </div></div>
+
+    <div class="settings-section collapsible" data-section="guide">
       <div class="settings-section-title">❓ 使い方ガイド</div>
+      <div class="settings-section-content">
       <div class="settings-row">
         <div class="settings-row-label">使い方を表示</div>
         <button class="settings-action-btn" id="settingShowHelp">📖 開く</button>
@@ -2502,7 +2725,7 @@
         <strong>⛶ フルスクリーン</strong><br>
         動画を全画面表示。画面タップで操作パネル表示/非表示。
       </div>
-    </div>
+    </div></div>
 
     <!-- バージョン情報 -->
     <div class="settings-section">
@@ -2514,7 +2737,6 @@
     </div>
   </div>
 </div>
-
 
 
 <!-- タップ検知レイヤー -->
@@ -2558,6 +2780,39 @@
       <div class="fs-speed-chip" data-speed="1.25">1.25×</div>
       <div class="fs-speed-chip" data-speed="1.5">1.5×</div>
       <div class="fs-speed-chip" data-speed="2">2×</div>
+    </div>
+  </div>
+</div>
+
+<!-- FPSヘルプモーダル -->
+<div class="modal-backdrop" id="fpsHelpModal" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🎬 動画FPSとは？</div>
+      <button class="modal-close" id="fpsHelpClose">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin: 0 0 12px; line-height: 1.6;">
+        <strong>FPS = フレーム/秒</strong><br>
+        1秒間に動画が何コマ表示されるかを表します。
+      </p>
+      <div style="background: var(--surface2); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+        <div style="margin-bottom: 8px;"><strong style="color: var(--accent2);">24fps</strong>　映画・アニメに多い</div>
+        <div style="margin-bottom: 8px;"><strong style="color: var(--accent2);">30fps</strong>　TV番組や一般動画に多い</div>
+        <div><strong style="color: var(--accent2);">60fps</strong>　多くのYouTube動画、ゲーム動画</div>
+      </div>
+      <p style="margin: 0 0 12px; line-height: 1.6;">
+        <strong>なぜ切り替えが必要？</strong><br>
+        「±1f」ボタンの移動量は <strong>1÷FPS</strong> 秒です。
+      </p>
+      <div style="background: var(--surface2); border-radius: 8px; padding: 12px; margin-bottom: 12px; font-family: 'Space Mono', monospace; font-size: 13px;">
+        24fps → 1f = 約 0.042秒<br>
+        30fps → 1f = 約 0.033秒<br>
+        60fps → 1f = 約 0.017秒
+      </div>
+      <p style="margin: 0; line-height: 1.6; color: var(--text-dim); font-size: 13px;">
+        ⚠️ YouTubeはAPIから動画のFPSを取得できないため、手動で選んでください。動画情報や見た目から判断します（通常は60fps）。
+      </p>
     </div>
   </div>
 </div>
@@ -2924,17 +3179,29 @@ function setSpeed(spd) {
 document.getElementById('shareABBtn').addEventListener('click', () => {
   if (!videoId) { showToast('動画を先に読み込んでください'); return; }
   if (pointA === null || pointB === null) { showToast('A点とB点を両方セットしてください'); return; }
+  const title = getVideoTitle();
   const url = `https://drumsns-web.github.io/ClipLoop/?v=${videoId}&a=${pointA.toFixed(1)}&b=${pointB.toFixed(1)}`;
-  copyToClipboard(url);
-  showToast('🔁 ループ区間URLをコピーしました！');
+  const memo = document.getElementById('memoInput')?.value.trim() || '';
+  // テキスト形式：動画タイトル + AB点 + メモ + ループ用URL
+  let text = `🎬 ${title}\n`;
+  text += `⏱ A: ${fmtTime(pointA, true)} → B: ${fmtTime(pointB, true)}\n`;
+  if (memo) text += `📝 ${memo}\n`;
+  text += `🔁 ${url}`;
+  copyToClipboard(text);
+  showToast('🔁 ループ区間情報をコピーしました！');
 });
 
 document.getElementById('shareCurrentBtn').addEventListener('click', () => {
   if (!videoId || !playerReady) { showToast('動画を先に読み込んでください'); return; }
   const cur = player.getCurrentTime() || 0;
+  const title = getVideoTitle();
   const url = `https://drumsns-web.github.io/ClipLoop/?v=${videoId}&a=${cur.toFixed(1)}`;
-  copyToClipboard(url);
-  showToast('⏱ タイムスタンプURLをコピーしました！');
+  const ytUrl = `https://youtu.be/${videoId}?t=${Math.floor(cur)}s`;
+  let text = `🎬 ${title}\n`;
+  text += `⏱ ${fmtTime(cur, true)}\n`;
+  text += `▶ ${ytUrl}`;
+  copyToClipboard(text);
+  showToast('⏱ タイムスタンプ情報をコピーしました！');
 });
 
 function copyToClipboard(text) {
@@ -2994,6 +3261,19 @@ document.getElementById('saveBtn').addEventListener('click', () => {
 
 function getVideoTitle() {
   try { return player.getVideoData().title || videoId; } catch { return videoId; }
+}
+
+// 動画タイトル表示を更新
+function updateVideoTitleDisplay() {
+  const el = document.getElementById('videoTitleDisplay');
+  if (!el) return;
+  if (videoId && playerReady) {
+    const title = getVideoTitle();
+    el.textContent = title;
+    el.style.display = 'flex';
+  } else {
+    el.style.display = 'none';
+  }
 }
 
 function loadHistory() {
@@ -3581,11 +3861,64 @@ function updateWaveformOverlay() {
   if (dur > 0) cursor.style.left = (cur / dur * w) + 'px';
 }
 
+let waveTapPopupTime = null;
 document.getElementById('waveformWrap').addEventListener('click', e => {
   if (!localMedia || !audioBuffer) return;
-  const rect = e.currentTarget.getBoundingClientRect();
+  const wrap = e.currentTarget;
+  const rect = wrap.getBoundingClientRect();
   const ratio = (e.clientX - rect.left) / rect.width;
-  localMedia.currentTime = audioBuffer.duration * ratio;
+  const time = audioBuffer.duration * ratio;
+  waveTapPopupTime = time;
+  // ポップアップを表示
+  const popup = document.getElementById('wavePopup');
+  popup.style.display = 'flex';
+  // ポップアップ位置をクリック位置に合わせる
+  const popupX = e.clientX - rect.left;
+  popup.style.left = `${Math.max(60, Math.min(rect.width - 60, popupX))}px`;
+  // 時刻表示
+  document.getElementById('wavePopupTime').textContent = fmtTime(time, true);
+});
+// ポップアップ外をタップで閉じる
+document.addEventListener('click', e => {
+  const popup = document.getElementById('wavePopup');
+  const wrap = document.getElementById('waveformWrap');
+  if (popup.style.display !== 'flex') return;
+  if (!popup.contains(e.target) && !wrap.contains(e.target)) {
+    popup.style.display = 'none';
+  }
+});
+// ポップアップのボタン
+document.getElementById('wavePopupA').addEventListener('click', e => {
+  e.stopPropagation();
+  if (waveTapPopupTime === null) return;
+  localPointA = waveTapPopupTime;
+  if (localPointB !== null && localPointA >= localPointB) localPointB = null;
+  updateLocalABDisplay();
+  showToast('A点セット: ' + fmtTime(localPointA, true));
+  document.getElementById('wavePopup').style.display = 'none';
+});
+document.getElementById('wavePopupB').addEventListener('click', e => {
+  e.stopPropagation();
+  if (waveTapPopupTime === null) return;
+  if (localPointA !== null && waveTapPopupTime <= localPointA) {
+    showToast('B点はA点より後にしてください');
+    return;
+  }
+  localPointB = waveTapPopupTime;
+  updateLocalABDisplay();
+  showToast('B点セット: ' + fmtTime(localPointB, true));
+  document.getElementById('wavePopup').style.display = 'none';
+});
+document.getElementById('wavePopupSeek').addEventListener('click', e => {
+  e.stopPropagation();
+  if (waveTapPopupTime === null) return;
+  localMedia.currentTime = waveTapPopupTime;
+  showToast('⏩ ' + fmtTime(waveTapPopupTime, true));
+  document.getElementById('wavePopup').style.display = 'none';
+});
+document.getElementById('wavePopupClose').addEventListener('click', e => {
+  e.stopPropagation();
+  document.getElementById('wavePopup').style.display = 'none';
 });
 
 window.addEventListener('resize', () => { if (audioBuffer) drawWaveform(); });
@@ -4392,6 +4725,45 @@ function applySettings() {
   beepBtn.textContent = s.loopBeep ? 'ON' : 'OFF';
 }
 
+// 設定セクションのアコーディオン
+document.querySelectorAll('.settings-section.collapsible').forEach(section => {
+  const title = section.querySelector('.settings-section-title');
+  if (!title) return;
+  title.addEventListener('click', () => {
+    section.classList.toggle('open');
+    // 状態をlocalStorageに保存
+    const key = 'cliploop_section_' + section.dataset.section;
+    localStorage.setItem(key, section.classList.contains('open') ? '1' : '0');
+  });
+  // 復元
+  const key = 'cliploop_section_' + section.dataset.section;
+  const saved = localStorage.getItem(key);
+  if (saved === '1') {
+    section.classList.add('open');
+  } else if (saved === '0') {
+    section.classList.remove('open');
+  }
+});
+
+// FPSヘルプモーダル（要素存在チェック）
+const fpsHelpModalEl = document.getElementById('fpsHelpModal');
+const fpsHelpCloseEl = document.getElementById('fpsHelpClose');
+if (fpsHelpModalEl && fpsHelpCloseEl) {
+  document.querySelectorAll('#fpsHelpBtn, .fps-help-btn-extra').forEach(btn => {
+    btn.addEventListener('click', () => {
+      fpsHelpModalEl.style.display = 'flex';
+    });
+  });
+  fpsHelpCloseEl.addEventListener('click', () => {
+    fpsHelpModalEl.style.display = 'none';
+  });
+  fpsHelpModalEl.addEventListener('click', (e) => {
+    if (e.target === fpsHelpModalEl) {
+      fpsHelpModalEl.style.display = 'none';
+    }
+  });
+}
+
 // FPS切替（AB点行）
 function applyFps(fps) {
   currentFrameSec = 1 / fps;
@@ -4757,5 +5129,6 @@ if (window.requestIdleCallback) {
   setTimeout(deferredInit, 100);
 }
 </script>
+
 </body>
 </html>
