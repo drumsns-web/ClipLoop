@@ -711,32 +711,6 @@
     max-height: 85vh;
     overflow-y: auto;
   }
-  /* アコーディオン用 */
-  .settings-section.collapsible .settings-section-title {
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    user-select: none;
-  }
-  .settings-section.collapsible .settings-section-title::after {
-    content: '▼';
-    font-size: 11px;
-    color: var(--text-dim);
-    transition: transform 0.2s;
-  }
-  .settings-section.collapsible.open .settings-section-title::after {
-    transform: rotate(180deg);
-  }
-  .settings-section.collapsible .settings-section-content {
-    display: none;
-    margin-top: 10px;
-  }
-  .settings-section.collapsible.open .settings-section-content {
-    display: block;
-  }
-  .settings-section.collapsible:active .settings-section-title { opacity: 0.7; }
-
   .settings-section {
     border-top: 1px solid var(--border);
     padding-top: 14px;
@@ -2616,9 +2590,8 @@
     <div class="modal-title">⚙ 設定</div>
 
     <!-- カラーテーマ -->
-    <div class="settings-section collapsible" data-section="theme">
+    <div class="settings-section">
       <div class="settings-section-title">🎨 カラーテーマ</div>
-      <div class="settings-section-content">
       <div class="theme-grid" id="themeGrid">
         <div class="theme-card" data-theme="a">
           <div class="theme-name">A：シルバー＆ゴールド</div>
@@ -2654,11 +2627,8 @@
     </div>
 
     <!-- 背景色 -->
-    </div></div>
-
-    <div class="settings-section collapsible" data-section="bg">
+    <div class="settings-section">
       <div class="settings-section-title">🎨 背景色</div>
-      <div class="settings-section-content">
       <div class="theme-grid" id="bgGrid">
         <div class="theme-card" data-bg="1" style="background:#0a0a0f">
           <div class="theme-name">① ダークブラック</div>
@@ -2684,11 +2654,8 @@
     </div>
 
     <!-- 再生設定 -->
-    </div></div>
-
-    <div class="settings-section collapsible open" data-section="playback">
+    <div class="settings-section">
       <div class="settings-section-title">⚡ 再生設定</div>
-      <div class="settings-section-content">
       <div class="settings-row">
         <div>
           <div class="settings-row-label">デフォルト再生速度</div>
@@ -2718,11 +2685,8 @@
     </div>
 
     <!-- データ管理 -->
-    </div></div>
-
-    <div class="settings-section collapsible" data-section="data">
+    <div class="settings-section">
       <div class="settings-section-title">💾 データ管理</div>
-      <div class="settings-section-content">
       <div class="settings-row">
         <div>
           <div class="settings-row-label">履歴・スロット・設定をすべて削除</div>
@@ -2748,11 +2712,8 @@
     </div>
 
     <!-- 使い方ガイド -->
-    </div></div>
-
-    <div class="settings-section collapsible" data-section="guide">
+    <div class="settings-section">
       <div class="settings-section-title">❓ 使い方ガイド</div>
-      <div class="settings-section-content">
       <div class="settings-row">
         <div class="settings-row-label">使い方を表示</div>
         <button class="settings-action-btn" id="settingShowHelp">📖 開く</button>
@@ -2771,7 +2732,7 @@
         <strong>⛶ フルスクリーン</strong><br>
         動画を全画面表示。画面タップで操作パネル表示/非表示。
       </div>
-    </div></div>
+    </div>
 
     <!-- バージョン情報 -->
     <div class="settings-section">
@@ -4770,26 +4731,6 @@ function applySettings() {
   beepBtn.classList.toggle('on', !!s.loopBeep);
   beepBtn.textContent = s.loopBeep ? 'ON' : 'OFF';
 }
-
-// 設定セクションのアコーディオン
-document.querySelectorAll('.settings-section.collapsible').forEach(section => {
-  const title = section.querySelector('.settings-section-title');
-  if (!title) return;
-  title.addEventListener('click', () => {
-    section.classList.toggle('open');
-    // 状態をlocalStorageに保存
-    const key = 'cliploop_section_' + section.dataset.section;
-    localStorage.setItem(key, section.classList.contains('open') ? '1' : '0');
-  });
-  // 復元
-  const key = 'cliploop_section_' + section.dataset.section;
-  const saved = localStorage.getItem(key);
-  if (saved === '1') {
-    section.classList.add('open');
-  } else if (saved === '0') {
-    section.classList.remove('open');
-  }
-});
 
 // FPSヘルプモーダル（要素存在チェック）
 const fpsHelpModalEl = document.getElementById('fpsHelpModal');
