@@ -145,6 +145,29 @@
   }
 
   /* 波形表示 */
+  .waveform-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 6px;
+    padding: 0 2px;
+  }
+  .waveform-header-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-dim);
+  }
+  .waveform-total-time {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent2);
+    background: rgba(212, 168, 87, 0.15);
+    border: 1px solid var(--accent2);
+    border-radius: 6px;
+    padding: 3px 10px;
+  }
   .waveform-section {
     margin: 0 16px 14px;
     background: var(--surface);
@@ -172,7 +195,7 @@
     z-index: 50;
     transform: translate(-50%, -110%);
     box-shadow: 0 4px 16px rgba(0,0,0,0.6);
-    display: flex !important;
+    display: none;
     flex-direction: column;
     gap: 6px;
     min-width: 160px;
@@ -934,6 +957,37 @@
   .tagline { font-size: 11px; color: var(--text-dim); letter-spacing: 0.05em; }
 
   .url-section { padding: 14px 16px; display: flex; gap: 8px; }
+  .url-input-wrap {
+    position: relative;
+    flex: 1;
+    display: flex;
+    min-width: 0;
+  }
+  .url-input-wrap .url-input {
+    width: 100%;
+    padding-right: 36px;
+  }
+  .url-clear-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .url-clear-btn:active { transform: translateY(-50%) scale(0.9); opacity: 0.7; }
+
   .url-input {
     flex: 1;
     background: var(--surface);
@@ -1287,6 +1341,73 @@
     gap: 3px;
     align-items: stretch;
   }
+  .speed-slider-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .speed-slider-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .speed-slider-item .ss-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-dim);
+    min-width: 16px;
+    text-align: center;
+  }
+  .speed-slider-item input[type=range] {
+    flex: 1;
+    accent-color: var(--accent2);
+    min-width: 0;
+  }
+  .speed-slider-item .ss-val {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent2);
+    min-width: 48px;
+    text-align: right;
+  }
+  .speed-quick-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text);
+    text-align: center;
+    margin: 10px 0 6px;
+    opacity: 0.85;
+    padding-top: 8px;
+    border-top: 1px dashed var(--border);
+  }
+  .speed-quick-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr) 8px repeat(4, 1fr);
+    gap: 3px;
+    align-items: stretch;
+  }
+  .speed-quick-gap {
+    width: 8px;
+  }
+  .speed-quick-btn {
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 2px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    min-width: 0;
+  }
+  .speed-quick-btn.active {
+    transform: translateY(-1px);
+  }
+  .speed-quick-btn:active { transform: scale(0.92); opacity: 0.8; }
   .seek-bar-quick-gap {
     /* 中央の見えない区切り */
   }
@@ -2305,7 +2426,10 @@
 <div class="mode-content active" id="ytMode">
 
 <div class="url-section">
-  <input type="url" class="url-input" id="urlInput" placeholder="YouTube URLまたはキーワード..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <div class="url-input-wrap">
+    <input type="url" class="url-input" id="urlInput" placeholder="YouTube URLまたはキーワード..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    <button class="url-clear-btn" id="urlClearBtn" title="クリア" style="display:none">×</button>
+  </div>
   <button class="search-btn" id="searchBtn" title="YouTubeで検索">🔍</button>
   <button class="load-btn" id="loadBtn">読込</button>
 </div>
@@ -2338,6 +2462,8 @@
       <button class="seek-quick-btn plus" data-yt-seek="15">+15秒</button>
       <button class="seek-quick-btn plus" data-yt-seek="20">+20秒</button>
     </div>
+    <div class="speed-quick-label">⏩ 再生速度</div>
+    <div class="speed-quick-row" id="ytSpeedRow"></div>
   </div>
   <!-- AB Points -->
   <div class="ab-grid">
@@ -2573,6 +2699,9 @@
 
 <!-- 波形表示 -->
 <div class="waveform-section" id="waveformSection">
+  <div class="waveform-header">
+    <span class="waveform-total-time" id="waveformTotalTime">全 0:00</span>
+  </div>
   <div class="waveform-wrap" id="waveformWrap">
     <canvas class="waveform-canvas" id="waveformCanvas"></canvas>
     <!-- 波形タップ時のポップアップ -->
@@ -2601,6 +2730,10 @@
 </div>
 
 <div class="panel">
+  <div class="seek-bar-quick">
+    <div class="speed-quick-label">⏩ 再生速度</div>
+    <div class="speed-quick-row" id="localSpeedRow"></div>
+  </div>
   <div class="ab-grid">
     <div class="ab-cell">
       <div class="ab-label">
@@ -2954,6 +3087,16 @@
         </div>
         <button class="tempo-up-onoff" id="settingLoopBeep" style="min-width:60px;padding:6px 14px">OFF</button>
       </div>
+      <div class="settings-row" style="flex-direction:column;align-items:stretch;gap:10px">
+        <div>
+          <div class="settings-row-label">クイック速度ボタン（8個）</div>
+          <div class="settings-row-sub">スライダーで各ボタンの倍率を設定（0.25〜2.0）</div>
+        </div>
+        <div class="speed-slider-list" id="speedSliderList"></div>
+        <div style="display:flex;gap:8px">
+          <button class="tempo-up-onoff" id="settingSpeedPresetsReset" style="padding:6px 14px">初期値に戻す</button>
+        </div>
+      </div>
     </div>
 
     <!-- データ管理 -->
@@ -3139,7 +3282,91 @@ let loopEnabled = false;
 let isPlaying = false;
 let pollingTimer = null;
 let currentSpeed = 1;
+// クイック速度プリセット
+let speedPresets = [0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9, 1.0];
+function loadSpeedPresets() {
+  const saved = localStorage.getItem('cliploop_speed_presets');
+  if (saved) {
+    try {
+      const arr = JSON.parse(saved);
+      if (Array.isArray(arr) && arr.length) speedPresets = arr;
+    } catch {}
+  }
+}
+// 速度→Hue（0.25〜1.0をメインに 青→緑→黄→橙→赤）
+function speedToHue(spd) {
+  // 0.25→0、1.0→1.0 に正規化（実用域で全色相を使い切る）
+  let t = (spd - 0.25) / (1.0 - 0.25);
+  // 1.0超は赤(0)で頭打ち
+  t = Math.max(0, Math.min(1, t));
+  // Hue: 220(青) → 0(赤) を直線的に。
+  // 220→160(青緑)→90(黄緑)→55(黄)→25(橙)→0(赤)
+  const hue = 220 - 220 * t;
+  return Math.round(hue);
+}
+
+function renderSpeedButtons() {
+  ['ytSpeedRow', 'localSpeedRow'].forEach(rowId => {
+    const row = document.getElementById(rowId);
+    if (!row) return;
+    row.innerHTML = '';
+    speedPresets.forEach((spd, i) => {
+      // ±秒ボタンと同じ位置にすき間を入れる（4個目の後）
+      if (i === 4) {
+        const gap = document.createElement('div');
+        gap.className = 'speed-quick-gap';
+        row.appendChild(gap);
+      }
+      const btn = document.createElement('button');
+      btn.className = 'speed-quick-btn';
+      if (Math.abs(spd - currentSpeed) < 0.001) btn.classList.add('active');
+      btn.textContent = (spd === 1 || spd === 1.0) ? '1.0x' : spd + 'x';
+      btn.dataset.speed = spd;
+      // 速度に応じた色（0.25=青 → 1.0=緑 → 2.0=赤）
+      const hue = speedToHue(spd);
+      // 黄色帯(45-80)は暗めにして視認性確保
+      const isYellow = hue >= 45 && hue <= 85;
+      const activeL = isYellow ? 48 : 55;
+      const textL = isYellow ? 60 : 68;
+      const active = Math.abs(spd - currentSpeed) < 0.001;
+      if (active) {
+        btn.style.background = `hsl(${hue}, 75%, ${activeL}%)`;
+        btn.style.borderColor = `hsl(${hue}, 75%, ${activeL}%)`;
+        btn.style.color = '#000';
+        btn.style.boxShadow = `0 0 10px hsla(${hue}, 75%, ${activeL}%, 0.7), 0 1px 2px rgba(0,0,0,0.4)`;
+      } else {
+        btn.style.background = `hsla(${hue}, 65%, 50%, 0.18)`;
+        btn.style.borderColor = `hsla(${hue}, 65%, 55%, 0.6)`;
+        btn.style.color = `hsl(${hue}, 70%, ${textL}%)`;
+      }
+      btn.addEventListener('click', () => {
+        applyQuickSpeed(parseFloat(spd));
+      });
+      row.appendChild(btn);
+    });
+  });
+}
+function applyQuickSpeed(spd) {
+  currentSpeed = spd;
+  const ytMode = document.getElementById('ytMode');
+  const isYouTube = ytMode && ytMode.classList.contains('active');
+  if (isYouTube) {
+    if (playerReady && player.setPlaybackRate) player.setPlaybackRate(spd);
+  } else {
+    if (localMedia) localMedia.playbackRate = spd;
+  }
+  // 既存の速度表示があれば更新
+  const speedDisplay = document.getElementById('speedValue') || document.getElementById('speedDisplay');
+  if (speedDisplay) speedDisplay.textContent = Math.round(spd * 100) + '%';
+  highlightActiveSpeed();
+  showToast('再生速度 ' + (spd * 100).toFixed(0) + '%');
+}
+function highlightActiveSpeed() {
+  // 色の再計算が必要なのでボタンを描き直す
+  renderSpeedButtons();
+}
 let loopCount = 0;
+let urlRestoreDone = false;
 
 // ─── YouTube IFrame API ───
 const tag = document.createElement('script');
@@ -3149,6 +3376,15 @@ document.head.appendChild(tag);
 window.onYouTubeIframeAPIReady = function() {};
 
 function createPlayer(vid) {
+  // 既存プレーヤーがあれば動画だけ差し替え（高速）
+  if (player && typeof player.loadVideoById === 'function') {
+    document.getElementById('placeholder').style.display = 'none';
+    playerReady = false;
+    setStatus('読み込み中...', '');
+    player.loadVideoById(vid);
+    return;
+  }
+  // 初回はプレーヤーを生成
   const old = document.getElementById('ytPlayer');
   if (old) old.remove();
   const div = document.createElement('div');
@@ -3170,12 +3406,26 @@ function onPlayerReady(e) {
   setStatus('準備完了', '');
   document.getElementById('totalTime').textContent = fmtTime(duration);
   document.getElementById('seekBar').max = duration;
-  // URLパラメータからAB点を復元
-  restoreFromURL();
+  // URLパラメータからAB点を復元（初回のみ）
+  if (!urlRestoreDone) { restoreFromURL(); urlRestoreDone = true; }
   startPolling();
 }
 
 function onStateChange(e) {
+  // loadVideoByById差し替え後、再生準備ができたらメタデータ更新
+  if (!playerReady && (e.data === YT.PlayerState.PLAYING || e.data === YT.PlayerState.CUED || e.data === YT.PlayerState.BUFFERING)) {
+    playerReady = true;
+    duration = player.getDuration() || 0;
+    if (duration > 0) {
+      drawTimeMarks(duration);
+      document.getElementById('totalTime').textContent = fmtTime(duration);
+      document.getElementById('seekBar').max = duration;
+    }
+    setStatus('準備完了', '');
+    if (!urlRestoreDone) { restoreFromURL(); urlRestoreDone = true; }
+    startPolling();
+    setTimeout(updateVideoTitleDisplay, 500);
+  }
   if (e.data === YT.PlayerState.PLAYING) {
     isPlaying = true;
     document.getElementById('playBtn').textContent = '⏸';
@@ -3235,6 +3485,22 @@ function extractVideoId(url) {
     if (m) return m[1];
   }
   return null;
+}
+
+// URLクリアボタン
+const urlInputEl = document.getElementById('urlInput');
+const urlClearBtnEl = document.getElementById('urlClearBtn');
+if (urlInputEl && urlClearBtnEl) {
+  function toggleClearBtn() {
+    urlClearBtnEl.style.display = urlInputEl.value.length > 0 ? 'flex' : 'none';
+  }
+  urlInputEl.addEventListener('input', toggleClearBtn);
+  urlClearBtnEl.addEventListener('click', () => {
+    urlInputEl.value = '';
+    toggleClearBtn();
+    urlInputEl.focus();
+  });
+  toggleClearBtn();
 }
 
 document.getElementById('searchBtn').addEventListener('click', () => {
@@ -3430,6 +3696,7 @@ function setSpeed(spd) {
   if (slider) slider.value = spd;
   if (sliderVal) sliderVal.textContent = spd.toFixed(2) + '×';
   if (playerReady) player.setPlaybackRate(spd);
+  if (typeof highlightActiveSpeed === 'function') highlightActiveSpeed();
   showToast(`再生速度: ${spd}×`);
 }
 
@@ -4111,8 +4378,12 @@ function drawWaveform() {
   const ctx = canvas.getContext('2d');
   ctx.fillStyle = '#fff';
   ctx.fillRect(0, 0, W, H);
+  // 下部ラベル帯の高さを先に確保
+  const _fontPx = 11 * dpr;
+  const _bandH = _fontPx + 8 * dpr;
+  const waveH = H - _bandH; // 波形に使える高さ
   const numCh = Math.min(audioBuffer.numberOfChannels, 2);
-  const channelHeight = H / numCh;
+  const channelHeight = waveH / numCh;
   for (let ch = 0; ch < numCh; ch++) {
     const data = audioBuffer.getChannelData(ch);
     const samplesPerPixel = Math.max(1, Math.floor(data.length / W));
@@ -4133,6 +4404,54 @@ function drawWaveform() {
     }
     ctx.fillStyle = 'rgba(0,0,0,0.1)';
     ctx.fillRect(0, centerY, W, 1);
+  }
+
+  // ─── 時間グリッド + ラベル（波形下部の帯に配置）───
+  const dur = audioBuffer.duration;
+  if (dur > 0) {
+    let interval = 30;
+    if (dur > 600) interval = 60;
+    if (dur > 1800) interval = 120;
+    if (dur > 3600) interval = 300;
+    if (dur < 60) interval = 10;
+    if (dur < 20) interval = 5;
+    const fontPx = _fontPx;
+    const bandH = _bandH; // 波形計算と同じ値を使用
+    // ラベル帯の背景（波形と分離）
+    ctx.fillStyle = 'rgba(245,245,248,0.95)';
+    ctx.fillRect(0, H - bandH, W, bandH);
+    ctx.fillStyle = 'rgba(0,0,0,0.15)';
+    ctx.fillRect(0, H - bandH, W, 1);
+    ctx.font = '700 ' + fontPx + 'px monospace';
+    ctx.textBaseline = 'middle';
+    for (let t = interval; t < dur; t += interval) {
+      const x = (t / dur) * W;
+      const isMajor = (t % (interval * 2) === 0);
+      // 縦グリッド線（波形エリアのみ、ラベル帯の上まで）
+      ctx.fillStyle = isMajor ? 'rgba(0,0,0,0.22)' : 'rgba(0,0,0,0.11)';
+      ctx.fillRect(x, 0, 1, H - bandH);
+      // ラベル文字（帯の中央）。右端で見切れる場合は描画しない
+      const m = Math.floor(t / 60);
+      const s = Math.floor(t % 60);
+      const label = m + ':' + (s < 10 ? '0' + s : s);
+      const tw = ctx.measureText(label).width;
+      const lx = x + 3 * dpr;
+      // ラベル右端がCanvas幅を超えるなら描かない（重なり防止）
+      if (lx + tw <= W - 2 * dpr) {
+        ctx.fillStyle = '#1a1a2e';
+        ctx.fillText(label, lx, H - bandH / 2);
+      }
+      // 帯内に小さな目盛り
+      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      ctx.fillRect(x, H - bandH, 1, 4 * dpr);
+    }
+  }
+  // 総再生時間をHTML要素に反映
+  const totalEl = document.getElementById('waveformTotalTime');
+  if (totalEl) {
+    const tm = Math.floor(dur / 60);
+    const ts = Math.floor(dur % 60);
+    totalEl.textContent = '全 ' + tm + ':' + (ts < 10 ? '0' + ts : ts);
   }
 }
 
@@ -5090,7 +5409,48 @@ function applySettings() {
   const beepBtn = document.getElementById('settingLoopBeep');
   beepBtn.classList.toggle('on', !!s.loopBeep);
   beepBtn.textContent = s.loopBeep ? 'ON' : 'OFF';
+  // 速度プリセット（スライダーで設定）
+  loadSpeedPresets();
+  renderSpeedSliders();
+  renderSpeedButtons();
 }
+
+// 設定画面の速度スライダーを描画
+function renderSpeedSliders() {
+  const list = document.getElementById('speedSliderList');
+  if (!list) return;
+  list.innerHTML = '';
+  speedPresets.forEach((spd, idx) => {
+    const item = document.createElement('div');
+    item.className = 'speed-slider-item';
+    item.innerHTML =
+      '<span class="ss-num">' + (idx + 1) + '</span>' +
+      '<input type="range" min="0.25" max="2" step="0.05" value="' + spd + '" data-idx="' + idx + '">' +
+      '<span class="ss-val">' + spd.toFixed(2) + 'x</span>';
+    const slider = item.querySelector('input');
+    const val = item.querySelector('.ss-val');
+    slider.addEventListener('input', () => {
+      const v = parseFloat(slider.value);
+      val.textContent = v.toFixed(2) + 'x';
+      speedPresets[idx] = v;
+    });
+    slider.addEventListener('change', () => {
+      // 確定時に保存＆ボタン反映
+      localStorage.setItem('cliploop_speed_presets', JSON.stringify(speedPresets));
+      renderSpeedButtons();
+    });
+    list.appendChild(item);
+  });
+}
+
+// 速度プリセット「初期値に戻す」ボタン
+document.getElementById('settingSpeedPresetsReset').addEventListener('click', () => {
+  speedPresets = [0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9, 1.0];
+  localStorage.setItem('cliploop_speed_presets', JSON.stringify(speedPresets));
+  renderSpeedSliders();
+  renderSpeedButtons();
+  showToast('初期値に戻しました');
+});
 
 // 戻る/進む 微調整モーダル
 // FPS連動で秒数が変わる「コマ」単位
