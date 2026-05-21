@@ -1346,6 +1346,15 @@
     flex-direction: column;
     gap: 10px;
   }
+  .seek-slider-group-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    margin: 4px 0 2px;
+    letter-spacing: 0.03em;
+  }
+  .seek-slider-group-title.back { color: #ff6b6b; }
+  .seek-slider-group-title.fwd { color: #6bdc8a; }
   .speed-slider-item {
     display: flex;
     align-items: center;
@@ -1371,6 +1380,14 @@
     color: var(--accent2);
     min-width: 48px;
     text-align: right;
+  }
+  .customizable-note {
+    font-size: 9px;
+    font-weight: 400;
+    color: var(--accent2);
+    margin-left: 8px;
+    opacity: 0.85;
+    letter-spacing: 0;
   }
   .speed-quick-label {
     font-family: 'Space Mono', monospace;
@@ -2470,19 +2487,9 @@
 <div class="panel">
   <!-- 動画シーク（±秒） -->
   <div class="seek-bar-quick">
-    <div class="seek-bar-quick-label">⏱ 動画を進める/戻す</div>
-    <div class="seek-bar-quick-row">
-      <button class="seek-quick-btn minus" data-yt-seek="-20">-20秒</button>
-      <button class="seek-quick-btn minus" data-yt-seek="-15">-15秒</button>
-      <button class="seek-quick-btn minus" data-yt-seek="-10">-10秒</button>
-      <button class="seek-quick-btn minus" data-yt-seek="-5">-5秒</button>
-      <div class="seek-bar-quick-gap"></div>
-      <button class="seek-quick-btn plus" data-yt-seek="5">+5秒</button>
-      <button class="seek-quick-btn plus" data-yt-seek="10">+10秒</button>
-      <button class="seek-quick-btn plus" data-yt-seek="15">+15秒</button>
-      <button class="seek-quick-btn plus" data-yt-seek="20">+20秒</button>
-    </div>
-    <div class="speed-quick-label">⏩ 再生速度</div>
+    <div class="seek-bar-quick-label">⏱ 動画を戻す/進める<span class="customizable-note">設定で変更可能</span></div>
+    <div class="seek-bar-quick-row" id="ytSeekRow"></div>
+    <div class="speed-quick-label">⏩ 再生速度<span class="customizable-note">設定で変更可能</span></div>
     <div class="speed-quick-row" id="ytSpeedRow"></div>
   </div>
   <!-- AB Points -->
@@ -2751,7 +2758,9 @@
 
 <div class="panel">
   <div class="seek-bar-quick">
-    <div class="speed-quick-label">⏩ 再生速度</div>
+    <div class="seek-bar-quick-label">⏱ 動画・音源を戻す/進める<span class="customizable-note">設定で変更可能</span></div>
+    <div class="seek-bar-quick-row" id="localSeekRow"></div>
+    <div class="speed-quick-label">⏩ 再生速度<span class="customizable-note">設定で変更可能</span></div>
     <div class="speed-quick-row" id="localSpeedRow"></div>
   </div>
   <div class="ab-grid">
@@ -3117,6 +3126,16 @@
           <button class="tempo-up-onoff" id="settingSpeedPresetsReset" style="padding:6px 14px">初期値に戻す</button>
         </div>
       </div>
+      <div class="settings-row" style="flex-direction:column;align-items:stretch;gap:10px">
+        <div>
+          <div class="settings-row-label">送り/戻し秒数（戻る4個・進む4個）</div>
+          <div class="settings-row-sub">スライダーで各ボタンの秒数を設定（1〜60秒）。戻る・進むを個別に設定</div>
+        </div>
+        <div class="speed-slider-list" id="seekSliderList"></div>
+        <div style="display:flex;gap:8px">
+          <button class="tempo-up-onoff" id="settingSeekPresetsReset" style="padding:6px 14px">初期値に戻す</button>
+        </div>
+      </div>
     </div>
 
     <!-- データ管理 -->
@@ -3304,6 +3323,97 @@ let pollingTimer = null;
 let currentSpeed = 1;
 // クイック速度プリセット
 let speedPresets = [0.5, 0.6, 0.7, 0.75, 0.8, 0.85, 0.9, 1.0];
+// 送り/戻し秒数プリセット（戻る4個・進む4個を独立管理）
+let seekBackPresets = [20, 15, 10, 5];  // 左から表示（大→小）
+let seekFwdPresets = [5, 10, 15, 20];   // 左から表示（小→大）
+function loadSeekPresets() {
+  const b = localStorage.getItem('cliploop_seek_back');
+  const f = localStorage.getItem('cliploop_seek_fwd');
+  if (b) { try { const a = JSON.parse(b); if (Array.isArray(a) && a.length === 4) seekBackPresets = a; } catch {} }
+  if (f) { try { const a = JSON.parse(f); if (Array.isArray(a) && a.length === 4) seekFwdPresets = a; } catch {} }
+}
+function renderSeekButtons() {
+  [['ytSeekRow', false], ['localSeekRow', true]].forEach(([rowId, isLocal]) => {
+    const row = document.getElementById(rowId);
+    if (!row) return;
+    row.innerHTML = '';
+    seekBackPresets.forEach(sec => {
+      const btn = document.createElement('button');
+      btn.className = 'seek-quick-btn minus';
+      btn.textContent = '-' + sec + '秒';
+      btn.addEventListener('click', () => doSeek(-sec, isLocal));
+      row.appendChild(btn);
+    });
+    const gap = document.createElement('div');
+    gap.className = 'seek-bar-quick-gap';
+    row.appendChild(gap);
+    seekFwdPresets.forEach(sec => {
+      const btn = document.createElement('button');
+      btn.className = 'seek-quick-btn plus';
+      btn.textContent = '+' + sec + '秒';
+      btn.addEventListener('click', () => doSeek(sec, isLocal));
+      row.appendChild(btn);
+    });
+  });
+}
+function doSeek(delta, isLocal) {
+  if (isLocal) {
+    if (!localMedia) { showToast('ファイルを読み込んでください'); return; }
+    const dur = localMedia.duration || 99999;
+    localMedia.currentTime = Math.max(0, Math.min(dur, localMedia.currentTime + delta));
+    showToast((delta > 0 ? '+' : '') + delta + '秒');
+  } else {
+    if (!playerReady) { showToast('動画を読み込んでください'); return; }
+    const cur = player.getCurrentTime();
+    const dur = player.getDuration() || 99999;
+    player.seekTo(Math.max(0, Math.min(dur, cur + delta)), true);
+    showToast((delta > 0 ? '+' : '') + delta + '秒');
+  }
+}
+function renderSeekSliders() {
+  const list = document.getElementById('seekSliderList');
+  if (!list) return;
+  list.innerHTML = '';
+  // 戻るスライダー（赤ラベル）
+  const backTitle = document.createElement('div');
+  backTitle.className = 'seek-slider-group-title back';
+  backTitle.textContent = '◀ 戻る（左から表示順）';
+  list.appendChild(backTitle);
+  seekBackPresets.forEach((sec, idx) => {
+    list.appendChild(makeSeekSlider(sec, idx, 'back'));
+  });
+  // 進むスライダー（緑ラベル）
+  const fwdTitle = document.createElement('div');
+  fwdTitle.className = 'seek-slider-group-title fwd';
+  fwdTitle.textContent = '進む ▶（左から表示順）';
+  list.appendChild(fwdTitle);
+  seekFwdPresets.forEach((sec, idx) => {
+    list.appendChild(makeSeekSlider(sec, idx, 'fwd'));
+  });
+}
+function makeSeekSlider(sec, idx, dir) {
+  const item = document.createElement('div');
+  item.className = 'speed-slider-item';
+  const sign = dir === 'back' ? '-' : '+';
+  item.innerHTML =
+    '<span class="ss-num">' + sign + '</span>' +
+    '<input type="range" min="1" max="60" step="1" value="' + sec + '">' +
+    '<span class="ss-val">' + sec + '秒</span>';
+  const slider = item.querySelector('input');
+  const val = item.querySelector('.ss-val');
+  slider.addEventListener('input', () => {
+    const v = parseInt(slider.value);
+    val.textContent = v + '秒';
+    if (dir === 'back') seekBackPresets[idx] = v;
+    else seekFwdPresets[idx] = v;
+  });
+  slider.addEventListener('change', () => {
+    localStorage.setItem('cliploop_seek_back', JSON.stringify(seekBackPresets));
+    localStorage.setItem('cliploop_seek_fwd', JSON.stringify(seekFwdPresets));
+    renderSeekButtons();
+  });
+  return item;
+}
 function loadSpeedPresets() {
   const saved = localStorage.getItem('cliploop_speed_presets');
   if (saved) {
@@ -5433,6 +5543,10 @@ function applySettings() {
   loadSpeedPresets();
   renderSpeedSliders();
   renderSpeedButtons();
+  // 送り/戻し秒数プリセット
+  loadSeekPresets();
+  renderSeekSliders();
+  renderSeekButtons();
 }
 
 // 設定画面の速度スライダーを描画
@@ -5469,6 +5583,17 @@ document.getElementById('settingSpeedPresetsReset').addEventListener('click', ()
   localStorage.setItem('cliploop_speed_presets', JSON.stringify(speedPresets));
   renderSpeedSliders();
   renderSpeedButtons();
+  showToast('初期値に戻しました');
+});
+
+// 送り/戻し秒数「初期値に戻す」ボタン
+document.getElementById('settingSeekPresetsReset').addEventListener('click', () => {
+  seekBackPresets = [20, 15, 10, 5];
+  seekFwdPresets = [5, 10, 15, 20];
+  localStorage.setItem('cliploop_seek_back', JSON.stringify(seekBackPresets));
+  localStorage.setItem('cliploop_seek_fwd', JSON.stringify(seekFwdPresets));
+  renderSeekSliders();
+  renderSeekButtons();
   showToast('初期値に戻しました');
 });
 
@@ -5594,30 +5719,7 @@ if (fpsHelpModalEl && fpsHelpCloseEl) {
 }
 
 // 動画クイックシーク（YouTube）
-document.querySelectorAll('[data-yt-seek]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    if (!playerReady) { showToast('動画を読み込んでください'); return; }
-    const delta = parseFloat(btn.dataset.ytSeek);
-    const cur = player.getCurrentTime();
-    const dur = player.getDuration();
-    const newTime = Math.max(0, Math.min(dur || 99999, cur + delta));
-    player.seekTo(newTime, true);
-    showToast(`${delta > 0 ? '+' : ''}${delta}秒 (${fmtTime(newTime)})`);
-  });
-});
-
-// 動画クイックシーク（ローカル）
-document.querySelectorAll('[data-local-seek]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    if (!localMedia) { showToast('ファイルを読み込んでください'); return; }
-    const delta = parseFloat(btn.dataset.localSeek);
-    const cur = localMedia.currentTime;
-    const dur = localMedia.duration || 99999;
-    const newTime = Math.max(0, Math.min(dur, cur + delta));
-    localMedia.currentTime = newTime;
-    showToast(`${delta > 0 ? '+' : ''}${delta}秒 (${fmtTime(newTime)})`);
-  });
-});
+// （±秒シークは renderSeekButtons 内で doSeek にバインド済み）
 
 // FPS切替（AB点行）
 function applyFps(fps) {
