@@ -2319,6 +2319,40 @@
     grid-template-columns: repeat(5, 1fr);
     gap: 6px;
   }
+  .slot-call-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .slot-edit-toggle {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-dim);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .slot-edit-toggle:active { transform: scale(0.95); }
+  .slot-edit-toggle.on {
+    background: var(--accent2);
+    border-color: var(--accent2);
+    color: #fff;
+  }
+  .slot-btn.editing {
+    border-color: var(--accent2);
+    box-shadow: 0 0 8px rgba(255,61,113,0.4);
+    animation: slotEditPulse 1.5s ease-in-out infinite;
+  }
+  @keyframes slotEditPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
   .slot-btn {
     background: var(--surface2);
     border: 1px solid var(--border);
@@ -2709,7 +2743,7 @@
       <span class="slot-save-label">💾 保存先</span>
       <div class="slot-save-chips" id="slotSaveChips"></div>
     </div>
-    <div class="slot-label">📂 呼出（タップ）</div>
+    <div class="slot-label slot-call-label">📂 呼出（タップ）<button class="slot-edit-toggle" id="slotEditToggle">✏ 編集</button></div>
     <div class="slot-grid" id="slotGrid"></div>
   </div>
 
@@ -3081,7 +3115,7 @@
       <span class="slot-save-label">💾 保存先</span>
       <div class="slot-save-chips" id="localSlotSaveChips"></div>
     </div>
-    <div class="slot-label">📂 呼出（タップ）</div>
+    <div class="slot-label slot-call-label">📂 呼出（タップ）<button class="slot-edit-toggle" id="localSlotEditToggle">✏ 編集</button></div>
     <div class="slot-grid" id="localSlotGrid"></div>
   </div>
 </div>
@@ -4347,6 +4381,23 @@ document.querySelectorAll('.skip-btn').forEach(btn => {
 });
 
 // ─── AB区間スロット ───
+let slotEditMode = false;
+function toggleSlotEditMode() {
+  slotEditMode = !slotEditMode;
+  const ytBtn = document.getElementById('slotEditToggle');
+  const localBtn = document.getElementById('localSlotEditToggle');
+  [ytBtn, localBtn].forEach(b => {
+    if (!b) return;
+    b.classList.toggle('on', slotEditMode);
+    b.textContent = slotEditMode ? '✓ 完了' : '✏ 編集';
+  });
+  renderSlots();
+  renderLocalSlots();
+  showToast(slotEditMode ? '編集モード：スロットをタップで編集' : '編集モード終了');
+}
+document.getElementById('slotEditToggle')?.addEventListener('click', toggleSlotEditMode);
+document.getElementById('localSlotEditToggle')?.addEventListener('click', toggleSlotEditMode);
+
 function getSlotKey() {
   return videoId ? `ytloop_slots_${videoId}` : null;
 }
@@ -4400,8 +4451,11 @@ function renderSlots() {
       btn.innerHTML = `<span class="slot-num">${i + 1}</span><span class="slot-time">empty</span>`;
     }
     btn.addEventListener('click', () => {
-      if (slots[i]) openSlotMenu(i, false);
+      if (!slots[i]) return;
+      if (slotEditMode) openSlotMenu(i, false);
+      else loadFromSlot(i);
     });
+    if (slotEditMode && slots[i]) btn.classList.add('editing');
     grid.appendChild(btn);
   }
 }
@@ -4455,7 +4509,7 @@ function editSlotLabel(idx) {
   const slots = loadSlots();
   if (!slots[idx]) return;
   const cur = slots[idx].label || '';
-  const newLabel = prompt('スロットのラベルを入力（例: ソロ、サビ前、イントロ）', cur);
+  const newLabel = prompt('スロットのラベルを入力（例: イントロ、サビ前、ソロ）', cur);
   if (newLabel === null) return; // キャンセル
   slots[idx].label = newLabel.trim().slice(0, 20);
   saveSlots(slots);
@@ -5069,8 +5123,11 @@ function renderLocalSlots() {
       btn.innerHTML = '<span class="slot-num">' + (i + 1) + '</span><span class="slot-time">empty</span>';
     }
     btn.addEventListener('click', () => {
-      if (slots[i]) openSlotMenu(i, true);
+      if (!slots[i]) return;
+      if (slotEditMode) openSlotMenu(i, true);
+      else loadFromLocalSlot(i);
     });
+    if (slotEditMode && slots[i]) btn.classList.add('editing');
     grid.appendChild(btn);
   }
 }
@@ -5099,7 +5156,7 @@ function editLocalSlotLabel(idx) {
   const slots = loadLocalSlots();
   if (!slots[idx]) return;
   const cur = slots[idx].label || '';
-  const newLabel = prompt('スロットのラベルを入力（例: ソロ、サビ前、イントロ）', cur);
+  const newLabel = prompt('スロットのラベルを入力（例: イントロ、サビ前、ソロ）', cur);
   if (newLabel === null) return;
   slots[idx].label = newLabel.trim().slice(0, 20);
   saveLocalSlots(slots);
