@@ -1660,6 +1660,7 @@
     display: flex;
     gap: 6px;
     align-items: center;
+    flex-shrink: 0;
   }
   .repeat-mini-btn {
     display: flex;
@@ -1675,6 +1676,10 @@
     font-family: 'Noto Sans JP', sans-serif;
     font-size: 12px;
     font-weight: 700;
+    white-space: nowrap;
+    flex-shrink: 0;
+    text-transform: none;
+    letter-spacing: 0;
   }
   .repeat-mini-btn .rep-icon { font-size: 14px; line-height: 1; }
   .repeat-mini-btn:active { transform: scale(0.94); }
@@ -2333,6 +2338,34 @@
     position: relative;
   }
   .slot-btn:active { opacity: 0.6; transform: scale(0.95); }
+  .slot-userlabel {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent2);
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  .slot-menu-btn {
+    padding: 12px;
+    border-radius: 8px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1.5px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    transition: all 0.15s;
+  }
+  .slot-menu-btn:active { transform: scale(0.97); opacity: 0.8; }
+  .slot-menu-btn.call { border-color: var(--accent); color: var(--accent); }
+  .slot-menu-btn.label { border-color: var(--accent2); color: var(--accent2); }
+  .slot-menu-btn.del { border-color: #ff6b6b; color: #ff6b6b; }
+
   .slot-btn.has-data {
     background: rgba(0,229,255,0.08);
     border-color: var(--accent);
@@ -3344,6 +3377,24 @@
   </div>
 </div>
 
+<!-- スロット操作メニュー -->
+<div class="modal-backdrop" id="slotMenuModal" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="slotMenuTitle">スロット</div>
+      <button class="modal-close" id="slotMenuClose">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="adjust-modal-title" id="slotMenuInfo">0:00 〜 0:00</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
+        <button class="slot-menu-btn call" id="slotMenuCall">📂 この区間を呼び出す</button>
+        <button class="slot-menu-btn label" id="slotMenuLabel">✏️ ラベルを編集</button>
+        <button class="slot-menu-btn del" id="slotMenuDelete">🗑 削除</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <!-- FPSヘルプモーダル -->
 <div class="modal-backdrop" id="fpsHelpModal" style="display:none">
@@ -4337,31 +4388,51 @@ function renderSlots() {
     const slot = slots[i];
     if (slot) {
       btn.classList.add('has-data');
+      const labelHtml = slot.label
+        ? `<span class="slot-userlabel">${escapeHtml(slot.label)}</span>`
+        : '';
       btn.innerHTML = `
         <span class="slot-num">${i + 1}</span>
+        ${labelHtml}
         <span class="slot-time">${fmtTime(slot.a)}〜${fmtTime(slot.b)}</span>
-        <span class="slot-del-btn" data-slot-del="${i}">✕</span>
       `;
     } else {
       btn.innerHTML = `<span class="slot-num">${i + 1}</span><span class="slot-time">empty</span>`;
     }
-    btn.addEventListener('click', (e) => {
-      if (e.target.dataset.slotDel !== undefined) {
-        e.stopPropagation();
-        deleteSlot(i);
-        return;
-      }
-      if (slots[i]) loadFromSlot(i);
+    btn.addEventListener('click', () => {
+      if (slots[i]) openSlotMenu(i, false);
     });
     grid.appendChild(btn);
   }
+}
+
+// スロット操作メニュー（呼出/ラベル編集/削除）
+function openSlotMenu(idx, isLocal) {
+  const slots = isLocal ? loadLocalSlots() : loadSlots();
+  const slot = slots[idx];
+  if (!slot) return;
+  const labelText = slot.label || '（ラベルなし）';
+  const menu = document.getElementById('slotMenuModal');
+  document.getElementById('slotMenuTitle').textContent = 'スロット' + (idx + 1) + '：' + labelText;
+  document.getElementById('slotMenuInfo').textContent = fmtTime(slot.a) + ' 〜 ' + fmtTime(slot.b);
+  menu.dataset.slotIdx = idx;
+  menu.dataset.slotMode = isLocal ? 'local' : 'yt';
+  menu.style.display = 'flex';
+}
+
+function escapeHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
 }
 
 function saveToSlot(idx) {
   if (!videoId) { showToast('動画を先に読み込んでください'); return; }
   if (pointA === null || pointB === null) { showToast('A点とB点を両方セットしてください'); return; }
   const slots = loadSlots();
-  slots[idx] = { a: pointA, b: pointB, memo: document.getElementById('memoInput').value.trim() };
+  // 既存ラベルは保持
+  const prevLabel = slots[idx] && slots[idx].label ? slots[idx].label : '';
+  slots[idx] = { a: pointA, b: pointB, memo: document.getElementById('memoInput').value.trim(), label: prevLabel };
   saveSlots(slots);
   renderSlots();
   showToast(`📌 スロット${idx + 1}に保存しました`);
@@ -4380,6 +4451,18 @@ function loadFromSlot(idx) {
   showToast(`📂 スロット${idx + 1}を呼び出しました`);
 }
 
+function editSlotLabel(idx) {
+  const slots = loadSlots();
+  if (!slots[idx]) return;
+  const cur = slots[idx].label || '';
+  const newLabel = prompt('スロットのラベルを入力（例: ソロ、サビ前、イントロ）', cur);
+  if (newLabel === null) return; // キャンセル
+  slots[idx].label = newLabel.trim().slice(0, 20);
+  saveSlots(slots);
+  renderSlots();
+  showToast('ラベルを更新しました');
+}
+
 function deleteSlot(idx) {
   const slots = loadSlots();
   slots[idx] = null;
@@ -4387,6 +4470,32 @@ function deleteSlot(idx) {
   renderSlots();
   showToast(`スロット${idx + 1}を削除しました`);
 }
+
+// スロット操作メニューのボタン操作
+(function initSlotMenu() {
+  const modal = document.getElementById('slotMenuModal');
+  if (!modal) return;
+  const close = () => { modal.style.display = 'none'; };
+  const isLocal = () => modal.dataset.slotMode === 'local';
+  document.getElementById('slotMenuClose').addEventListener('click', close);
+  modal.addEventListener('click', e => { if (e.target === modal) close(); });
+  document.getElementById('slotMenuCall').addEventListener('click', () => {
+    const idx = parseInt(modal.dataset.slotIdx);
+    if (isLocal()) loadFromLocalSlot(idx); else loadFromSlot(idx);
+    close();
+  });
+  document.getElementById('slotMenuLabel').addEventListener('click', () => {
+    const idx = parseInt(modal.dataset.slotIdx);
+    const local = isLocal();
+    close();
+    if (local) editLocalSlotLabel(idx); else editSlotLabel(idx);
+  });
+  document.getElementById('slotMenuDelete').addEventListener('click', () => {
+    const idx = parseInt(modal.dataset.slotIdx);
+    if (isLocal()) deleteLocalSlot(idx); else deleteSlot(idx);
+    close();
+  });
+})();
 
 // ─── タブ切替 ───
 document.querySelectorAll('.mode-tab').forEach(tab => {
@@ -4952,20 +5061,15 @@ function renderLocalSlots() {
     const slot = slots[i];
     if (slot) {
       btn.classList.add('has-data');
-      btn.innerHTML = '<span class="slot-num">' + (i + 1) + '</span><span class="slot-time">' + fmtTime(slot.a) + '〜' + fmtTime(slot.b) + '</span><span class="slot-del-btn" data-slot-del="' + i + '">✕</span>';
+      const labelHtml = slot.label
+        ? '<span class="slot-userlabel">' + escapeHtml(slot.label) + '</span>'
+        : '';
+      btn.innerHTML = '<span class="slot-num">' + (i + 1) + '</span>' + labelHtml + '<span class="slot-time">' + fmtTime(slot.a) + '〜' + fmtTime(slot.b) + '</span>';
     } else {
       btn.innerHTML = '<span class="slot-num">' + (i + 1) + '</span><span class="slot-time">empty</span>';
     }
-    btn.addEventListener('click', (e) => {
-      if (e.target.dataset.slotDel !== undefined) {
-        e.stopPropagation();
-        const s = loadLocalSlots();
-        s[i] = null;
-        saveLocalSlots(s);
-        renderLocalSlots();
-        return;
-      }
-      if (slots[i]) loadFromLocalSlot(i);
+    btn.addEventListener('click', () => {
+      if (slots[i]) openSlotMenu(i, true);
     });
     grid.appendChild(btn);
   }
@@ -4974,7 +5078,8 @@ function saveToLocalSlot(idx) {
   if (!localMedia) { showToast('ファイルを読み込んでください'); return; }
   if (localPointA === null || localPointB === null) { showToast('A点とB点をセット'); return; }
   const slots = loadLocalSlots();
-  slots[idx] = { a: localPointA, b: localPointB, memo: document.getElementById('localMemo').value.trim() };
+  const prevLabel = slots[idx] && slots[idx].label ? slots[idx].label : '';
+  slots[idx] = { a: localPointA, b: localPointB, memo: document.getElementById('localMemo').value.trim(), label: prevLabel };
   saveLocalSlots(slots);
   renderLocalSlots();
   showToast('📌 スロット' + (idx + 1) + 'に保存');
@@ -4989,6 +5094,24 @@ function loadFromLocalSlot(idx) {
   updateLocalABDisplay();
   localMedia.currentTime = localPointA;
   showToast('📂 スロット' + (idx + 1) + 'を呼び出し');
+}
+function editLocalSlotLabel(idx) {
+  const slots = loadLocalSlots();
+  if (!slots[idx]) return;
+  const cur = slots[idx].label || '';
+  const newLabel = prompt('スロットのラベルを入力（例: ソロ、サビ前、イントロ）', cur);
+  if (newLabel === null) return;
+  slots[idx].label = newLabel.trim().slice(0, 20);
+  saveLocalSlots(slots);
+  renderLocalSlots();
+  showToast('ラベルを更新しました');
+}
+function deleteLocalSlot(idx) {
+  const slots = loadLocalSlots();
+  slots[idx] = null;
+  saveLocalSlots(slots);
+  renderLocalSlots();
+  showToast('スロット' + (idx + 1) + 'を削除しました');
 }
 
 // ─── 左右バランス制御 ───
