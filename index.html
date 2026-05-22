@@ -1662,7 +1662,12 @@
     align-items: center;
     flex-shrink: 0;
   }
+  .repeat-row {
+    margin-bottom: 12px;
+  }
   .repeat-mini-btn {
+    width: 100%;
+    justify-content: center;
     display: flex;
     align-items: center;
     gap: 4px;
@@ -2316,7 +2321,7 @@
   }
   .slot-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 6px;
   }
   .slot-call-label {
@@ -2370,6 +2375,15 @@
     min-height: 50px;
     justify-content: center;
     position: relative;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .slot-num { flex-shrink: 0; }
+  .slot-time {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .slot-btn:active { opacity: 0.6; transform: scale(0.95); }
   .slot-userlabel {
@@ -2623,14 +2637,14 @@
     <div class="speed-quick-row" id="ytSpeedRow"></div>
   </div>
   <!-- AB Points -->
+  <div class="repeat-row">
+    <button class="repeat-mini-btn" id="ytRepeatMini" title="ABリピート"><span class="rep-icon">🔁</span><span class="rep-text">AB リピート</span></button>
+  </div>
   <div class="ab-grid">
     <div class="ab-cell">
       <div class="ab-label">
         <div class="ab-label-text"><span class="point-letter a-letter">A</span>開始点</div>
-        <div class="ab-label-btns">
-          <button class="repeat-mini-btn" id="ytRepeatMini" title="ABリピート"><span class="rep-icon">🔁</span><span class="rep-text">リピート</span></button>
-          <button class="memo-btn" id="ytMemoBtn"><span class="memo-btn-text">メモ</span></button>
-        </div>
+        <button class="memo-btn" id="ytMemoBtn"><span class="memo-btn-text">メモ</span></button>
       </div>
       <button class="ab-btn a-btn" id="setABtn">ここをAにセット</button>
       <div class="ab-time-row">
@@ -2896,14 +2910,14 @@
     <div class="speed-quick-label">⏩ 再生速度<span class="customizable-note">設定で変更可能</span></div>
     <div class="speed-quick-row" id="localSpeedRow"></div>
   </div>
+  <div class="repeat-row">
+    <button class="repeat-mini-btn" id="localRepeatMini" title="ABリピート"><span class="rep-icon">🔁</span><span class="rep-text">AB リピート</span></button>
+  </div>
   <div class="ab-grid">
     <div class="ab-cell">
       <div class="ab-label">
         <div class="ab-label-text"><span class="point-letter a-letter">A</span>開始点</div>
-        <div class="ab-label-btns">
-          <button class="repeat-mini-btn" id="localRepeatMini" title="ABリピート"><span class="rep-icon">🔁</span><span class="rep-text">リピート</span></button>
-          <button class="memo-btn" id="localMemoBtn"><span class="memo-btn-text">メモ</span></button>
-        </div>
+        <button class="memo-btn" id="localMemoBtn"><span class="memo-btn-text">メモ</span></button>
       </div>
       <button class="ab-btn a-btn" id="localSetA">ここをAにセット</button>
       <div class="ab-time-row">
@@ -4509,9 +4523,9 @@ function editSlotLabel(idx) {
   const slots = loadSlots();
   if (!slots[idx]) return;
   const cur = slots[idx].label || '';
-  const newLabel = prompt('スロットのラベルを入力（例: イントロ、サビ前、ソロ）', cur);
+  const newLabel = prompt('スロットのラベルを入力（15文字まで・例: イントロ、サビ前、ソロ）', cur);
   if (newLabel === null) return; // キャンセル
-  slots[idx].label = newLabel.trim().slice(0, 20);
+  slots[idx].label = newLabel.trim().slice(0, 15);
   saveSlots(slots);
   renderSlots();
   showToast('ラベルを更新しました');
@@ -5156,9 +5170,9 @@ function editLocalSlotLabel(idx) {
   const slots = loadLocalSlots();
   if (!slots[idx]) return;
   const cur = slots[idx].label || '';
-  const newLabel = prompt('スロットのラベルを入力（例: イントロ、サビ前、ソロ）', cur);
+  const newLabel = prompt('スロットのラベルを入力（15文字まで・例: イントロ、サビ前、ソロ）', cur);
   if (newLabel === null) return;
-  slots[idx].label = newLabel.trim().slice(0, 20);
+  slots[idx].label = newLabel.trim().slice(0, 15);
   saveLocalSlots(slots);
   renderLocalSlots();
   showToast('ラベルを更新しました');
