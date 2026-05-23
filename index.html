@@ -1774,6 +1774,30 @@
   .repeat-row {
     margin-bottom: 8px;
   }
+  .countin-bar-split {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .countin-bar-split .countin-toggle-bar {
+    flex: 1;
+    margin-bottom: 0;
+  }
+  .countin-settings-btn {
+    flex-shrink: 0;
+    padding: 8px 16px;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-dim);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .countin-settings-btn:active { transform: scale(0.96); opacity: 0.8; }
   .countin-toggle-bar {
     width: 100%;
     display: flex;
@@ -2853,10 +2877,13 @@
     </div>
   </div>
 
-  <button class="countin-toggle-bar" id="countInBar">
-    <span class="ci-bar-label">🥁 カウントイン</span>
-    <span class="ci-bar-state" id="countInBarState">OFF</span>
-  </button>
+  <div class="countin-bar-split">
+    <button class="countin-toggle-bar" id="countInBar">
+      <span class="ci-bar-label">🥁 カウントイン</span>
+      <span class="ci-bar-state" id="countInBarState">OFF</span>
+    </button>
+    <button class="countin-settings-btn" id="countInSettingsBtn" title="カウントイン設定">⚙ 設定</button>
+  </div>
   <div class="repeat-row repeat-split">
     <button class="half-btn play-half" id="playHalfBtn"><span class="rep-icon">▶</span><span class="rep-text">再生・停止</span></button>
     <button class="half-btn loop-half" id="loopBtn" title="ABリピート"><span class="rep-icon">🔁</span><span class="rep-text">AB リピート</span></button>
@@ -3125,10 +3152,13 @@
     </div>
   </div>
 
-  <button class="countin-toggle-bar" id="localCountInBar">
-    <span class="ci-bar-label">🥁 カウントイン</span>
-    <span class="ci-bar-state" id="localCountInBarState">OFF</span>
-  </button>
+  <div class="countin-bar-split">
+    <button class="countin-toggle-bar" id="localCountInBar">
+      <span class="ci-bar-label">🥁 カウントイン</span>
+      <span class="ci-bar-state" id="localCountInBarState">OFF</span>
+    </button>
+    <button class="countin-settings-btn" id="localCountInSettingsBtn" title="カウントイン設定">⚙ 設定</button>
+  </div>
   <div class="repeat-row repeat-split">
     <button class="half-btn play-half" id="localPlayHalfBtn"><span class="rep-icon">▶</span><span class="rep-text">再生・停止</span></button>
     <button class="half-btn loop-half" id="localLoopBtn" title="ABリピート"><span class="rep-icon">🔁</span><span class="rep-text">AB リピート</span></button>
@@ -6355,6 +6385,22 @@ document.getElementById('localCountInBar')?.addEventListener('click', () => {
   setCountIn(on);
   showToast(on ? '🥁 カウントイン ON' : 'カウントイン OFF');
 });
+
+// カウントイン設定ボタン → 設定モーダルを開いてカウントイン部分へ
+function openCountInSettings() {
+  // 設定モーダルを開く
+  document.getElementById('settingsModal').classList.add('show');
+  // カウントイン詳細を強制展開
+  const detail = document.getElementById('countInDetail');
+  if (detail) detail.style.display = 'flex';
+  // カウントイン項目までスクロール
+  setTimeout(() => {
+    const target = document.getElementById('settingCountIn');
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 150);
+}
+document.getElementById('countInSettingsBtn')?.addEventListener('click', openCountInSettings);
+document.getElementById('localCountInSettingsBtn')?.addEventListener('click', openCountInSettings);
 
 // ON/OFFトグル
 document.getElementById('settingCountIn').addEventListener('click', () => {
