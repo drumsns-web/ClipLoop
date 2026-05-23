@@ -169,7 +169,7 @@
     padding: 3px 10px;
   }
   .waveform-section {
-    margin: 0 16px 14px;
+    margin: 0 16px 8px;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
@@ -783,6 +783,92 @@
     margin-left: 4px;
   }
 
+
+  /* カウントイン設定 */
+  .bpm-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .bpm-unit {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    font-weight: 700;
+  }
+  .tap-tempo-btn {
+    width: 100%;
+    padding: 12px;
+    background: rgba(122,162,247,0.12);
+    border: 1.5px solid var(--accent);
+    border-radius: 10px;
+    color: var(--accent);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.1s;
+  }
+  .tap-tempo-btn:active {
+    transform: scale(0.97);
+    background: var(--accent);
+    color: #000;
+  }
+  .tap-tempo-status {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--accent2);
+    text-align: center;
+    margin-top: 6px;
+    min-height: 16px;
+  }
+  .count-num-chips {
+    display: flex;
+    gap: 6px;
+  }
+  .count-num-chip {
+    flex: 1;
+    padding: 8px 4px;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .count-num-chip.active {
+    background: var(--accent2);
+    border-color: var(--accent2);
+    color: #fff;
+  }
+  .count-num-chip:active { transform: scale(0.95); }
+  /* カウントイン表示オーバーレイ */
+  .countin-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.55);
+    pointer-events: none;
+  }
+  .countin-number {
+    font-family: 'Space Mono', monospace;
+    font-size: 140px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 0 40px var(--accent2), 0 0 80px var(--accent);
+    animation: countinPop 0.15s ease-out;
+  }
+  @keyframes countinPop {
+    0% { transform: scale(1.4); opacity: 0.4; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
   .settings-section {
     border-top: 1px solid var(--border);
     padding-top: 14px;
@@ -956,7 +1042,7 @@
   .logo span { color: var(--accent2); }
   .tagline { font-size: 11px; color: var(--text-dim); letter-spacing: 0.05em; }
 
-  .url-section { padding: 14px 16px; display: flex; gap: 8px; }
+  .url-section { padding: 10px 16px; display: flex; gap: 8px; }
   .url-input-wrap {
     position: relative;
     flex: 1;
@@ -1081,7 +1167,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 16px;
+    padding: 6px 16px;
     font-family: 'Space Mono', monospace;
     font-size: 12px;
   }
@@ -1139,6 +1225,29 @@
     align-items: flex-start;
     justify-content: space-between;
     gap: 8px;
+  }
+  .ab-label-compact {
+    align-items: center;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 4px 6px;
+  }
+  .ab-label-compact .ab-label-text { flex-shrink: 0; }
+  .ab-label-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .ab-label-right .ab-time {
+    font-size: 14px;
+    margin: 0;
+    letter-spacing: -0.3px;
+  }
+  .ab-label-right .ab-jump-btn {
+    padding: 4px 8px;
+    font-size: 11px;
+    white-space: nowrap;
   }
   .ab-label-text {
     display: flex;
@@ -1663,7 +1772,51 @@
     flex-shrink: 0;
   }
   .repeat-row {
-    margin-bottom: 12px;
+    margin-bottom: 8px;
+  }
+  .repeat-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .half-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 13px;
+    border-radius: 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    white-space: nowrap;
+  }
+  .half-btn .rep-icon { font-size: 18px; }
+  .half-btn:active { transform: scale(0.97); opacity: 0.85; }
+  /* 左：再生/停止 */
+  .play-half {
+    background: rgba(122, 162, 247, 0.12);
+    border: 2px solid var(--accent);
+    color: var(--accent);
+  }
+  .play-half.playing {
+    background: var(--accent);
+    color: #000;
+    box-shadow: 0 0 14px rgba(122,162,247,0.5);
+  }
+  /* 右：ABリピート/停止 */
+  .loop-half {
+    background: rgba(255, 61, 113, 0.12);
+    border: 2px solid var(--accent2);
+    color: var(--accent2);
+  }
+  .loop-half.on {
+    background: var(--accent2);
+    color: #fff;
+    box-shadow: 0 0 14px rgba(255,61,113,0.55);
   }
   .repeat-mini-btn {
     width: 100%;
@@ -2637,32 +2790,32 @@
     <div class="speed-quick-row" id="ytSpeedRow"></div>
   </div>
   <!-- AB Points -->
-  <div class="repeat-row">
-    <button class="repeat-mini-btn" id="ytRepeatMini" title="ABリピート"><span class="rep-icon">🔁</span><span class="rep-text">AB リピート</span></button>
-  </div>
   <div class="ab-grid">
     <div class="ab-cell">
-      <div class="ab-label">
+      <div class="ab-label ab-label-compact">
         <div class="ab-label-text"><span class="point-letter a-letter">A</span>開始点</div>
-        <button class="memo-btn" id="ytMemoBtn"><span class="memo-btn-text">メモ</span></button>
+        <div class="ab-label-right">
+          <div class="ab-time unset" id="aTimeDisplay">-- : --</div>
+          <button class="ab-jump-btn a-jump" id="aJumpBtn">⏮ A点へ</button>
+        </div>
       </div>
       <button class="ab-btn a-btn" id="setABtn">ここをAにセット</button>
-      <div class="ab-time-row">
-        <div class="ab-time unset" id="aTimeDisplay">-- : --</div>
-        <button class="ab-jump-btn a-jump" id="aJumpBtn">⏮ A点へ</button>
-      </div>
     </div>
     <div class="ab-cell">
-      <div class="ab-label">
+      <div class="ab-label ab-label-compact">
         <div class="ab-label-text"><span class="point-letter b-letter">B</span>終了点</div>
-        <div class="memo-btn-spacer"></div>
+        <div class="ab-label-right">
+          <div class="ab-time unset" id="bTimeDisplay">-- : --</div>
+          <button class="ab-jump-btn b-jump" id="bJumpBtn">⏭ B点へ</button>
+        </div>
       </div>
       <button class="ab-btn b-btn" id="setBBtn">ここをBにセット</button>
-      <div class="ab-time-row">
-        <div class="ab-time unset" id="bTimeDisplay">-- : --</div>
-        <button class="ab-jump-btn b-jump" id="bJumpBtn">⏭ B点へ</button>
-      </div>
     </div>
+  </div>
+
+  <div class="repeat-row repeat-split">
+    <button class="half-btn play-half" id="playHalfBtn"><span class="rep-icon">▶</span><span class="rep-text">再生・停止</span></button>
+    <button class="half-btn loop-half" id="loopBtn" title="ABリピート"><span class="rep-icon">🔁</span><span class="rep-text">AB リピート</span></button>
   </div>
 
   <!-- FPS切替（A/B共通：A点へ/B点へボタンの下） -->
@@ -2706,11 +2859,6 @@
     </div>
   </div>
 
-  <!-- メモ（折りたたみ式） -->
-  <div class="memo-section" id="ytMemoSection">
-    <textarea class="memo-input" id="memoInput" placeholder="このAB区間のメモを入力..."></textarea>
-  </div>
-
   <!-- Seek Bar -->
   <div class="seek-section">
     <div class="seek-label">POSITION</div>
@@ -2738,7 +2886,7 @@
     <button class="ctrl-btn" id="saveBtn" title="保存"><span class="ctrl-icon">💾</span><span class="ctrl-label">保存</span></button>
     <button class="ctrl-btn" id="fullscreenBtn" title="フルスクリーン"><span class="ctrl-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></span><span class="ctrl-label">全画面</span></button>
   </div>
-  <button class="repeat-big-btn" id="loopBtn"><span class="rep-big-icon">🔁</span> AB リピート</button>
+
 
   <!-- 早戻し/早送り -->
   <div class="skip-row">
@@ -2910,32 +3058,32 @@
     <div class="speed-quick-label">⏩ 再生速度<span class="customizable-note">設定で変更可能</span></div>
     <div class="speed-quick-row" id="localSpeedRow"></div>
   </div>
-  <div class="repeat-row">
-    <button class="repeat-mini-btn" id="localRepeatMini" title="ABリピート"><span class="rep-icon">🔁</span><span class="rep-text">AB リピート</span></button>
-  </div>
   <div class="ab-grid">
     <div class="ab-cell">
-      <div class="ab-label">
+      <div class="ab-label ab-label-compact">
         <div class="ab-label-text"><span class="point-letter a-letter">A</span>開始点</div>
-        <button class="memo-btn" id="localMemoBtn"><span class="memo-btn-text">メモ</span></button>
+        <div class="ab-label-right">
+          <div class="ab-time unset" id="localATime">-- : --</div>
+          <button class="ab-jump-btn a-jump" id="localAJumpBtn">⏮ A点へ</button>
+        </div>
       </div>
       <button class="ab-btn a-btn" id="localSetA">ここをAにセット</button>
-      <div class="ab-time-row">
-        <div class="ab-time unset" id="localATime">-- : --</div>
-        <button class="ab-jump-btn a-jump" id="localAJumpBtn">⏮ A点へ</button>
-      </div>
     </div>
     <div class="ab-cell">
-      <div class="ab-label">
+      <div class="ab-label ab-label-compact">
         <div class="ab-label-text"><span class="point-letter b-letter">B</span>終了点</div>
-        <div class="memo-btn-spacer"></div>
+        <div class="ab-label-right">
+          <div class="ab-time unset" id="localBTime">-- : --</div>
+          <button class="ab-jump-btn b-jump" id="localBJumpBtn">⏭ B点へ</button>
+        </div>
       </div>
       <button class="ab-btn b-btn" id="localSetB">ここをBにセット</button>
-      <div class="ab-time-row">
-        <div class="ab-time unset" id="localBTime">-- : --</div>
-        <button class="ab-jump-btn b-jump" id="localBJumpBtn">⏭ B点へ</button>
-      </div>
     </div>
+  </div>
+
+  <div class="repeat-row repeat-split">
+    <button class="half-btn play-half" id="localPlayHalfBtn"><span class="rep-icon">▶</span><span class="rep-text">再生・停止</span></button>
+    <button class="half-btn loop-half" id="localLoopBtn" title="ABリピート"><span class="rep-icon">🔁</span><span class="rep-text">AB リピート</span></button>
   </div>
 
   <!-- FPS切替（A/B共通：A点へ/B点へボタンの下） -->
@@ -2979,10 +3127,6 @@
     </div>
   </div>
 
-  <div class="memo-section" id="localMemoSection">
-    <textarea class="memo-input" id="localMemo" placeholder="このAB区間のメモを入力..."></textarea>
-  </div>
-
   <div class="seek-section">
     <div class="seek-label">POSITION</div>
     <div class="seek-wrap">
@@ -3007,7 +3151,7 @@
     <button class="ctrl-btn play-btn" id="localPlayBtn">▶</button>
     <button class="ctrl-btn" id="localSaveBtn" title="履歴に保存"><span class="ctrl-icon">💾</span><span class="ctrl-label">保存</span></button>
   </div>
-  <button class="repeat-big-btn" id="localLoopBtn"><span class="rep-big-icon">🔁</span> AB リピート</button>
+
 
   <div class="skip-row">
     <button class="skip-btn back" data-local-skip="-5">-5秒</button>
@@ -3266,6 +3410,54 @@
         </div>
         <button class="tempo-up-onoff" id="settingLoopBeep" style="min-width:60px;padding:6px 14px">OFF</button>
       </div>
+
+      <!-- カウントイン -->
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">カウントイン</div>
+          <div class="settings-row-sub">A点ジャンプ・ループ先頭で「1・2・3・4」とカウント</div>
+        </div>
+        <button class="tempo-up-onoff" id="settingCountIn" style="min-width:60px;padding:6px 14px">OFF</button>
+      </div>
+      <div class="settings-row" id="countInDetail" style="flex-direction:column;align-items:stretch;gap:12px;display:none">
+        <div>
+          <div class="settings-row-label" style="margin-bottom:6px">テンポ（BPM）</div>
+          <div class="bpm-control">
+            <button class="tempo-up-btn" id="bpmMinus">−</button>
+            <input type="number" class="settings-input" id="bpmInput" min="30" max="300" step="1" value="120" style="width:80px;text-align:center">
+            <button class="tempo-up-btn" id="bpmPlus">＋</button>
+            <span class="bpm-unit">BPM</span>
+          </div>
+        </div>
+        <div>
+          <div class="settings-row-sub" style="margin-bottom:6px">曲に合わせてタップしてテンポを測定</div>
+          <button class="tap-tempo-btn" id="tapTempoBtn">👆 タップでテンポ測定</button>
+          <div class="tap-tempo-status" id="tapTempoStatus"></div>
+        </div>
+        <div>
+          <div class="settings-row-label" style="margin-bottom:6px">カウント数</div>
+          <div class="count-num-chips">
+            <button class="count-num-chip" data-count="1">1拍</button>
+            <button class="count-num-chip" data-count="2">2拍</button>
+            <button class="count-num-chip active" data-count="4">4拍</button>
+            <button class="count-num-chip" data-count="8">8拍</button>
+          </div>
+        </div>
+        <div class="settings-row" style="padding:0">
+          <div>
+            <div class="settings-row-label">クリック音</div>
+            <div class="settings-row-sub">カウント音を鳴らす</div>
+          </div>
+          <button class="tempo-up-onoff on" id="settingCountSound" style="min-width:60px;padding:6px 14px">ON</button>
+        </div>
+        <div class="settings-row" style="padding:0">
+          <div>
+            <div class="settings-row-label">ループ毎回カウント</div>
+            <div class="settings-row-sub">ループが1周するたびにカウントを入れる（OFFなら最初だけ）</div>
+          </div>
+          <button class="tempo-up-onoff" id="settingCountEveryLoop" style="min-width:60px;padding:6px 14px">OFF</button>
+        </div>
+      </div>
       <div class="settings-row" style="flex-direction:column;align-items:stretch;gap:10px">
         <div>
           <div class="settings-row-label">クイック速度ボタン（8個）</div>
@@ -3426,6 +3618,11 @@
 </div>
 
 <!-- スロット操作メニュー -->
+<!-- カウントイン表示 -->
+<div class="countin-overlay" id="countinOverlay" style="display:none">
+  <div class="countin-number" id="countinNumber">4</div>
+</div>
+
 <div class="modal-backdrop" id="slotMenuModal" style="display:none">
   <div class="modal">
     <div class="modal-header">
@@ -3728,17 +3925,20 @@ function onStateChange(e) {
     isPlaying = true;
     document.getElementById('playBtn').textContent = '⏸';
     document.getElementById('fsPlayBtn').textContent = '⏸';
+    updatePlayHalf(true);
     setStatus('再生中', 'playing');
     startPolling();
   } else if (e.data === YT.PlayerState.PAUSED) {
     isPlaying = false;
     document.getElementById('playBtn').textContent = '▶';
     document.getElementById('fsPlayBtn').textContent = '▶';
+    updatePlayHalf(false);
     setStatus('一時停止', '');
   } else if (e.data === YT.PlayerState.ENDED) {
     isPlaying = false;
     document.getElementById('playBtn').textContent = '▶';
     document.getElementById('fsPlayBtn').textContent = '▶';
+    updatePlayHalf(false);
     setStatus('終了', '');
     if (loopEnabled && pointA !== null) {
       player.seekTo(pointA, true);
@@ -3764,9 +3964,20 @@ function pollPosition() {
   updateABRegion();
   if (loopEnabled && pointA !== null && pointB !== null) {
     if (cur >= pointB) {
-      player.seekTo(pointA, true);
-      loopCount++;
-      document.getElementById('loopCount').textContent = loopCount;
+      const s = loadSettings();
+      if (s.countIn && s.countEveryLoop && !countInActive) {
+        player.pauseVideo();
+        player.seekTo(pointA, true);
+        loopCount++;
+        document.getElementById('loopCount').textContent = loopCount;
+        runCountIn().then(() => {
+          if (loopEnabled) { player.seekTo(pointA, true); player.playVideo(); }
+        });
+      } else {
+        player.seekTo(pointA, true);
+        loopCount++;
+        document.getElementById('loopCount').textContent = loopCount;
+      }
     }
   }
   if (isFullscreen) updateFsUI();
@@ -3832,7 +4043,7 @@ function loadVideo() {
   updateABDisplay();
   updateLoopBtn();
   updateLoopCounter();
-  document.getElementById('memoInput').value = '';
+  { const _m = document.getElementById('memoInput'); if (_m) _m.value = ''; }
   renderSlots();
   if (pollingTimer) { clearInterval(pollingTimer); pollingTimer = null; }
   setStatus('読み込み中...', '');
@@ -3932,9 +4143,6 @@ document.getElementById('seekABtn').addEventListener('click', () => {
   }
 });
 
-document.getElementById('ytRepeatMini')?.addEventListener('click', () => {
-  document.getElementById('loopBtn').click();
-});
 document.getElementById('loopBtn').addEventListener('click', () => {
   if (pointA === null || pointB === null) {
     showToast('A点とB点を両方セットしてください');
@@ -3946,9 +4154,17 @@ document.getElementById('loopBtn').addEventListener('click', () => {
   updateLoopCounter();
   if (loopEnabled) {
     player.seekTo(pointA, true);
-    player.playVideo();
     setStatus('AB リピート中', 'looping');
     showToast('🔁 ABリピート ON');
+    const s = loadSettings();
+    if (s.countIn) {
+      player.pauseVideo();
+      runCountIn().then(() => {
+        if (loopEnabled) { player.seekTo(pointA, true); player.playVideo(); }
+      });
+    } else {
+      player.playVideo();
+    }
   } else {
     setStatus('再生中', 'playing');
     showToast('リピート OFF');
@@ -3956,9 +4172,7 @@ document.getElementById('loopBtn').addEventListener('click', () => {
 });
 
 function updateLoopBtn() {
-  document.getElementById('loopBtn').classList.toggle('loop-on', loopEnabled);
-  const mini = document.getElementById('ytRepeatMini');
-  if (mini) mini.classList.toggle('on', loopEnabled);
+  document.getElementById('loopBtn').classList.toggle('on', loopEnabled);
 }
 
 function updateLoopCounter() {
@@ -3972,6 +4186,18 @@ document.getElementById('playBtn').addEventListener('click', () => {
   if (!playerReady) return;
   if (isPlaying) { player.pauseVideo(); } else { player.playVideo(); }
 });
+// 左ハーフボタン（再生/停止）
+document.getElementById('playHalfBtn')?.addEventListener('click', () => {
+  if (!playerReady) { showToast('動画を読み込んでください'); return; }
+  if (isPlaying) { player.pauseVideo(); } else { player.playVideo(); }
+});
+function updatePlayHalf(playing) {
+  const b = document.getElementById('playHalfBtn');
+  if (!b) return;
+  b.classList.toggle('playing', playing);
+  b.querySelector('.rep-icon').textContent = playing ? '⏸' : '▶';
+  b.querySelector('.rep-text').textContent = playing ? '停止' : '再生';
+}
 
 // ─── Seek ───
 document.getElementById('seekBar').addEventListener('input', () => {
@@ -4068,7 +4294,7 @@ document.getElementById('saveBtn').addEventListener('click', () => {
     return;
   }
   const title = getVideoTitle();
-  const memo = document.getElementById('memoInput').value.trim();
+  const memo = document.getElementById('memoInput')?.value.trim() || '';
   const entry = {
     id: videoId,
     title,
@@ -4142,7 +4368,7 @@ function renderHistory() {
           clearInterval(wait);
           pointA = entry.a;
           pointB = entry.b;
-          document.getElementById('memoInput').value = entry.memo || '';
+          { const _m = document.getElementById('memoInput'); if (_m) _m.value = entry.memo || ''; }
           updateABDisplay();
           player.seekTo(pointA, true);
           showToast('AB点を復元しました');
@@ -4500,7 +4726,7 @@ function saveToSlot(idx) {
   const slots = loadSlots();
   // 既存ラベルは保持
   const prevLabel = slots[idx] && slots[idx].label ? slots[idx].label : '';
-  slots[idx] = { a: pointA, b: pointB, memo: document.getElementById('memoInput').value.trim(), label: prevLabel };
+  slots[idx] = { a: pointA, b: pointB, memo: (document.getElementById('memoInput')?.value.trim() || ''), label: prevLabel };
   saveSlots(slots);
   renderSlots();
   showToast(`📌 スロット${idx + 1}に保存しました`);
@@ -4513,7 +4739,7 @@ function loadFromSlot(idx) {
   if (!slot) return;
   pointA = slot.a;
   pointB = slot.b;
-  if (slot.memo !== undefined) document.getElementById('memoInput').value = slot.memo;
+  { const _m = document.getElementById('memoInput'); if (_m && slot.memo !== undefined) _m.value = slot.memo; }
   updateABDisplay();
   player.seekTo(pointA, true);
   showToast(`📂 スロット${idx + 1}を呼び出しました`);
@@ -4609,7 +4835,7 @@ document.getElementById('fileInput').addEventListener('change', async e => {
           clearInterval(wait);
           localPointA = entry.a;
           localPointB = entry.b;
-          if (entry.memo) document.getElementById('localMemo').value = entry.memo;
+          { const _m = document.getElementById('localMemo'); if (_m && entry.memo) _m.value = entry.memo; }
           updateLocalABDisplay();
           localMedia.currentTime = entry.a;
           showToast('✅ AB点を復元しました');
@@ -4667,6 +4893,7 @@ async function loadLocalFile(file) {
   localMedia.addEventListener('play', () => {
     localIsPlaying = true;
     document.getElementById('localPlayBtn').textContent = '⏸';
+    updateLocalPlayHalf(true);
     setLocalStatus('再生中', 'playing');
     startLocalPolling();
     // ピッチ保持を再確認
@@ -4677,11 +4904,13 @@ async function loadLocalFile(file) {
   localMedia.addEventListener('pause', () => {
     localIsPlaying = false;
     document.getElementById('localPlayBtn').textContent = '▶';
+    updateLocalPlayHalf(false);
     setLocalStatus('一時停止', '');
   });
   localMedia.addEventListener('ended', () => {
     localIsPlaying = false;
     document.getElementById('localPlayBtn').textContent = '▶';
+    updateLocalPlayHalf(false);
     if (localLoopEnabled && localPointA !== null) {
       localMedia.currentTime = localPointA;
       localMedia.play();
@@ -4695,7 +4924,7 @@ async function loadLocalFile(file) {
   updateLocalABDisplay();
   updateLocalLoopBtn();
   updateLocalLoopCounter();
-  document.getElementById('localMemo').value = '';
+  { const _m = document.getElementById('localMemo'); if (_m) _m.value = ''; }
   renderLocalSlots();
 
   // 音源の場合：AudioBufferに読み込んで波形描画＋LR制御を構築
@@ -4735,9 +4964,20 @@ function pollLocalPosition() {
   if (audioBuffer) updateWaveformOverlay();
   if (localLoopEnabled && localPointA !== null && localPointB !== null) {
     if (cur >= localPointB) {
-      localMedia.currentTime = localPointA;
-      localLoopCount++;
-      document.getElementById('localLoopCount').textContent = localLoopCount;
+      const s = loadSettings();
+      if (s.countIn && s.countEveryLoop && !countInActive) {
+        localMedia.pause();
+        localMedia.currentTime = localPointA;
+        localLoopCount++;
+        document.getElementById('localLoopCount').textContent = localLoopCount;
+        runCountIn().then(() => {
+          if (localLoopEnabled) { localMedia.currentTime = localPointA; localMedia.play(); }
+        });
+      } else {
+        localMedia.currentTime = localPointA;
+        localLoopCount++;
+        document.getElementById('localLoopCount').textContent = localLoopCount;
+      }
     }
   }
 }
@@ -4984,9 +5224,6 @@ document.getElementById('localSeekA').addEventListener('click', () => {
   localMedia.currentTime = localPointA;
   showToast('A点へジャンプ');
 });
-document.getElementById('localRepeatMini')?.addEventListener('click', () => {
-  document.getElementById('localLoopBtn').click();
-});
 document.getElementById('localLoopBtn').addEventListener('click', () => {
   if (localPointA === null || localPointB === null) { showToast('A点とB点を両方セット'); return; }
   localLoopEnabled = !localLoopEnabled;
@@ -4995,16 +5232,22 @@ document.getElementById('localLoopBtn').addEventListener('click', () => {
   updateLocalLoopCounter();
   if (localLoopEnabled) {
     localMedia.currentTime = localPointA;
-    localMedia.play();
     showToast('🔁 ABリピート ON');
+    const s = loadSettings();
+    if (s.countIn) {
+      localMedia.pause();
+      runCountIn().then(() => {
+        if (localLoopEnabled) { localMedia.currentTime = localPointA; localMedia.play(); }
+      });
+    } else {
+      localMedia.play();
+    }
   } else {
     showToast('リピート OFF');
   }
 });
 function updateLocalLoopBtn() {
-  document.getElementById('localLoopBtn').classList.toggle('loop-on', localLoopEnabled);
-  const mini = document.getElementById('localRepeatMini');
-  if (mini) mini.classList.toggle('on', localLoopEnabled);
+  document.getElementById('localLoopBtn').classList.toggle('on', localLoopEnabled);
 }
 function updateLocalLoopCounter() {
   const el = document.getElementById('localLoopCounter');
@@ -5016,6 +5259,17 @@ document.getElementById('localPlayBtn').addEventListener('click', () => {
   if (!localMedia) return;
   if (localIsPlaying) localMedia.pause(); else localMedia.play();
 });
+document.getElementById('localPlayHalfBtn')?.addEventListener('click', () => {
+  if (!localMedia) { showToast('ファイルを読み込んでください'); return; }
+  if (localIsPlaying) localMedia.pause(); else localMedia.play();
+});
+function updateLocalPlayHalf(playing) {
+  const b = document.getElementById('localPlayHalfBtn');
+  if (!b) return;
+  b.classList.toggle('playing', playing);
+  b.querySelector('.rep-icon').textContent = playing ? '⏸' : '▶';
+  b.querySelector('.rep-text').textContent = playing ? '停止' : '再生';
+}
 document.getElementById('localSeekBar').addEventListener('input', () => {
   if (!localMedia) return;
   localMedia.currentTime = parseFloat(document.getElementById('localSeekBar').value);
@@ -5150,7 +5404,7 @@ function saveToLocalSlot(idx) {
   if (localPointA === null || localPointB === null) { showToast('A点とB点をセット'); return; }
   const slots = loadLocalSlots();
   const prevLabel = slots[idx] && slots[idx].label ? slots[idx].label : '';
-  slots[idx] = { a: localPointA, b: localPointB, memo: document.getElementById('localMemo').value.trim(), label: prevLabel };
+  slots[idx] = { a: localPointA, b: localPointB, memo: (document.getElementById('localMemo')?.value.trim() || ''), label: prevLabel };
   saveLocalSlots(slots);
   renderLocalSlots();
   showToast('📌 スロット' + (idx + 1) + 'に保存');
@@ -5161,7 +5415,7 @@ function loadFromLocalSlot(idx) {
   if (!slot || !localMedia) return;
   localPointA = slot.a;
   localPointB = slot.b;
-  if (slot.memo !== undefined) document.getElementById('localMemo').value = slot.memo;
+  { const _m = document.getElementById('localMemo'); if (_m && slot.memo !== undefined) _m.value = slot.memo; }
   updateLocalABDisplay();
   localMedia.currentTime = localPointA;
   showToast('📂 スロット' + (idx + 1) + 'を呼び出し');
@@ -5454,7 +5708,7 @@ function saveCurrentABToHistory() {
     openedAt: Date.now(),
     a: localPointA,
     b: localPointB,
-    memo: document.getElementById('localMemo').value.trim()
+    memo: (document.getElementById('localMemo')?.value.trim() || '')
   };
   if (existingIdx >= 0) arr.splice(existingIdx, 1);
   arr.unshift(entry);
@@ -5549,49 +5803,9 @@ document.getElementById('localTempoUpHelp').addEventListener('click', () => {
   document.getElementById('localTempoUpDescription').classList.toggle('show');
 });
 
-// ─── メモボタン（安全に要素チェック） ───
-const ytMemoBtn = document.getElementById('ytMemoBtn');
-const ytMemoSection = document.getElementById('ytMemoSection');
-const localMemoBtn = document.getElementById('localMemoBtn');
-const localMemoSection = document.getElementById('localMemoSection');
-const memoInputEl = document.getElementById('memoInput');
-const localMemoEl = document.getElementById('localMemo');
-
-if (ytMemoBtn && ytMemoSection) {
-  ytMemoBtn.addEventListener('click', () => {
-    ytMemoSection.classList.toggle('open');
-  });
-}
-if (localMemoBtn && localMemoSection) {
-  localMemoBtn.addEventListener('click', () => {
-    localMemoSection.classList.toggle('open');
-  });
-}
-
-function updateMemoBtnState() {
-  if (memoInputEl && ytMemoBtn) {
-    ytMemoBtn.classList.toggle('has-content', !!memoInputEl.value.trim());
-  }
-  if (localMemoEl && localMemoBtn) {
-    localMemoBtn.classList.toggle('has-content', !!localMemoEl.value.trim());
-  }
-}
-
-if (memoInputEl) memoInputEl.addEventListener('input', updateMemoBtnState);
-if (localMemoEl) localMemoEl.addEventListener('input', updateMemoBtnState);
-
-// 内容あり時に自動展開
-function autoOpenMemoIfHasContent() {
-  const ytMemo = document.getElementById('memoInput');
-  const localMemo = document.getElementById('localMemo');
-  if (ytMemo && ytMemo.value.trim()) {
-    document.getElementById('ytMemoSection').classList.add('open');
-  }
-  if (localMemo && localMemo.value.trim()) {
-    document.getElementById('localMemoSection').classList.add('open');
-  }
-  updateMemoBtnState();
-}
+// ─── メモ機能は廃止（スロットのラベルで代替） ───
+function updateMemoBtnState() {}
+function autoOpenMemoIfHasContent() {}
 
 // ─── テーマ切替 ───
 function applyTheme(theme) {
@@ -5799,7 +6013,12 @@ function saveSettings() {
   const s = {
     defaultSpeed: parseInt(document.getElementById('settingDefaultSpeed').value) || 100,
     autoJumpToA: document.getElementById('settingAutoJumpToA').classList.contains('on'),
-    loopBeep: document.getElementById('settingLoopBeep').classList.contains('on')
+    loopBeep: document.getElementById('settingLoopBeep').classList.contains('on'),
+    countIn: document.getElementById('settingCountIn').classList.contains('on'),
+    countSound: document.getElementById('settingCountSound').classList.contains('on'),
+    countEveryLoop: document.getElementById('settingCountEveryLoop').classList.contains('on'),
+    bpm: parseInt(document.getElementById('bpmInput').value) || 120,
+    countNum: parseInt(document.querySelector('.count-num-chip.active')?.dataset.count) || 4
   };
   localStorage.setItem('cliploop_settings', JSON.stringify(s));
 }
@@ -5812,6 +6031,23 @@ function applySettings() {
   const beepBtn = document.getElementById('settingLoopBeep');
   beepBtn.classList.toggle('on', !!s.loopBeep);
   beepBtn.textContent = s.loopBeep ? 'ON' : 'OFF';
+  // カウントイン
+  const ciBtn = document.getElementById('settingCountIn');
+  ciBtn.classList.toggle('on', !!s.countIn);
+  ciBtn.textContent = s.countIn ? 'ON' : 'OFF';
+  document.getElementById('countInDetail').style.display = s.countIn ? 'flex' : 'none';
+  const csBtn = document.getElementById('settingCountSound');
+  const countSound = s.countSound !== false; // デフォルトON
+  csBtn.classList.toggle('on', countSound);
+  csBtn.textContent = countSound ? 'ON' : 'OFF';
+  const celBtn = document.getElementById('settingCountEveryLoop');
+  celBtn.classList.toggle('on', !!s.countEveryLoop);
+  celBtn.textContent = s.countEveryLoop ? 'ON' : 'OFF';
+  document.getElementById('bpmInput').value = s.bpm || 120;
+  const cnum = s.countNum || 4;
+  document.querySelectorAll('.count-num-chip').forEach(c => {
+    c.classList.toggle('active', parseInt(c.dataset.count) === cnum);
+  });
   // 速度プリセット（スライダーで設定）
   loadSpeedPresets();
   renderSpeedSliders();
@@ -6034,6 +6270,137 @@ document.getElementById('settingLoopBeep').addEventListener('click', () => {
   saveSettings();
   if (btn.classList.contains('on')) playBeep();
 });
+
+// ─── カウントイン ───
+// ON/OFFトグル
+document.getElementById('settingCountIn').addEventListener('click', () => {
+  const btn = document.getElementById('settingCountIn');
+  btn.classList.toggle('on');
+  btn.textContent = btn.classList.contains('on') ? 'ON' : 'OFF';
+  document.getElementById('countInDetail').style.display = btn.classList.contains('on') ? 'flex' : 'none';
+  saveSettings();
+});
+// クリック音トグル
+document.getElementById('settingCountSound').addEventListener('click', () => {
+  const btn = document.getElementById('settingCountSound');
+  btn.classList.toggle('on');
+  btn.textContent = btn.classList.contains('on') ? 'ON' : 'OFF';
+  saveSettings();
+});
+// ループ毎回カウントトグル
+document.getElementById('settingCountEveryLoop').addEventListener('click', () => {
+  const btn = document.getElementById('settingCountEveryLoop');
+  btn.classList.toggle('on');
+  btn.textContent = btn.classList.contains('on') ? 'ON' : 'OFF';
+  saveSettings();
+});
+// BPM ±ボタン
+document.getElementById('bpmMinus').addEventListener('click', () => {
+  const inp = document.getElementById('bpmInput');
+  inp.value = Math.max(30, (parseInt(inp.value) || 120) - 1);
+  saveSettings();
+});
+document.getElementById('bpmPlus').addEventListener('click', () => {
+  const inp = document.getElementById('bpmInput');
+  inp.value = Math.min(300, (parseInt(inp.value) || 120) + 1);
+  saveSettings();
+});
+document.getElementById('bpmInput').addEventListener('change', saveSettings);
+// カウント数チップ
+document.querySelectorAll('.count-num-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.count-num-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    saveSettings();
+  });
+});
+// タップテンポ
+let tapTimes = [];
+let tapTimeout = null;
+document.getElementById('tapTempoBtn').addEventListener('click', () => {
+  const now = performance.now();
+  // 2秒以上空いたらリセット
+  if (tapTimes.length && now - tapTimes[tapTimes.length - 1] > 2000) tapTimes = [];
+  tapTimes.push(now);
+  // クリック音（フィードバック）
+  if (document.getElementById('settingCountSound').classList.contains('on')) playClick(false);
+  const statusEl = document.getElementById('tapTempoStatus');
+  if (tapTimes.length >= 2) {
+    // 直近の間隔から平均BPMを計算
+    const intervals = [];
+    for (let i = 1; i < tapTimes.length; i++) intervals.push(tapTimes[i] - tapTimes[i - 1]);
+    const avg = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+    const bpm = Math.round(60000 / avg);
+    if (bpm >= 30 && bpm <= 300) {
+      document.getElementById('bpmInput').value = bpm;
+      statusEl.textContent = `測定中: ${bpm} BPM（${tapTimes.length}タップ）`;
+      saveSettings();
+    }
+  } else {
+    statusEl.textContent = 'タップを続けてください...';
+  }
+  // 一定時間後に確定表示
+  if (tapTimeout) clearTimeout(tapTimeout);
+  tapTimeout = setTimeout(() => {
+    if (tapTimes.length >= 2) {
+      statusEl.textContent = `✓ ${document.getElementById('bpmInput').value} BPM に設定しました`;
+    }
+    tapTimes = [];
+  }, 2000);
+});
+
+// カウント用クリック音（高音=頭打ち、低音=その他）
+let clickAudioCtx = null;
+function playClick(accent) {
+  if (!document.getElementById('settingCountSound').classList.contains('on')) return;
+  try {
+    if (!clickAudioCtx) clickAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (clickAudioCtx.state === 'suspended') clickAudioCtx.resume();
+    const osc = clickAudioCtx.createOscillator();
+    const gain = clickAudioCtx.createGain();
+    osc.frequency.value = accent ? 1200 : 800;
+    gain.gain.setValueAtTime(0.25, clickAudioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, clickAudioCtx.currentTime + 0.06);
+    osc.connect(gain);
+    gain.connect(clickAudioCtx.destination);
+    osc.start();
+    osc.stop(clickAudioCtx.currentTime + 0.06);
+  } catch {}
+}
+
+// カウントイン実行（Promiseで完了を待てる）
+let countInActive = false;
+function runCountIn() {
+  return new Promise(resolve => {
+    const s = loadSettings();
+    if (!s.countIn) { resolve(); return; }
+    const bpm = s.bpm || 120;
+    const count = s.countNum || 4;
+    const beatMs = 60000 / bpm;
+    const overlay = document.getElementById('countinOverlay');
+    const numEl = document.getElementById('countinNumber');
+    countInActive = true;
+    overlay.style.display = 'flex';
+    let i = 0;
+    const tick = () => {
+      if (i >= count) {
+        overlay.style.display = 'none';
+        countInActive = false;
+        resolve();
+        return;
+      }
+      const beatInBar = (i % 4) + 1; // 4拍子で表示（1,2,3,4の繰り返し）
+      numEl.textContent = beatInBar;
+      numEl.style.animation = 'none';
+      void numEl.offsetWidth; // リフロー
+      numEl.style.animation = 'countinPop 0.15s ease-out';
+      playClick(i % 4 === 0); // 各小節の頭をアクセント
+      i++;
+      setTimeout(tick, beatMs);
+    };
+    tick();
+  });
+}
 
 // 通知音再生
 let beepAudioCtx = null;
@@ -6322,7 +6689,14 @@ loadFromLocalSlot = function(idx) {
 document.getElementById('aJumpBtn').addEventListener('click', () => {
   if (!playerReady || pointA === null) { showToast('A点をセットしてください'); return; }
   player.seekTo(pointA, true);
-  showToast('⏮ A点へジャンプ');
+  const s = loadSettings();
+  if (s.countIn) {
+    player.pauseVideo();
+    runCountIn().then(() => { player.seekTo(pointA, true); player.playVideo(); });
+    showToast('⏮ A点へ（カウントイン）');
+  } else {
+    showToast('⏮ A点へジャンプ');
+  }
 });
 document.getElementById('bJumpBtn').addEventListener('click', () => {
   if (!playerReady || pointB === null) { showToast('B点をセットしてください'); return; }
@@ -6333,7 +6707,14 @@ document.getElementById('bJumpBtn').addEventListener('click', () => {
 document.getElementById('localAJumpBtn').addEventListener('click', () => {
   if (!localMedia || localPointA === null) { showToast('A点をセットしてください'); return; }
   localMedia.currentTime = localPointA;
-  showToast('⏮ A点へジャンプ');
+  const s = loadSettings();
+  if (s.countIn) {
+    localMedia.pause();
+    runCountIn().then(() => { localMedia.currentTime = localPointA; localMedia.play(); });
+    showToast('⏮ A点へ（カウントイン）');
+  } else {
+    showToast('⏮ A点へジャンプ');
+  }
 });
 document.getElementById('localBJumpBtn').addEventListener('click', () => {
   if (!localMedia || localPointB === null) { showToast('B点をセットしてください'); return; }
