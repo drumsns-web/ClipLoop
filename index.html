@@ -2980,6 +2980,7 @@
   <!-- Playback Controls -->
   <div class="playback-row">
     <button class="ctrl-btn" id="resetABBtn" title="AB区間を削除"><span class="ctrl-icon">✕</span><span class="ctrl-label">AB削除</span></button>
+    <button class="ctrl-btn" id="toStartBtn" title="先頭に戻る"><span class="ctrl-icon">⏪</span><span class="ctrl-label">先頭</span></button>
     <button class="ctrl-btn" id="seekABtn" title="A点へ戻る"><span class="ctrl-icon">⏮</span><span class="ctrl-label">A点へ</span></button>
     <button class="ctrl-btn play-btn" id="playBtn">▶</button>
     <button class="ctrl-btn" id="saveBtn" title="保存"><span class="ctrl-icon">💾</span><span class="ctrl-label">保存</span></button>
@@ -3252,6 +3253,7 @@
 
   <div class="playback-row">
     <button class="ctrl-btn" id="localResetAB" title="AB区間を削除"><span class="ctrl-icon">✕</span><span class="ctrl-label">AB削除</span></button>
+    <button class="ctrl-btn" id="localToStartBtn" title="先頭に戻る"><span class="ctrl-icon">⏪</span><span class="ctrl-label">先頭</span></button>
     <button class="ctrl-btn" id="localSeekA" title="A点へ戻る"><span class="ctrl-icon">⏮</span><span class="ctrl-label">A点へ</span></button>
     <button class="ctrl-btn play-btn" id="localPlayBtn">▶</button>
     <button class="ctrl-btn" id="localSaveBtn" title="履歴に保存"><span class="ctrl-icon">💾</span><span class="ctrl-label">保存</span></button>
@@ -4247,6 +4249,11 @@ document.getElementById('seekABtn').addEventListener('click', () => {
   } else {
     showToast('A点が設定されていません');
   }
+});
+document.getElementById('toStartBtn').addEventListener('click', () => {
+  if (!playerReady) return;
+  player.seekTo(0, true);
+  showToast('⏪ 先頭へ戻りました');
 });
 
 document.getElementById('loopBtn').addEventListener('click', () => {
@@ -5322,6 +5329,11 @@ document.getElementById('localSeekA').addEventListener('click', () => {
   if (!localMedia || localPointA === null) return;
   localMedia.currentTime = localPointA;
   showToast('A点へジャンプ');
+});
+document.getElementById('localToStartBtn').addEventListener('click', () => {
+  if (!localMedia) return;
+  localMedia.currentTime = 0;
+  showToast('⏪ 先頭へ戻りました');
 });
 document.getElementById('localLoopBtn').addEventListener('click', () => {
   if (localPointA === null || localPointB === null) { showToast('A点とB点を両方セット'); return; }
