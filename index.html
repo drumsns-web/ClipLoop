@@ -188,17 +188,18 @@
   /* 波形ポップアップ */
   .wave-popup {
     position: absolute;
+    top: 8px;
     background: var(--surface);
     border: 2px solid var(--accent);
     border-radius: 10px;
-    padding: 8px;
+    padding: 10px;
     z-index: 50;
-    transform: translate(-50%, -110%);
+    transform: translateX(-50%);
     box-shadow: 0 4px 16px rgba(0,0,0,0.6);
     display: none;
     flex-direction: column;
     gap: 6px;
-    min-width: 160px;
+    min-width: 150px;
   }
   .wave-popup-time {
     font-family: 'Space Mono', monospace;
@@ -209,10 +210,11 @@
   }
   .wave-popup-btns {
     display: flex;
-    flex-direction: column;
-    gap: 4px;
+    flex-direction: row;
+    gap: 6px;
   }
   .wave-popup-btn {
+    flex: 1;
     background: var(--surface2);
     border: 1.5px solid var(--border);
     border-radius: 6px;
@@ -223,6 +225,7 @@
     color: var(--text);
     cursor: pointer;
     transition: all 0.15s;
+    white-space: nowrap;
   }
   .wave-popup-btn.a {
     border-color: var(--accent);
@@ -3128,7 +3131,6 @@
       <div class="wave-popup-btns">
         <button class="wave-popup-btn a" id="wavePopupA">A点に設定</button>
         <button class="wave-popup-btn b" id="wavePopupB">B点に設定</button>
-        <button class="wave-popup-btn seek" id="wavePopupSeek">⏩ ジャンプ</button>
       </div>
       <button class="wave-popup-close" id="wavePopupClose">×</button>
     </div>
@@ -5214,22 +5216,22 @@ document.getElementById('waveformWrap').addEventListener('click', e => {
   const wrap = e.currentTarget;
   const rect = wrap.getBoundingClientRect();
   const ratio = (e.clientX - rect.left) / rect.width;
-  const time = audioBuffer.duration * ratio;
+  const time = Math.max(0, Math.min(audioBuffer.duration, audioBuffer.duration * ratio));
+  // クリック位置へ即ジャンプ
+  localMedia.currentTime = time;
   waveTapPopupTime = time;
-  // ポップアップを表示
+  // ポップアップを表示（A/B設定用）
   const popup = document.getElementById('wavePopup');
   popup.style.display = 'flex';
-  // ポップアップ位置をクリック位置に合わせる
   const popupX = e.clientX - rect.left;
-  popup.style.left = `${Math.max(60, Math.min(rect.width - 60, popupX))}px`;
-  // 時刻表示
-  document.getElementById('wavePopupTime').textContent = fmtTime(time, true);
+  popup.style.left = `${Math.max(80, Math.min(rect.width - 80, popupX))}px`;
+  document.getElementById('wavePopupTime').textContent = '⏩ ' + fmtTime(time, true);
 });
 // ポップアップ外をタップで閉じる
 document.addEventListener('click', e => {
   const popup = document.getElementById('wavePopup');
   const wrap = document.getElementById('waveformWrap');
-  if (popup.style.display !== 'flex') return;
+  if (!popup || popup.style.display !== 'flex') return;
   if (!popup.contains(e.target) && !wrap.contains(e.target)) {
     popup.style.display = 'none';
   }
@@ -5254,13 +5256,6 @@ document.getElementById('wavePopupB').addEventListener('click', e => {
   localPointB = waveTapPopupTime;
   updateLocalABDisplay();
   showToast('B点セット: ' + fmtTime(localPointB, true));
-  document.getElementById('wavePopup').style.display = 'none';
-});
-document.getElementById('wavePopupSeek').addEventListener('click', e => {
-  e.stopPropagation();
-  if (waveTapPopupTime === null) return;
-  localMedia.currentTime = waveTapPopupTime;
-  showToast('⏩ ' + fmtTime(waveTapPopupTime, true));
   document.getElementById('wavePopup').style.display = 'none';
 });
 document.getElementById('wavePopupClose').addEventListener('click', e => {
