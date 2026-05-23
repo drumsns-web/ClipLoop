@@ -1774,6 +1774,46 @@
   .repeat-row {
     margin-bottom: 8px;
   }
+  .countin-toggle-bar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
+    margin-bottom: 8px;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .countin-toggle-bar:active { transform: scale(0.99); opacity: 0.85; }
+  .ci-bar-label {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .ci-bar-state {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-dim);
+    padding: 3px 12px;
+    border-radius: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+  .countin-toggle-bar.on {
+    background: rgba(122, 162, 247, 0.12);
+    border-color: var(--accent);
+  }
+  .countin-toggle-bar.on .ci-bar-label { color: var(--accent); }
+  .countin-toggle-bar.on .ci-bar-state {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+  }
   .repeat-split {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -2011,7 +2051,7 @@
   }
   .time-mark {
     position: absolute;
-    top: 14px;
+    top: 20px;
     bottom: 0;
     width: 1px;
     background: rgba(255, 255, 255, 0.18);
@@ -2021,7 +2061,7 @@
   }
   .time-mark-label {
     position: absolute;
-    top: -14px;
+    top: -16px;
     left: 50%;
     transform: translateX(-50%);
     font-family: 'Space Mono', monospace;
@@ -2813,6 +2853,10 @@
     </div>
   </div>
 
+  <button class="countin-toggle-bar" id="countInBar">
+    <span class="ci-bar-label">🥁 カウントイン</span>
+    <span class="ci-bar-state" id="countInBarState">OFF</span>
+  </button>
   <div class="repeat-row repeat-split">
     <button class="half-btn play-half" id="playHalfBtn"><span class="rep-icon">▶</span><span class="rep-text">再生・停止</span></button>
     <button class="half-btn loop-half" id="loopBtn" title="ABリピート"><span class="rep-icon">🔁</span><span class="rep-text">AB リピート</span></button>
@@ -3081,6 +3125,10 @@
     </div>
   </div>
 
+  <button class="countin-toggle-bar" id="localCountInBar">
+    <span class="ci-bar-label">🥁 カウントイン</span>
+    <span class="ci-bar-state" id="localCountInBarState">OFF</span>
+  </button>
   <div class="repeat-row repeat-split">
     <button class="half-btn play-half" id="localPlayHalfBtn"><span class="rep-icon">▶</span><span class="rep-text">再生・停止</span></button>
     <button class="half-btn loop-half" id="localLoopBtn" title="ABリピート"><span class="rep-icon">🔁</span><span class="rep-text">AB リピート</span></button>
@@ -6036,6 +6084,7 @@ function applySettings() {
   ciBtn.classList.toggle('on', !!s.countIn);
   ciBtn.textContent = s.countIn ? 'ON' : 'OFF';
   document.getElementById('countInDetail').style.display = s.countIn ? 'flex' : 'none';
+  syncCountInUI(!!s.countIn);
   const csBtn = document.getElementById('settingCountSound');
   const countSound = s.countSound !== false; // デフォルトON
   csBtn.classList.toggle('on', countSound);
@@ -6272,13 +6321,45 @@ document.getElementById('settingLoopBeep').addEventListener('click', () => {
 });
 
 // ─── カウントイン ───
+// メイン画面のトグル帯と設定画面のボタンを同期
+function setCountIn(on) {
+  const s = loadSettings();
+  s.countIn = on;
+  localStorage.setItem('cliploop_settings', JSON.stringify(s));
+  syncCountInUI(on);
+}
+function syncCountInUI(on) {
+  // 設定画面のボタン
+  const ciBtn = document.getElementById('settingCountIn');
+  if (ciBtn) {
+    ciBtn.classList.toggle('on', on);
+    ciBtn.textContent = on ? 'ON' : 'OFF';
+  }
+  const detail = document.getElementById('countInDetail');
+  if (detail) detail.style.display = on ? 'flex' : 'none';
+  // メイン画面の帯（YouTube・ローカル）
+  [['countInBar', 'countInBarState'], ['localCountInBar', 'localCountInBarState']].forEach(([barId, stId]) => {
+    const bar = document.getElementById(barId);
+    const st = document.getElementById(stId);
+    if (bar) bar.classList.toggle('on', on);
+    if (st) st.textContent = on ? 'ON' : 'OFF';
+  });
+}
+document.getElementById('countInBar')?.addEventListener('click', () => {
+  const on = !loadSettings().countIn;
+  setCountIn(on);
+  showToast(on ? '🥁 カウントイン ON' : 'カウントイン OFF');
+});
+document.getElementById('localCountInBar')?.addEventListener('click', () => {
+  const on = !loadSettings().countIn;
+  setCountIn(on);
+  showToast(on ? '🥁 カウントイン ON' : 'カウントイン OFF');
+});
+
 // ON/OFFトグル
 document.getElementById('settingCountIn').addEventListener('click', () => {
-  const btn = document.getElementById('settingCountIn');
-  btn.classList.toggle('on');
-  btn.textContent = btn.classList.contains('on') ? 'ON' : 'OFF';
-  document.getElementById('countInDetail').style.display = btn.classList.contains('on') ? 'flex' : 'none';
-  saveSettings();
+  const on = !document.getElementById('settingCountIn').classList.contains('on');
+  setCountIn(on);
 });
 // クリック音トグル
 document.getElementById('settingCountSound').addEventListener('click', () => {
