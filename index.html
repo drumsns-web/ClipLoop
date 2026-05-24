@@ -3423,14 +3423,14 @@
 </div>
 
 <!-- キー変更（移調）→ AudioShiftへ -->
-<div class="channels-section" id="pitchSection" style="display:none">
+<div class="channels-section" id="pitchSection">
   <div class="channels-header">
     <span>🎚 キー変更（移調）</span>
   </div>
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;display:flex;flex-direction:column;gap:12px">
     <div style="font-size:12px;color:var(--text-dim);line-height:1.6">
       音程を半音単位で上げ下げする（キーを変える）には、高音質な専用ツール「AudioShift」を使います。<br>
-      <span style="color:var(--accent2)">※別ページが開きます。AudioShift側でもう一度この音源を選んでください。移調したファイルを保存し、ClipLoopに読み込めばAB練習できます。</span>
+      <span style="color:var(--accent2)">※別ページが開きます。AudioShift側で音源を選んで移調し、保存したファイルをClipLoopに読み込めばAB練習できます。</span>
     </div>
     <a href="https://audioshift.onrender.com/" target="_blank" rel="noopener" class="settings-action-btn" id="pitchOpenAudioShift" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;font-size:14px;font-weight:700;text-decoration:none;border-color:var(--accent);color:var(--accent)">
       🎚 AudioShiftでキーを変える ↗
@@ -7062,19 +7062,12 @@ document.getElementById('localBJumpBtn').addEventListener('click', () => {
 });
 
 // ─── キー変更（移調）セクションの表示制御 ───
-// 移調処理本体はAudioShift(別ページ)で行う。ここでは音源読み込み時にリンクセクションを表示するだけ。
+// 移調処理本体はAudioShift(別ページ)で行う。音源の有無に関わらず常に表示する。
 function showPitchSection() {
   const section = document.getElementById('pitchSection');
   if (!section) return;
-  section.style.display = audioBuffer ? 'block' : 'none';
+  section.style.display = 'block';
 }
-
-// ローカルファイル読み込み時に移調セクションを表示
-const _origLoadLocalFileForPitch = loadLocalFile;
-loadLocalFile = async function(file) {
-  await _origLoadLocalFileForPitch(file);
-  showPitchSection();
-};
 
 // ─── Init（遅延実行で起動を高速化） ───
 // 最低限の初期化のみ即実行（テーマと背景は applyTheme/applyBg で既に実行済み）
@@ -7085,6 +7078,7 @@ function deferredInit() {
   renderSlots();
   renderLocalSlots();
   renderLocalFilesHistory();
+  showPitchSection();
 }
 
 // 画面描画後に遅延実行
