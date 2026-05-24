@@ -3400,6 +3400,28 @@
   </div>
 </div>
 
+<!-- 動画から音声抽出 -->
+<div class="channels-section" id="extractSection" style="display:none">
+  <div class="channels-header">
+    <span>🎵 動画から音声を抽出</span>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;display:flex;flex-direction:column;gap:12px">
+    <div style="font-size:12px;color:var(--text-dim);line-height:1.5">
+      この動画の音声だけを取り出してWAVファイルで保存します。<br>
+      <span id="extractHint" style="color:var(--accent2)">音声を準備中...</span>
+    </div>
+    <!-- 範囲切替 -->
+    <div style="display:flex;gap:6px">
+      <button class="extract-target-btn active" id="extractTargetFull" style="flex:1;background:var(--surface2);border:1.5px solid var(--accent);border-radius:8px;padding:10px;color:var(--accent);font-family:'Space Mono',monospace;font-size:12px;font-weight:700;cursor:pointer">動画全体</button>
+      <button class="extract-target-btn" id="extractTargetAB" style="flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;padding:10px;color:var(--text-dim);font-family:'Space Mono',monospace;font-size:12px;font-weight:700;cursor:pointer">AB区間のみ</button>
+    </div>
+    <div id="extractABRange" style="font-size:11px;color:var(--text-dim);text-align:center;display:none">対象: <span id="extractABRangeDisplay" style="color:var(--accent2);font-family:'Space Mono',monospace">未設定</span></div>
+    <button class="settings-action-btn" id="extractSaveBtn" style="padding:12px;font-size:13px;border-color:var(--accent);color:var(--accent)" disabled>
+      🎵 音声をWAVファイルで保存
+    </button>
+  </div>
+</div>
+
 <!-- キー変更（移調）→ AudioShiftへ -->
 <div class="channels-section" id="pitchSection" style="display:none">
   <div class="channels-header">
@@ -5076,7 +5098,22 @@ async function loadLocalFile(file) {
       audioBuffer = null;
       showToast('波形描画失敗（再生は可能）');
     }
+  } else if (isVideo) {
+    // 動画：音声抽出のためにバックグラウンドでデコード（波形は描画しない）
+    (async () => {
+      try {
+        const decodeCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const arrayBuf = await file.arrayBuffer();
+        audioBuffer = await decodeCtx.decodeAudioData(arrayBuf.slice(0));
+        try { decodeCtx.close(); } catch {}
+      } catch (e) {
+        console.warn('video audio decode failed:', e);
+        audioBuffer = null;
+      }
+      updateExtractSection();
+    })();
   }
+  updateExtractSection();
 }
 
 function startLocalPolling() {
@@ -6787,6 +6824,125 @@ function fmtTimeForFilename(s) {
   return `${m}m${sec.toString().padStart(2, '0')}s`;
 }
 
+// ─── 動画から音声抽出 ───
+let extractTarget = 'full'; // 'full' | 'ab'
+
+function updateExtractSection() {
+  const section = document.getElementById('extractSection');
+  if (!section) return;
+  // 動画ファイルの時だけ表示
+  const isVideoFile = localMedia && localMedia.tagName === 'VIDEO';
+  if (!isVideoFile) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+
+  const hint = document.getElementById('extractHint');
+  const btn = document.getElementById('extractSaveBtn');
+  if (audioBuffer) {
+    hint.textContent = `準備完了（${Math.round(audioBuffer.duration)}秒 / ${audioBuffer.sampleRate}Hz）`;
+    hint.style.color = 'var(--accent2)';
+    btn.disabled = false;
+  } else {
+    hint.textContent = '音声を準備中...（少しお待ちください）';
+    hint.style.color = 'var(--text-dim)';
+    btn.disabled = true;
+  }
+  updateExtractABRangeDisplay();
+}
+
+function updateExtractABRangeDisplay() {
+  const disp = document.getElementById('extractABRangeDisplay');
+  if (!disp) return;
+  if (localPointA !== null && localPointB !== null) {
+    disp.textContent = `${fmtTime(localPointA)} 〜 ${fmtTime(localPointB)}`;
+  } else {
+    disp.textContent = '未設定';
+  }
+}
+
+document.getElementById('extractTargetFull').addEventListener('click', () => {
+  extractTarget = 'full';
+  document.getElementById('extractTargetFull').classList.add('active');
+  document.getElementById('extractTargetFull').style.borderColor = 'var(--accent)';
+  document.getElementById('extractTargetFull').style.color = 'var(--accent)';
+  document.getElementById('extractTargetAB').classList.remove('active');
+  document.getElementById('extractTargetAB').style.borderColor = 'var(--border)';
+  document.getElementById('extractTargetAB').style.color = 'var(--text-dim)';
+  document.getElementById('extractABRange').style.display = 'none';
+});
+document.getElementById('extractTargetAB').addEventListener('click', () => {
+  extractTarget = 'ab';
+  document.getElementById('extractTargetAB').classList.add('active');
+  document.getElementById('extractTargetAB').style.borderColor = 'var(--accent)';
+  document.getElementById('extractTargetAB').style.color = 'var(--accent)';
+  document.getElementById('extractTargetFull').classList.remove('active');
+  document.getElementById('extractTargetFull').style.borderColor = 'var(--border)';
+  document.getElementById('extractTargetFull').style.color = 'var(--text-dim)';
+  document.getElementById('extractABRange').style.display = 'block';
+  updateExtractABRangeDisplay();
+});
+
+document.getElementById('extractSaveBtn').addEventListener('click', () => {
+  if (!audioBuffer) { showToast('音声をまだ準備中です'); return; }
+  if (extractTarget === 'ab' && (localPointA === null || localPointB === null)) {
+    showToast('AB区間を両方セットしてください'); return;
+  }
+  extractAudioAndSave();
+});
+
+async function extractAudioAndSave() {
+  try {
+    const sampleRate = audioBuffer.sampleRate;
+    const numCh = audioBuffer.numberOfChannels;
+
+    let startSample = 0;
+    let endSample = audioBuffer.length;
+    if (extractTarget === 'ab') {
+      startSample = Math.floor(localPointA * sampleRate);
+      endSample = Math.floor(localPointB * sampleRate);
+    }
+    const length = endSample - startSample;
+    if (length <= 0) { showToast('区間が無効です'); return; }
+
+    showToast('🎵 音声を抽出中...');
+
+    let outBuffer;
+    if (extractTarget === 'full') {
+      // 全体はそのまま使う
+      outBuffer = audioBuffer;
+    } else {
+      // AB区間を切り出し
+      outBuffer = new AudioBuffer({ length, numberOfChannels: numCh, sampleRate });
+      for (let ch = 0; ch < numCh; ch++) {
+        const src = audioBuffer.getChannelData(ch);
+        const dst = outBuffer.getChannelData(ch);
+        for (let i = 0; i < length; i++) dst[i] = src[startSample + i];
+      }
+    }
+
+    const wavBlob = audioBufferToWav(outBuffer);
+    const url = URL.createObjectURL(wavBlob);
+
+    const origName = document.getElementById('fileName').textContent.replace('📄 ', '').replace(/\.[^.]+$/, '');
+    let fileName;
+    if (extractTarget === 'ab') {
+      fileName = `${origName}_audio_${fmtTimeForFilename(localPointA)}-${fmtTimeForFilename(localPointB)}.wav`;
+    } else {
+      fileName = `${origName}_audio.wav`;
+    }
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+    showToast('✅ 保存しました: ' + fileName);
+  } catch (e) {
+    console.warn('Extract failed:', e);
+    showToast('❌ 音声抽出失敗: ' + e.message);
+  }
+}
+
 // AudioBuffer → WAV Blob 変換
 function audioBufferToWav(buffer) {
   const numChannels = buffer.numberOfChannels;
@@ -6839,6 +6995,7 @@ const _origUpdateLocalABDisplay = updateLocalABDisplay;
 updateLocalABDisplay = function() {
   _origUpdateLocalABDisplay();
   if (audioBuffer) updateTrimRangeDisplay();
+  updateExtractABRangeDisplay();
 };
 
 // 既存のloadLocalFileにトリミングセクション表示を追加
