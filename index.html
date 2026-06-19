@@ -2853,7 +2853,9 @@
     -webkit-tap-highlight-color: transparent;
   }
   .float-ctrl-toggle:active { transform: scale(0.9); }
-  .float-ctrl-toggle.active { background: var(--accent2); }
+  .float-ctrl-toggle.active { background: var(--accent2); color: #fff; }
+  .float-ctrl-toggle svg { display: block; }
+  .float-keyboard-icon { vertical-align: -3px; margin-right: 4px; }
 
   .float-ctrl-panel {
     position: fixed;
@@ -7446,10 +7448,11 @@ if (window.requestIdleCallback) {
 }
 
 // ─── フローティングコントロールパネル ───
-(function() {
+document.addEventListener('DOMContentLoaded', function() {
   const panel    = document.getElementById('floatCtrlPanel');
   const toggle   = document.getElementById('floatCtrlToggle');
   const closeBtn = document.getElementById('floatCtrlClose');
+  if (!panel || !toggle || !closeBtn) return; // 要素がなければ何もしない
 
   // 開閉
   let isOpen = localStorage.getItem('floatCtrlOpen') === 'true';
@@ -7675,7 +7678,7 @@ if (window.requestIdleCallback) {
     // モード切替時にスロットを再描画
     if (mode !== _lastMode) { _lastMode = mode; renderFloatSlots(); }
   }, 300);
-})();
+});
 
 // 既存のrenderSlots / renderLocalSlotsにフックしてフロートも更新
 (function patchSlotRenderers() {
@@ -7694,7 +7697,7 @@ if (window.requestIdleCallback) {
 <!-- フローティングコントロールパネル -->
 <div id="floatCtrlPanel" class="float-ctrl-panel">
   <div class="float-ctrl-header">
-    <span class="float-ctrl-title">⌨ クイックコントロール</span>
+    <span class="float-ctrl-title"><svg class="float-keyboard-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h.01M18 14h.01M9 14h6"/></svg> クイックコントロール</span>
     <button class="float-ctrl-close" id="floatCtrlClose">×</button>
   </div>
 
@@ -7718,7 +7721,13 @@ if (window.requestIdleCallback) {
   <div class="float-slot-section-label">📂 AB区間スロット（タップで呼出）</div>
   <div class="float-slot-grid" id="floatSlotGrid"></div>
 </div>
-<button class="float-ctrl-toggle" id="floatCtrlToggle" title="クイックコントロール">⌨</button>
+<button class="float-ctrl-toggle" id="floatCtrlToggle" title="クイックコントロール">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2" y="6" width="20" height="12" rx="2"/>
+    <path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h.01M18 14h.01M9 14h6"/>
+  </svg>
+</button>
+
 
 </body>
 </html>
