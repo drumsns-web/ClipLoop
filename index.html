@@ -2830,6 +2830,286 @@
     pointer-events: auto;
   }
   .fs-tap-layer.show { display: block; }
+
+  /* ─── フローティングコントロールパネル ─── */
+  .float-ctrl-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 16px;
+    z-index: 5100;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: none;
+    color: #000;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .float-ctrl-toggle:active { transform: scale(0.9); }
+  .float-ctrl-toggle.active { background: var(--accent2); }
+
+  .float-ctrl-panel {
+    position: fixed;
+    bottom: 82px;
+    right: 12px;
+    z-index: 5000;
+    width: calc(100vw - 24px);
+    max-width: 360px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transform: translateY(20px) scale(0.95);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), opacity 0.15s;
+  }
+  .float-ctrl-panel.open {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .float-ctrl-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 4px 4px;
+    border-bottom: 1px solid var(--border);
+  }
+  .float-ctrl-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .float-ctrl-close {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+  }
+  .float-ctrl-close:active { color: var(--accent); }
+
+  .float-ctrl-row {
+    display: flex;
+    gap: 6px;
+    align-items: stretch;
+  }
+  .float-btn {
+    flex: 1;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    cursor: pointer;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 8px 4px;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    min-width: 0;
+  }
+  .float-btn:active { opacity: 0.6; transform: scale(0.93); }
+  .float-btn-icon { font-size: 18px; line-height: 1; }
+  .float-btn-label { font-size: 9px; color: var(--text-dim); line-height: 1; }
+
+  .float-play {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+    font-size: 22px;
+    border-radius: 50%;
+    width: 52px;
+    min-width: 52px;
+    max-width: 52px;
+    height: 52px;
+    padding: 0;
+    flex: none;
+    align-self: center;
+  }
+  .float-play.playing {
+    background: #ff3d71;
+    border-color: #ff3d71;
+  }
+
+  .float-loop {
+    border-color: var(--accent2);
+    color: var(--accent2);
+  }
+  .float-loop.on {
+    background: var(--accent2);
+    color: #fff;
+  }
+
+  .float-set-a {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(212,212,220,0.08);
+  }
+  .float-set-b {
+    border-color: var(--accent2);
+    color: var(--accent2);
+    background: rgba(212,168,87,0.08);
+  }
+
+  .float-skip-row { gap: 4px; }
+  .float-skip {
+    flex: 1;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 7px 2px;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    min-width: 0;
+  }
+  .float-skip:active { transform: scale(0.92); opacity: 0.7; }
+  .float-skip-back { color: #ff6b6b; border-color: rgba(255,107,107,0.4); }
+  .float-skip-fwd  { color: #6bdc8a; border-color: rgba(107,220,138,0.4); }
+
+  .float-speed-chips {
+    display: flex;
+    gap: 4px;
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 6px;
+  }
+  .float-speed-chip {
+    flex: 1;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    color: var(--text-dim);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 7px 2px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    min-width: 0;
+  }
+  .float-speed-chip:active { transform: scale(0.92); }
+  .float-speed-chip.active {
+    background: var(--accent2);
+    border-color: var(--accent2);
+    color: #000;
+  }
+  .float-skip-settings {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 5px;
+    margin-top: 6px;
+  }
+  .float-skip-setting-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .float-skip-setting-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    text-align: center;
+  }
+  .float-skip-setting-input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    padding: 5px 2px;
+    width: 100%;
+    outline: none;
+    -webkit-appearance: none;
+  }
+  .float-skip-setting-input:focus { border-color: var(--accent); }
+  .float-skip-setting-input::-webkit-outer-spin-button,
+  .float-skip-setting-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+  /* フロートスロットボタン */
+  .float-slot-section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 2px 0;
+  }
+  .float-slot-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+  }
+  .float-slot-btn {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 2px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    cursor: pointer;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    overflow: hidden;
+  }
+  .float-slot-btn:active { transform: scale(0.93); opacity: 0.7; }
+  .float-slot-btn.has-data {
+    border-color: var(--accent2);
+    background: rgba(212,168,87,0.1);
+  }
+  .float-slot-btn.has-data:active { background: var(--accent2); }
+  .float-slot-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-dim);
+    line-height: 1;
+  }
+  .float-slot-btn.has-data .float-slot-num { color: var(--accent2); }
+  .float-slot-lbl {
+    font-size: 8px;
+    color: var(--text-dim);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    padding: 0 2px;
+    line-height: 1;
+  }
+  .float-slot-btn.has-data .float-slot-lbl { color: var(--accent2); opacity: 0.8; }
 </style>
 </head>
 <body>
@@ -3625,6 +3905,83 @@
         <div class="speed-slider-list" id="seekSliderList"></div>
         <div style="display:flex;gap:8px">
           <button class="tempo-up-onoff" id="settingSeekPresetsReset" style="padding:6px 14px">初期値に戻す</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- フローティングパネル設定 -->
+    <div class="settings-section">
+      <div class="settings-section-title">⌨ フローティングパネル</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">スキップ秒数（戻し）</div>
+          <div class="settings-row-sub">左から順に3つ設定（秒）</div>
+        </div>
+      </div>
+      <div class="float-skip-settings">
+        <div class="float-skip-setting-item">
+          <div class="float-skip-setting-label">戻し①</div>
+          <input type="number" class="float-skip-setting-input" id="floatSkipB1" min="1" max="300" value="5">
+        </div>
+        <div class="float-skip-setting-item">
+          <div class="float-skip-setting-label">戻し②</div>
+          <input type="number" class="float-skip-setting-input" id="floatSkipB2" min="1" max="300" value="10">
+        </div>
+        <div class="float-skip-setting-item">
+          <div class="float-skip-setting-label">戻し③</div>
+          <input type="number" class="float-skip-setting-input" id="floatSkipB3" min="1" max="300" value="15">
+        </div>
+      </div>
+      <div class="settings-row" style="margin-top:10px;">
+        <div>
+          <div class="settings-row-label">スキップ秒数（送り）</div>
+          <div class="settings-row-sub">左から順に3つ設定（秒）</div>
+        </div>
+      </div>
+      <div class="float-skip-settings">
+        <div class="float-skip-setting-item">
+          <div class="float-skip-setting-label">送り①</div>
+          <input type="number" class="float-skip-setting-input" id="floatSkipF1" min="1" max="300" value="5">
+        </div>
+        <div class="float-skip-setting-item">
+          <div class="float-skip-setting-label">送り②</div>
+          <input type="number" class="float-skip-setting-input" id="floatSkipF2" min="1" max="300" value="10">
+        </div>
+        <div class="float-skip-setting-item">
+          <div class="float-skip-setting-label">送り③</div>
+          <input type="number" class="float-skip-setting-input" id="floatSkipF3" min="1" max="300" value="15">
+        </div>
+      </div>
+      <div class="settings-row" style="margin-top:14px;">
+        <div>
+          <div class="settings-row-label">スピードチップの値</div>
+          <div class="settings-row-sub">パネルに表示する6段階の速度（×）</div>
+        </div>
+      </div>
+      <div class="float-skip-settings" style="grid-template-columns:repeat(3,1fr);">
+        <div class="float-skip-setting-item">
+          <div class="float-skip-setting-label">速度①</div>
+          <input type="number" class="float-skip-setting-input" id="floatSpd1" min="0.1" max="4" step="0.05" value="0.5">
+        </div>
+        <div class="float-skip-setting-item">
+          <div class="float-skip-setting-label">速度②</div>
+          <input type="number" class="float-skip-setting-input" id="floatSpd2" min="0.1" max="4" step="0.05" value="0.75">
+        </div>
+        <div class="float-skip-setting-item">
+          <div class="float-skip-setting-label">速度③</div>
+          <input type="number" class="float-skip-setting-input" id="floatSpd3" min="0.1" max="4" step="0.05" value="1">
+        </div>
+        <div class="float-skip-setting-item">
+          <div class="float-skip-setting-label">速度④</div>
+          <input type="number" class="float-skip-setting-input" id="floatSpd4" min="0.1" max="4" step="0.05" value="1.25">
+        </div>
+        <div class="float-skip-setting-item">
+          <div class="float-skip-setting-label">速度⑤</div>
+          <input type="number" class="float-skip-setting-input" id="floatSpd5" min="0.1" max="4" step="0.05" value="1.5">
+        </div>
+        <div class="float-skip-setting-item">
+          <div class="float-skip-setting-label">速度⑥</div>
+          <input type="number" class="float-skip-setting-input" id="floatSpd6" min="0.1" max="4" step="0.05" value="2">
         </div>
       </div>
     </div>
@@ -7087,7 +7444,281 @@ if (window.requestIdleCallback) {
 } else {
   setTimeout(deferredInit, 100);
 }
+
+// ─── フローティングコントロールパネル ───
+(function() {
+  const panel    = document.getElementById('floatCtrlPanel');
+  const toggle   = document.getElementById('floatCtrlToggle');
+  const closeBtn = document.getElementById('floatCtrlClose');
+
+  // 開閉
+  let isOpen = localStorage.getItem('floatCtrlOpen') === 'true';
+  function applyOpen() {
+    panel.classList.toggle('open', isOpen);
+    toggle.classList.toggle('active', isOpen);
+  }
+  applyOpen();
+  toggle.addEventListener('click', () => { isOpen = !isOpen; applyOpen(); localStorage.setItem('floatCtrlOpen', isOpen); });
+  closeBtn.addEventListener('click', () => { isOpen = false; applyOpen(); localStorage.setItem('floatCtrlOpen', false); });
+
+  function getMode() {
+    return document.getElementById('ytMode').classList.contains('active') ? 'yt' : 'local';
+  }
+
+  // ── スキップ秒数の設定（戻し3個・送り3個） ──
+  const SKIP_KEY = 'floatSkipConfig';
+  const SKIP_DEFAULTS = { b1:5, b2:10, b3:15, f1:5, f2:10, f3:15 };
+
+  function loadSkipConfig() {
+    try { return Object.assign({}, SKIP_DEFAULTS, JSON.parse(localStorage.getItem(SKIP_KEY) || '{}')); }
+    catch(e) { return Object.assign({}, SKIP_DEFAULTS); }
+  }
+  function saveSkipConfig(cfg) { localStorage.setItem(SKIP_KEY, JSON.stringify(cfg)); }
+
+  function syncSettingsInputs(cfg) {
+    [['B1','b1'],['B2','b2'],['B3','b3'],['F1','f1'],['F2','f2'],['F3','f3']].forEach(([id, k]) => {
+      const el = document.getElementById('floatSkip' + id);
+      if (el) el.value = cfg[k];
+    });
+  }
+
+  function renderSkipButtons(cfg) {
+    const row = document.getElementById('floatSkipRow');
+    if (!row) return;
+    row.innerHTML = '';
+    [
+      { sec: -cfg.b3, label: `-${cfg.b3}s`, cls: 'float-skip-back' },
+      { sec: -cfg.b2, label: `-${cfg.b2}s`, cls: 'float-skip-back' },
+      { sec: -cfg.b1, label: `-${cfg.b1}s`, cls: 'float-skip-back' },
+      { sec:  cfg.f1, label: `+${cfg.f1}s`, cls: 'float-skip-fwd' },
+      { sec:  cfg.f2, label: `+${cfg.f2}s`, cls: 'float-skip-fwd' },
+      { sec:  cfg.f3, label: `+${cfg.f3}s`, cls: 'float-skip-fwd' },
+    ].forEach(({ sec, label, cls }) => {
+      const btn = document.createElement('button');
+      btn.className = `float-skip ${cls}`;
+      btn.textContent = label;
+      btn.addEventListener('click', () => {
+        const mode = getMode();
+        if (mode === 'yt') {
+          if (playerReady && player) player.seekTo(Math.max(0, player.getCurrentTime() + sec), true);
+        } else {
+          if (localMedia) localMedia.currentTime = Math.max(0, localMedia.currentTime + sec);
+        }
+      });
+      row.appendChild(btn);
+    });
+  }
+
+  function bindSkipSettingInputs() {
+    [['B1','b1'],['B2','b2'],['B3','b3'],['F1','f1'],['F2','f2'],['F3','f3']].forEach(([id, k]) => {
+      const el = document.getElementById('floatSkip' + id);
+      if (!el) return;
+      el.addEventListener('change', () => {
+        const val = Math.max(1, Math.min(300, parseInt(el.value) || 5));
+        el.value = val;
+        const cfg = loadSkipConfig();
+        cfg[k] = val;
+        saveSkipConfig(cfg);
+        renderSkipButtons(cfg);
+      });
+    });
+  }
+
+  // ── スピードチップ（カスタマイズ対応） ──
+  const SPD_KEY = 'floatSpdConfig';
+  const SPD_DEFAULTS = [0.5, 0.75, 1, 1.25, 1.5, 2];
+
+  function loadSpdConfig() {
+    try {
+      const arr = JSON.parse(localStorage.getItem(SPD_KEY));
+      if (Array.isArray(arr) && arr.length === 6) return arr.map(Number);
+    } catch(e) {}
+    return [...SPD_DEFAULTS];
+  }
+  function saveSpdConfig(arr) { localStorage.setItem(SPD_KEY, JSON.stringify(arr)); }
+
+  function syncSpdInputs(arr) {
+    arr.forEach((v, i) => {
+      const el = document.getElementById('floatSpd' + (i + 1));
+      if (el) el.value = v;
+    });
+  }
+
+  function renderSpeedChips() {
+    const wrap = document.getElementById('floatSpeedChips');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+    const arr = loadSpdConfig();
+    arr.forEach(spd => {
+      const btn = document.createElement('button');
+      btn.className = 'float-speed-chip';
+      btn.textContent = spd + '×';
+      btn.dataset.spd = spd;
+      btn.addEventListener('click', () => {
+        if (getMode() === 'yt') setSpeed(spd);
+        else setLocalSpeed(spd);
+        updateSpeedChips(spd);
+      });
+      wrap.appendChild(btn);
+    });
+  }
+
+  function updateSpeedChips(spd) {
+    document.querySelectorAll('.float-speed-chip').forEach(c => {
+      c.classList.toggle('active', parseFloat(c.dataset.spd) === spd);
+    });
+  }
+
+  function bindSpdInputs() {
+    for (let i = 1; i <= 6; i++) {
+      const el = document.getElementById('floatSpd' + i);
+      if (!el) continue;
+      el.addEventListener('change', () => {
+        const arr = loadSpdConfig();
+        const val = Math.round(Math.max(0.1, Math.min(4, parseFloat(el.value) || 1)) * 100) / 100;
+        el.value = val;
+        arr[i - 1] = val;
+        saveSpdConfig(arr);
+        renderSpeedChips();
+      });
+    }
+  }
+
+  // ── スロットボタン ──
+  function renderFloatSlots() {
+    const grid = document.getElementById('floatSlotGrid');
+    if (!grid) return;
+    const mode = getMode();
+    const slots = mode === 'yt' ? loadSlots() : loadLocalSlots();
+    grid.innerHTML = '';
+    for (let i = 0; i < 10; i++) {
+      const slot = slots[i];
+      const btn = document.createElement('button');
+      btn.className = 'float-slot-btn' + (slot ? ' has-data' : '');
+      const lbl = slot ? (slot.label || (typeof fmtTime === 'function' ? fmtTime(slot.a) : '')) : '—';
+      btn.innerHTML = `<span class="float-slot-num">${i + 1}</span><span class="float-slot-lbl">${lbl}</span>`;
+      btn.addEventListener('click', ((idx) => () => {
+        const s = (getMode() === 'yt' ? loadSlots() : loadLocalSlots())[idx];
+        if (!s) { showToast(`スロット${idx + 1}は空です`); return; }
+        if (getMode() === 'yt') loadFromSlot(idx);
+        else loadFromLocalSlot(idx);
+      })(i));
+      grid.appendChild(btn);
+    }
+  }
+  window.renderFloatSlots = renderFloatSlots;
+
+  // ── 再生/停止 ──
+  document.getElementById('floatPlayBtn').addEventListener('click', () => {
+    document.getElementById(getMode() === 'yt' ? 'playBtn' : 'localPlayBtn')?.click();
+  });
+
+  // ── 先頭へ ──
+  document.getElementById('floatToStartBtn').addEventListener('click', () => {
+    document.getElementById(getMode() === 'yt' ? 'toStartBtn' : 'localToStartBtn')?.click();
+  });
+
+  // ── A点へ ──
+  document.getElementById('floatSeekABtn').addEventListener('click', () => {
+    document.getElementById(getMode() === 'yt' ? 'seekABtn' : 'localSeekA')?.click();
+  });
+
+  // ── ABループ ──
+  document.getElementById('floatLoopBtn').addEventListener('click', () => {
+    document.getElementById(getMode() === 'yt' ? 'loopBtn' : 'localLoopBtn')?.click();
+  });
+
+  // ── Aセット / Bセット ──
+  document.getElementById('floatSetABtn').addEventListener('click', () => {
+    document.getElementById(getMode() === 'yt' ? 'setABtn' : 'localSetA')?.click();
+  });
+  document.getElementById('floatSetBBtn').addEventListener('click', () => {
+    document.getElementById(getMode() === 'yt' ? 'setBBtn' : 'localSetB')?.click();
+  });
+
+  // ── 初期化 ──
+  const cfg = loadSkipConfig();
+  syncSettingsInputs(cfg);
+  renderSkipButtons(cfg);
+  const spdArr = loadSpdConfig();
+  syncSpdInputs(spdArr);
+  renderSpeedChips();
+  bindSkipSettingInputs();
+  bindSpdInputs();
+  renderFloatSlots();
+
+  // ── 状態同期（300ms）──
+  let _lastMode = null;
+  setInterval(() => {
+    const mode = getMode();
+
+    // 再生ボタン
+    const realPlay  = document.getElementById(mode === 'yt' ? 'playBtn' : 'localPlayBtn');
+    const floatPlay = document.getElementById('floatPlayBtn');
+    if (realPlay && floatPlay) {
+      const txt = realPlay.textContent.trim();
+      floatPlay.textContent = txt;
+      floatPlay.classList.toggle('playing', txt === '⏸');
+    }
+
+    // ループボタン
+    const realLoop  = document.getElementById(mode === 'yt' ? 'loopBtn' : 'localLoopBtn');
+    const floatLoop = document.getElementById('floatLoopBtn');
+    if (realLoop && floatLoop) floatLoop.classList.toggle('on', realLoop.classList.contains('on'));
+
+    // スピードチップのアクティブ状態
+    const spd = mode === 'yt'
+      ? (typeof currentSpeed !== 'undefined' ? currentSpeed : 1)
+      : (typeof localSpeed   !== 'undefined' ? localSpeed   : 1);
+    updateSpeedChips(spd);
+
+    // モード切替時にスロットを再描画
+    if (mode !== _lastMode) { _lastMode = mode; renderFloatSlots(); }
+  }, 300);
+})();
+
+// 既存のrenderSlots / renderLocalSlotsにフックしてフロートも更新
+(function patchSlotRenderers() {
+  const _orig = window.renderSlots;
+  if (typeof _orig === 'function') {
+    window.renderSlots = function() { _orig.apply(this, arguments); if (window.renderFloatSlots) renderFloatSlots(); };
+  }
+  const _origL = window.renderLocalSlots;
+  if (typeof _origL === 'function') {
+    window.renderLocalSlots = function() { _origL.apply(this, arguments); if (window.renderFloatSlots) renderFloatSlots(); };
+  }
+})();
 </script>
+
+
+<!-- フローティングコントロールパネル -->
+<div id="floatCtrlPanel" class="float-ctrl-panel">
+  <div class="float-ctrl-header">
+    <span class="float-ctrl-title">⌨ クイックコントロール</span>
+    <button class="float-ctrl-close" id="floatCtrlClose">×</button>
+  </div>
+
+  <!-- 再生・先頭・A点・ABループ -->
+  <div class="float-ctrl-row" style="align-items:center;">
+    <button class="float-btn" id="floatToStartBtn"><span class="float-btn-icon">⏪</span><span class="float-btn-label">先頭</span></button>
+    <button class="float-btn" id="floatSeekABtn"><span class="float-btn-icon">⏮</span><span class="float-btn-label">A点へ</span></button>
+    <button class="float-btn float-play" id="floatPlayBtn">▶</button>
+    <button class="float-btn float-loop" id="floatLoopBtn"><span class="float-btn-icon">🔁</span><span class="float-btn-label">ABループ</span></button>
+    <button class="float-btn float-set-a" id="floatSetABtn"><span class="float-btn-icon">A</span><span class="float-btn-label">Aセット</span></button>
+    <button class="float-btn float-set-b" id="floatSetBBtn"><span class="float-btn-icon">B</span><span class="float-btn-label">Bセット</span></button>
+  </div>
+
+  <!-- 戻し / 送り（値はJSで動的に生成） -->
+  <div class="float-ctrl-row float-skip-row" id="floatSkipRow"></div>
+
+  <!-- スピードチップ -->
+  <div class="float-speed-chips" id="floatSpeedChips"></div>
+
+  <!-- AB区間スロット -->
+  <div class="float-slot-section-label">📂 AB区間スロット（タップで呼出）</div>
+  <div class="float-slot-grid" id="floatSlotGrid"></div>
+</div>
+<button class="float-ctrl-toggle" id="floatCtrlToggle" title="クイックコントロール">⌨</button>
 
 </body>
 </html>
