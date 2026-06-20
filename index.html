@@ -2837,6 +2837,7 @@
     bottom: 20px;
     right: 16px;
     z-index: 5100;
+    touch-action: none;
     width: 52px;
     height: 52px;
     border-radius: 50%;
@@ -2877,6 +2878,10 @@
     pointer-events: none;
     transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), opacity 0.15s;
   }
+  .float-ctrl-panel.dragging,
+  .float-ctrl-toggle.dragging {
+    transition: none !important;
+  }
   .float-ctrl-panel.open {
     transform: translateY(0) scale(1);
     opacity: 1;
@@ -2887,8 +2892,20 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 4px 4px;
+    padding: 6px 4px 6px 8px;
     border-bottom: 1px solid var(--border);
+    cursor: move;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+  }
+  .float-ctrl-header::before {
+    content: "⋮⋮";
+    color: var(--text-dim);
+    font-size: 12px;
+    letter-spacing: -2px;
+    margin-right: 4px;
+    opacity: 0.5;
   }
   .float-ctrl-title {
     font-family: 'Space Mono', monospace;
@@ -7454,6 +7471,100 @@ document.addEventListener('DOMContentLoaded', function() {
   const closeBtn = document.getElementById('floatCtrlClose');
   if (!panel || !toggle || !closeBtn) return; // 要素がなければ何もしない
 
+  // ─── ドラッグ機能（トグルボタンとパネルを動かせる）───
+  function makeDraggable(el, handle, storageKey) {
+    let startX, startY, startLeft, startTop, dragging = false, moved = false;
+
+    // 保存された位置を復元
+    function restorePos() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(storageKey) || 'null');
+        if (saved && typeof saved.left === 'number' && typeof saved.top === 'number') {
+          // 画面サイズが変わってたら範囲内にクランプ
+          const maxLeft = window.innerWidth - el.offsetWidth;
+          const maxTop = window.innerHeight - el.offsetHeight;
+          el.style.left = Math.max(0, Math.min(saved.left, maxLeft)) + 'px';
+          el.style.top = Math.max(0, Math.min(saved.top, maxTop)) + 'px';
+          el.style.right = 'auto';
+          el.style.bottom = 'auto';
+        }
+      } catch(e) {}
+    }
+
+    function onStart(e) {
+      // 中のボタンや子要素クリックの場合は無視（パネルは handle 限定なのでこれが効く）
+      const isTouch = e.type === 'touchstart';
+      const point = isTouch ? e.touches[0] : e;
+      startX = point.clientX;
+      startY = point.clientY;
+      const rect = el.getBoundingClientRect();
+      startLeft = rect.left;
+      startTop = rect.top;
+      dragging = true;
+      moved = false;
+      el.classList.add('dragging');
+      // 既に絶対位置になっていなければ、leftとtopをセットしてright/bottomを解除
+      el.style.left = startLeft + 'px';
+      el.style.top = startTop + 'px';
+      el.style.right = 'auto';
+      el.style.bottom = 'auto';
+      document.addEventListener(isTouch ? 'touchmove' : 'mousemove', onMove, { passive: false });
+      document.addEventListener(isTouch ? 'touchend' : 'mouseup', onEnd);
+      if (isTouch) e.preventDefault();
+    }
+    function onMove(e) {
+      if (!dragging) return;
+      const isTouch = e.type === 'touchmove';
+      const point = isTouch ? e.touches[0] : e;
+      const dx = point.clientX - startX;
+      const dy = point.clientY - startY;
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+      // 画面内に収まる範囲でクランプ
+      const maxLeft = window.innerWidth - el.offsetWidth;
+      const maxTop = window.innerHeight - el.offsetHeight;
+      const newLeft = Math.max(0, Math.min(startLeft + dx, maxLeft));
+      const newTop = Math.max(0, Math.min(startTop + dy, maxTop));
+      el.style.left = newLeft + 'px';
+      el.style.top = newTop + 'px';
+      e.preventDefault();
+    }
+    function onEnd(e) {
+      if (!dragging) return;
+      dragging = false;
+      el.classList.remove('dragging');
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('touchmove', onMove);
+      document.removeEventListener('mouseup', onEnd);
+      document.removeEventListener('touchend', onEnd);
+      // 位置を保存（ドラッグした場合のみ）
+      if (moved) {
+        const rect = el.getBoundingClientRect();
+        localStorage.setItem(storageKey, JSON.stringify({ left: rect.left, top: rect.top }));
+        // クリック誤発火を防ぐ
+        el._justDragged = true;
+        setTimeout(() => { el._justDragged = false; }, 100);
+      }
+    }
+    handle.addEventListener('mousedown', onStart);
+    handle.addEventListener('touchstart', onStart, { passive: false });
+    restorePos();
+    // ウィンドウリサイズ時に位置を再クランプ
+    window.addEventListener('resize', () => {
+      const saved = JSON.parse(localStorage.getItem(storageKey) || 'null');
+      if (saved) {
+        const maxLeft = window.innerWidth - el.offsetWidth;
+        const maxTop = window.innerHeight - el.offsetHeight;
+        el.style.left = Math.max(0, Math.min(saved.left, maxLeft)) + 'px';
+        el.style.top = Math.max(0, Math.min(saved.top, maxTop)) + 'px';
+      }
+    });
+  }
+  // トグルボタンは本体全体がドラッグハンドル、パネルはヘッダー部分のみ
+  const toggleHandle = toggle;
+  const panelHandle = panel.querySelector('.float-ctrl-header');
+  makeDraggable(toggle, toggleHandle, 'floatCtrlTogglePos');
+  if (panelHandle) makeDraggable(panel, panelHandle, 'floatCtrlPanelPos');
+
   // 開閉
   let isOpen = localStorage.getItem('floatCtrlOpen') === 'true';
   function applyOpen() {
@@ -7461,7 +7572,10 @@ document.addEventListener('DOMContentLoaded', function() {
     toggle.classList.toggle('active', isOpen);
   }
   applyOpen();
-  toggle.addEventListener('click', () => { isOpen = !isOpen; applyOpen(); localStorage.setItem('floatCtrlOpen', isOpen); });
+  toggle.addEventListener('click', () => {
+    if (toggle._justDragged) return; // ドラッグ直後は無視
+    isOpen = !isOpen; applyOpen(); localStorage.setItem('floatCtrlOpen', isOpen);
+  });
   closeBtn.addEventListener('click', () => { isOpen = false; applyOpen(); localStorage.setItem('floatCtrlOpen', false); });
 
   function getMode() {
