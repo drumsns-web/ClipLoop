@@ -7473,14 +7473,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // ─── ドラッグ機能（トグルボタンとパネルを動かせる）───
   function makeDraggable(el, handle, storageKey) {
-    let startX, startY, startLeft, startTop, dragging = false, moved = false;
+    let startX, startY, startLeft, startTop, pending = false, dragging = false;
+    const DRAG_THRESHOLD = 5; // この距離を超えたら本格的にドラッグ開始
 
     // 保存された位置を復元
     function restorePos() {
       try {
         const saved = JSON.parse(localStorage.getItem(storageKey) || 'null');
         if (saved && typeof saved.left === 'number' && typeof saved.top === 'number') {
-          // 画面サイズが変わってたら範囲内にクランプ
           const maxLeft = window.innerWidth - el.offsetWidth;
           const maxTop = window.innerHeight - el.offsetHeight;
           el.style.left = Math.max(0, Math.min(saved.left, maxLeft)) + 'px';
@@ -7492,7 +7492,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function onStart(e) {
-      // 中のボタンや子要素クリックの場合は無視（パネルは handle 限定なのでこれが効く）
       const isTouch = e.type === 'touchstart';
       const point = isTouch ? e.touches[0] : e;
       startX = point.clientX;
@@ -7500,69 +7499,71 @@ document.addEventListener('DOMContentLoaded', function() {
       const rect = el.getBoundingClientRect();
       startLeft = rect.left;
       startTop = rect.top;
-      dragging = true;
-      moved = false;
-      el.classList.add('dragging');
-      // 既に絶対位置になっていなければ、leftとtopをセットしてright/bottomを解除
-      el.style.left = startLeft + 'px';
-      el.style.top = startTop + 'px';
-      el.style.right = 'auto';
-      el.style.bottom = 'auto';
+      pending = true;
+      dragging = false;
       document.addEventListener(isTouch ? 'touchmove' : 'mousemove', onMove, { passive: false });
       document.addEventListener(isTouch ? 'touchend' : 'mouseup', onEnd);
-      if (isTouch) e.preventDefault();
+      document.addEventListener('touchcancel', onEnd);
     }
     function onMove(e) {
-      if (!dragging) return;
+      if (!pending) return;
       const isTouch = e.type === 'touchmove';
       const point = isTouch ? e.touches[0] : e;
       const dx = point.clientX - startX;
       const dy = point.clientY - startY;
-      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
-      // 画面内に収まる範囲でクランプ
+      // しきい値超えるまではドラッグ開始しない
+      if (!dragging) {
+        if (Math.abs(dx) < DRAG_THRESHOLD && Math.abs(dy) < DRAG_THRESHOLD) return;
+        dragging = true;
+        el.classList.add('dragging');
+        el.style.left = startLeft + 'px';
+        el.style.top = startTop + 'px';
+        el.style.right = 'auto';
+        el.style.bottom = 'auto';
+      }
       const maxLeft = window.innerWidth - el.offsetWidth;
       const maxTop = window.innerHeight - el.offsetHeight;
       const newLeft = Math.max(0, Math.min(startLeft + dx, maxLeft));
       const newTop = Math.max(0, Math.min(startTop + dy, maxTop));
       el.style.left = newLeft + 'px';
       el.style.top = newTop + 'px';
-      e.preventDefault();
+      if (e.cancelable) e.preventDefault();
     }
     function onEnd(e) {
-      if (!dragging) return;
-      dragging = false;
-      el.classList.remove('dragging');
+      pending = false;
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('touchmove', onMove);
       document.removeEventListener('mouseup', onEnd);
       document.removeEventListener('touchend', onEnd);
-      // 位置を保存（ドラッグした場合のみ）
-      if (moved) {
-        const rect = el.getBoundingClientRect();
-        localStorage.setItem(storageKey, JSON.stringify({ left: rect.left, top: rect.top }));
-        // クリック誤発火を防ぐ
-        el._justDragged = true;
-        setTimeout(() => { el._justDragged = false; }, 100);
-      }
+      document.removeEventListener('touchcancel', onEnd);
+      if (!dragging) return; // 動かしてない＝クリックなので何もしない
+      dragging = false;
+      el.classList.remove('dragging');
+      const rect = el.getBoundingClientRect();
+      localStorage.setItem(storageKey, JSON.stringify({ left: rect.left, top: rect.top }));
+      // クリック誤発火を防ぐ
+      el._justDragged = true;
+      setTimeout(() => { el._justDragged = false; }, 250);
     }
     handle.addEventListener('mousedown', onStart);
-    handle.addEventListener('touchstart', onStart, { passive: false });
+    handle.addEventListener('touchstart', onStart, { passive: true });
     restorePos();
     // ウィンドウリサイズ時に位置を再クランプ
     window.addEventListener('resize', () => {
-      const saved = JSON.parse(localStorage.getItem(storageKey) || 'null');
-      if (saved) {
-        const maxLeft = window.innerWidth - el.offsetWidth;
-        const maxTop = window.innerHeight - el.offsetHeight;
-        el.style.left = Math.max(0, Math.min(saved.left, maxLeft)) + 'px';
-        el.style.top = Math.max(0, Math.min(saved.top, maxTop)) + 'px';
-      }
+      try {
+        const saved = JSON.parse(localStorage.getItem(storageKey) || 'null');
+        if (saved) {
+          const maxLeft = window.innerWidth - el.offsetWidth;
+          const maxTop = window.innerHeight - el.offsetHeight;
+          el.style.left = Math.max(0, Math.min(saved.left, maxLeft)) + 'px';
+          el.style.top = Math.max(0, Math.min(saved.top, maxTop)) + 'px';
+        }
+      } catch(e) {}
     });
   }
   // トグルボタンは本体全体がドラッグハンドル、パネルはヘッダー部分のみ
-  const toggleHandle = toggle;
   const panelHandle = panel.querySelector('.float-ctrl-header');
-  makeDraggable(toggle, toggleHandle, 'floatCtrlTogglePos');
+  makeDraggable(toggle, toggle, 'floatCtrlTogglePos');
   if (panelHandle) makeDraggable(panel, panelHandle, 'floatCtrlPanelPos');
 
   // 開閉
