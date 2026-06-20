@@ -2914,6 +2914,55 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
+  .float-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .float-section-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: none;
+    padding: 4px 2px;
+    color: var(--text-dim);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    border-bottom: 1px dashed var(--border);
+    transition: color 0.15s;
+  }
+  .float-section-toggle:hover { color: var(--text); }
+  .float-section-toggle:active { opacity: 0.7; }
+  .float-section-arrow {
+    display: inline-block;
+    transition: transform 0.2s;
+    font-size: 9px;
+    color: var(--accent);
+  }
+  .float-section.collapsed .float-section-arrow {
+    transform: rotate(-90deg);
+  }
+  .float-section-title {
+    flex: 1;
+  }
+  .float-section-body {
+    overflow: hidden;
+    transition: max-height 0.25s ease-out, opacity 0.2s, margin 0.2s;
+    max-height: 500px;
+  }
+  .float-section.collapsed .float-section-body {
+    max-height: 0 !important;
+    opacity: 0;
+    margin: 0 !important;
+    padding: 0 !important;
+    pointer-events: none;
+  }
   .float-ctrl-close {
     background: transparent;
     border: none;
@@ -7579,6 +7628,28 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   closeBtn.addEventListener('click', () => { isOpen = false; applyOpen(); localStorage.setItem('floatCtrlOpen', false); });
 
+  // ── セクション折りたたみ ──
+  const SECTION_KEY = 'floatCtrlSectionState';
+  function loadSectionState() {
+    try { return JSON.parse(localStorage.getItem(SECTION_KEY) || '{}'); }
+    catch(e) { return {}; }
+  }
+  function saveSectionState(state) { localStorage.setItem(SECTION_KEY, JSON.stringify(state)); }
+  const sectionState = loadSectionState();
+  document.querySelectorAll('.float-section').forEach(sec => {
+    const name = sec.dataset.section;
+    // 復元（保存されてれば反映）
+    if (sectionState[name] === 'collapsed') sec.classList.add('collapsed');
+    const btn = sec.querySelector('.float-section-toggle');
+    if (btn) {
+      btn.addEventListener('click', () => {
+        sec.classList.toggle('collapsed');
+        sectionState[name] = sec.classList.contains('collapsed') ? 'collapsed' : 'open';
+        saveSectionState(sectionState);
+      });
+    }
+  });
+
   function getMode() {
     return document.getElementById('ytMode').classList.contains('active') ? 'yt' : 'local';
   }
@@ -7816,7 +7887,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <button class="float-ctrl-close" id="floatCtrlClose">×</button>
   </div>
 
-  <!-- 再生・先頭・A点・ABループ -->
+  <!-- 再生・先頭・A点・ABループ（常に表示） -->
   <div class="float-ctrl-row" style="align-items:center;">
     <button class="float-btn" id="floatToStartBtn"><span class="float-btn-icon">⏪</span><span class="float-btn-label">先頭</span></button>
     <button class="float-btn" id="floatSeekABtn"><span class="float-btn-icon">⏮</span><span class="float-btn-label">A点へ</span></button>
@@ -7826,15 +7897,32 @@ document.addEventListener('DOMContentLoaded', function() {
     <button class="float-btn float-set-b" id="floatSetBBtn"><span class="float-btn-icon">B</span><span class="float-btn-label">Bセット</span></button>
   </div>
 
-  <!-- 戻し / 送り（値はJSで動的に生成） -->
-  <div class="float-ctrl-row float-skip-row" id="floatSkipRow"></div>
+  <!-- 戻し / 送り（折りたたみ） -->
+  <div class="float-section" data-section="skip">
+    <button class="float-section-toggle" data-target="floatSkipRow">
+      <span class="float-section-arrow">▼</span>
+      <span class="float-section-title">⏱ 送り・戻し</span>
+    </button>
+    <div class="float-ctrl-row float-skip-row float-section-body" id="floatSkipRow"></div>
+  </div>
 
-  <!-- スピードチップ -->
-  <div class="float-speed-chips" id="floatSpeedChips"></div>
+  <!-- スピードチップ（折りたたみ） -->
+  <div class="float-section" data-section="speed">
+    <button class="float-section-toggle" data-target="floatSpeedChips">
+      <span class="float-section-arrow">▼</span>
+      <span class="float-section-title">⚡ 再生速度</span>
+    </button>
+    <div class="float-speed-chips float-section-body" id="floatSpeedChips"></div>
+  </div>
 
-  <!-- AB区間スロット -->
-  <div class="float-slot-section-label">📂 AB区間スロット（タップで呼出）</div>
-  <div class="float-slot-grid" id="floatSlotGrid"></div>
+  <!-- AB区間スロット（折りたたみ） -->
+  <div class="float-section" data-section="slot">
+    <button class="float-section-toggle" data-target="floatSlotGrid">
+      <span class="float-section-arrow">▼</span>
+      <span class="float-section-title">📂 AB区間スロット</span>
+    </button>
+    <div class="float-slot-grid float-section-body" id="floatSlotGrid"></div>
+  </div>
 </div>
 <button class="float-ctrl-toggle" id="floatCtrlToggle" title="クイックコントロール">
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
