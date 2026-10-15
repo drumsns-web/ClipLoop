@@ -1,0 +1,19 @@
+{
+  "id": "/ClipLoop/",
+  "name": "ClipLoop",
+  "short_name": "ClipLoop",
+  "description": "YouTubeやローカル動画のA-B区間リピート練習アプリ",
+  "start_url": "/ClipLoop/?app=home&build=20261015-3",
+  "scope": "/ClipLoop/",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#0a0a0f",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

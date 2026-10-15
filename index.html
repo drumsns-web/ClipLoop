@@ -3,7 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="cliploop-build" content="20261015-3">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta name="theme-color" content="#0a0a0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>ClipLoop</title>
+<link rel="manifest" href="manifest.webmanifest?v=20261015-3">
 <link rel="icon" type="image/png" href="icon.png">
 <link rel="shortcut icon" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
@@ -4753,6 +4759,40 @@ function pollPosition() {
 
 // ─── アプリ操作 ───
 const CLIPLOOP_PUBLIC_URL = 'https://drumsns-web.github.io/ClipLoop/';
+const CLIPLOOP_BUILD = '20261015-3';
+let lastAppUpdateCheck = 0;
+
+async function checkForAppUpdate() {
+  if (location.protocol !== 'http:' && location.protocol !== 'https:') return;
+  if (!navigator.onLine || Date.now() - lastAppUpdateCheck < 5 * 60 * 1000) return;
+  lastAppUpdateCheck = Date.now();
+  try {
+    const checkUrl = new URL(location.href);
+    checkUrl.hash = '';
+    checkUrl.searchParams.set('_cliploop_check', Date.now().toString());
+    const response = await fetch(checkUrl.toString(), { cache: 'no-store', credentials: 'same-origin' });
+    if (!response.ok) return;
+    const latestHtml = await response.text();
+    const buildMatch = latestHtml.match(/<meta\s+name=["']cliploop-build["']\s+content=["']([^"']+)["']/i);
+    if (buildMatch && buildMatch[1] !== CLIPLOOP_BUILD) {
+      const refreshUrl = new URL(location.href);
+      refreshUrl.searchParams.delete('_cliploop_check');
+      refreshUrl.searchParams.set('_cliploop_update', Date.now().toString());
+      location.replace(refreshUrl.toString());
+    }
+  } catch (error) {
+    console.warn('automatic update check failed:', error);
+  }
+}
+
+// ホーム画面版が開きっぱなしでも、復帰時に最新版を確認する。
+setTimeout(checkForAppUpdate, 1200);
+window.addEventListener('pageshow', event => {
+  if (event.persisted) checkForAppUpdate();
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') checkForAppUpdate();
+});
 
 document.getElementById('appUpdateBtn').addEventListener('click', async () => {
   const btn = document.getElementById('appUpdateBtn');
@@ -4763,6 +4803,7 @@ document.getElementById('appUpdateBtn').addEventListener('click', async () => {
   showToast('最新バージョンを確認しています');
   if (location.protocol === 'http:' || location.protocol === 'https:') {
     const refreshUrl = new URL(location.href);
+    refreshUrl.searchParams.delete('_cliploop_check');
     refreshUrl.searchParams.set('_cliploop_update', Date.now().toString());
     if ('serviceWorker' in navigator) {
       try {
@@ -4781,8 +4822,9 @@ document.getElementById('appUpdateBtn').addEventListener('click', async () => {
 // 更新確認用パラメータは読み込み後にURLから取り除く。
 if (location.protocol === 'http:' || location.protocol === 'https:') {
   const loadedUrl = new URL(location.href);
-  if (loadedUrl.searchParams.has('_cliploop_update')) {
+  if (loadedUrl.searchParams.has('_cliploop_update') || loadedUrl.searchParams.has('_cliploop_check')) {
     loadedUrl.searchParams.delete('_cliploop_update');
+    loadedUrl.searchParams.delete('_cliploop_check');
     history.replaceState(null, '', loadedUrl.toString());
   }
 }
