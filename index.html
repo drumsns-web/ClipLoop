@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<meta name="cliploop-build" content="20261015-4">
+<meta name="cliploop-build" content="20261015-5">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="theme-color" content="#0a0a0f">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>ClipLoop</title>
-<link rel="manifest" href="manifest.webmanifest?v=20261015-4">
+<link rel="manifest" href="manifest.webmanifest?v=20261015-5">
 <link rel="icon" type="image/png" href="icon.png">
 <link rel="shortcut icon" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
@@ -3326,7 +3326,7 @@
   <button type="button" class="app-action-btn" id="openBrowserBtn">🌐 ブラウザで開く</button>
   <button type="button" class="app-action-btn" id="shareAppBtn">↗ アプリ共有</button>
 </div>
-<div class="app-build-label">VERSION 2026.10.15-4</div>
+<div class="app-build-label">VERSION 2026.10.15-5</div>
 
 <!-- モード切替タブ -->
 <div class="mode-tabs">
@@ -3404,6 +3404,12 @@
     </div>
   </div>
 
+  <!-- 区間共有（A・B設定の直下に配置） -->
+  <div class="share-row">
+    <button class="share-btn primary" id="shareABBtn">🔁 A〜B区間を共有</button>
+    <button class="share-btn" id="shareCurrentBtn">⏱ 現在位置を共有</button>
+  </div>
+
   <div class="countin-bar-split">
     <button class="countin-toggle-bar" id="countInBar">
       <span class="ci-bar-label">🥁 カウントイン</span>
@@ -3415,12 +3421,6 @@
   <div class="repeat-row repeat-split">
     <button class="half-btn play-half" id="playHalfBtn"><span class="rep-icon">▶</span><span class="rep-text">再生・停止</span></button>
     <button class="half-btn loop-half" id="loopBtn" title="ABリピート"><span class="rep-icon">🔁</span><span class="rep-text">AB リピート</span></button>
-  </div>
-
-  <!-- 区間共有（AB操作の直下に配置） -->
-  <div class="share-row">
-    <button class="share-btn primary" id="shareABBtn">🔁 ループ区間を共有</button>
-    <button class="share-btn" id="shareCurrentBtn">⏱ 現在位置を共有</button>
   </div>
 
   <!-- FPS切替（A/B共通：A点へ/B点へボタンの下） -->
@@ -4767,7 +4767,7 @@ function pollPosition() {
 
 // ─── アプリ操作 ───
 const CLIPLOOP_PUBLIC_URL = 'https://drumsns-web.github.io/ClipLoop/';
-const CLIPLOOP_BUILD = '20261015-4';
+const CLIPLOOP_BUILD = '20261015-5';
 let lastAppUpdateCheck = 0;
 
 async function checkForAppUpdate() {
@@ -5166,26 +5166,49 @@ function setSpeed(spd) {
 }
 
 // ─── タイムスタンプ共有 ───
-document.getElementById('shareABBtn').addEventListener('click', () => {
-  if (!videoId) { showToast('動画を先に読み込んでください'); return; }
-  if (pointA === null || pointB === null) { showToast('A点とB点を両方セットしてください'); return; }
-  const title = getVideoTitle();
-  const url = `https://drumsns-web.github.io/ClipLoop/?v=${videoId}&a=${pointA.toFixed(1)}&b=${pointB.toFixed(1)}`;
-  const memo = document.getElementById('memoInput')?.value.trim() || '';
-  // テキスト形式：動画タイトル + AB点 + メモ + ループ用URL
-  let text = `🎬 ${title}\n`;
-  text += `⏱ A: ${fmtTime(pointA, true)} → B: ${fmtTime(pointB, true)}\n`;
-  if (memo) text += `📝 ${memo}\n`;
-  text += `🔁 ${url}`;
-  copyToClipboard(text);
-  showToast('🔁 ループ区間情報をコピーしました！');
+function ensureShareControlsVisible() {
+  const abGrid = document.querySelector('#ytMode .panel > .ab-grid');
+  if (!abGrid) return;
+  let row = document.getElementById('shareABBtn')?.closest('.share-row');
+  if (!row) {
+    row = document.createElement('div');
+    row.className = 'share-row';
+    row.innerHTML = '<button class="share-btn primary" id="shareABBtn">🔁 A〜B区間を共有</button>' +
+      '<button class="share-btn" id="shareCurrentBtn">⏱ 現在位置を共有</button>';
+  }
+  if (row.previousElementSibling !== abGrid) abGrid.insertAdjacentElement('afterend', row);
+  row.hidden = false;
+  row.style.setProperty('display', 'flex', 'important');
+  row.style.setProperty('visibility', 'visible', 'important');
+  row.style.setProperty('opacity', '1', 'important');
+}
+
+ensureShareControlsVisible();
+window.addEventListener('pageshow', ensureShareControlsVisible);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') ensureShareControlsVisible();
 });
 
-document.getElementById('shareCurrentBtn').addEventListener('click', () => {
+document.addEventListener('click', event => {
+  const button = event.target.closest?.('#shareABBtn, #shareCurrentBtn');
+  if (!button) return;
+  if (button.id === 'shareABBtn') {
+    if (!videoId) { showToast('動画を先に読み込んでください'); return; }
+    if (pointA === null || pointB === null) { showToast('A点とB点を両方セットしてください'); return; }
+    const title = getVideoTitle();
+    const url = `https://drumsns-web.github.io/ClipLoop/?v=${videoId}&a=${pointA.toFixed(1)}&b=${pointB.toFixed(1)}`;
+    const memo = document.getElementById('memoInput')?.value.trim() || '';
+    let text = `🎬 ${title}\n`;
+    text += `⏱ A: ${fmtTime(pointA, true)} → B: ${fmtTime(pointB, true)}\n`;
+    if (memo) text += `📝 ${memo}\n`;
+    text += `🔁 ${url}`;
+    copyToClipboard(text);
+    showToast('🔁 ループ区間情報をコピーしました！');
+    return;
+  }
   if (!videoId || !playerReady) { showToast('動画を先に読み込んでください'); return; }
   const cur = player.getCurrentTime() || 0;
   const title = getVideoTitle();
-  const url = `https://drumsns-web.github.io/ClipLoop/?v=${videoId}&a=${cur.toFixed(1)}`;
   const ytUrl = `https://youtu.be/${videoId}?t=${Math.floor(cur)}s`;
   let text = `🎬 ${title}\n`;
   text += `⏱ ${fmtTime(cur, true)}\n`;
