@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<meta name="cliploop-build" content="20261015-3">
+<meta name="cliploop-build" content="20261015-4">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="theme-color" content="#0a0a0f">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>ClipLoop</title>
-<link rel="manifest" href="manifest.webmanifest?v=20261015-3">
+<link rel="manifest" href="manifest.webmanifest?v=20261015-4">
 <link rel="icon" type="image/png" href="icon.png">
 <link rel="shortcut icon" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
@@ -89,6 +89,13 @@
   }
   .app-action-btn:active { opacity: 0.65; transform: scale(0.98); }
   .app-action-btn.updating { color: var(--accent2); border-color: var(--accent2); }
+  .app-build-label {
+    padding: 4px 14px 0;
+    color: var(--text-dim);
+    font: 700 8px 'Space Mono', monospace;
+    text-align: right;
+    opacity: 0.7;
+  }
 
   /* モード切替タブ */
   .mode-tabs {
@@ -3319,6 +3326,7 @@
   <button type="button" class="app-action-btn" id="openBrowserBtn">🌐 ブラウザで開く</button>
   <button type="button" class="app-action-btn" id="shareAppBtn">↗ アプリ共有</button>
 </div>
+<div class="app-build-label">VERSION 2026.10.15-4</div>
 
 <!-- モード切替タブ -->
 <div class="mode-tabs">
@@ -4759,7 +4767,7 @@ function pollPosition() {
 
 // ─── アプリ操作 ───
 const CLIPLOOP_PUBLIC_URL = 'https://drumsns-web.github.io/ClipLoop/';
-const CLIPLOOP_BUILD = '20261015-3';
+const CLIPLOOP_BUILD = '20261015-4';
 let lastAppUpdateCheck = 0;
 
 async function checkForAppUpdate() {
