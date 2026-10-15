@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<meta name="cliploop-build" content="20261015-8">
+<meta name="cliploop-build" content="20261015-9">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="theme-color" content="#0a0a0f">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>ClipLoop</title>
-<link rel="manifest" href="manifest.webmanifest?v=20261015-8">
+<link rel="manifest" href="manifest.webmanifest?v=20261015-9">
 <link rel="icon" type="image/png" href="icon.png">
 <link rel="shortcut icon" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
@@ -3352,7 +3352,7 @@
   <button type="button" class="app-action-btn" id="shareAppBtn">↗ アプリ共有</button>
   <button type="button" class="app-action-btn" id="headerShareABBtn">🔁 A〜B区間を共有</button>
 </div>
-<div class="app-build-label">VERSION 2026.10.15-8</div>
+<div class="app-build-label">VERSION 2026.10.15-9</div>
 
 <!-- モード切替タブ -->
 <div class="mode-tabs">
@@ -4828,7 +4828,7 @@ function pollPosition() {
 
 // ─── アプリ操作 ───
 const CLIPLOOP_PUBLIC_URL = 'https://drumsns-web.github.io/ClipLoop/';
-const CLIPLOOP_BUILD = '20261015-8';
+const CLIPLOOP_BUILD = '20261015-9';
 let lastAppUpdateCheck = 0;
 
 async function checkForAppUpdate() {
@@ -5342,14 +5342,16 @@ function fallbackCopy(text) {
 }
 
 // ─── URLパラメータで動画を自動読込 ───
-(function() {
+// 共有URLではページ後半の変数初期化（スロット編集状態など）が完了してから
+// 読み込む。同期実行するとホーム画面起動時に初期化途中で停止するため遅延する。
+setTimeout(() => {
   const params = new URLSearchParams(window.location.search);
   const v = params.get('v');
   if (v) {
     document.getElementById('urlInput').value = `https://youtu.be/${v}`;
     loadVideo();
   }
-})();
+}, 0);
 
 // ─── Save to History ───
 document.getElementById('saveBtn').addEventListener('click', () => {
