@@ -3403,6 +3403,12 @@
     <button class="half-btn loop-half" id="loopBtn" title="ABリピート"><span class="rep-icon">🔁</span><span class="rep-text">AB リピート</span></button>
   </div>
 
+  <!-- 区間共有（AB操作の直下に配置） -->
+  <div class="share-row">
+    <button class="share-btn primary" id="shareABBtn">🔁 ループ区間を共有</button>
+    <button class="share-btn" id="shareCurrentBtn">⏱ 現在位置を共有</button>
+  </div>
+
   <!-- FPS切替（A/B共通：A点へ/B点へボタンの下） -->
   <div class="fps-bar">
     <div class="fps-bar-label">
@@ -3493,12 +3499,6 @@
     </div>
     <div class="slot-label slot-call-label">📂 呼出（タップ）<button class="slot-edit-toggle" id="slotEditToggle">✏ 編集</button></div>
     <div class="slot-grid" id="slotGrid"></div>
-  </div>
-
-  <!-- タイムスタンプ共有 -->
-  <div class="share-row">
-    <button class="share-btn primary" id="shareABBtn">🔁 ループ区間を共有</button>
-    <button class="share-btn" id="shareCurrentBtn">⏱ タイムスタンプ共有</button>
   </div>
 
   <!-- Speed -->
@@ -4761,21 +4761,31 @@ document.getElementById('appUpdateBtn').addEventListener('click', async () => {
   btn.classList.add('updating');
   btn.textContent = '↻ 更新中...';
   showToast('最新バージョンを確認しています');
-  try {
-    if (location.protocol === 'http:' || location.protocol === 'https:') {
-      const refreshUrl = new URL(location.href);
-      refreshUrl.searchParams.set('_cliploop_update', Date.now().toString());
-      await fetch(refreshUrl.toString(), { cache: 'reload', credentials: 'same-origin' });
-      if ('serviceWorker' in navigator) {
+  if (location.protocol === 'http:' || location.protocol === 'https:') {
+    const refreshUrl = new URL(location.href);
+    refreshUrl.searchParams.set('_cliploop_update', Date.now().toString());
+    if ('serviceWorker' in navigator) {
+      try {
         const registrations = await navigator.serviceWorker.getRegistrations();
         await Promise.all(registrations.map(registration => registration.update().catch(() => {})));
+      } catch (error) {
+        console.warn('service worker update failed:', error);
       }
     }
-  } catch (error) {
-    console.warn('update check failed:', error);
+    location.replace(refreshUrl.toString());
+    return;
   }
   location.reload();
 });
+
+// 更新確認用パラメータは読み込み後にURLから取り除く。
+if (location.protocol === 'http:' || location.protocol === 'https:') {
+  const loadedUrl = new URL(location.href);
+  if (loadedUrl.searchParams.has('_cliploop_update')) {
+    loadedUrl.searchParams.delete('_cliploop_update');
+    history.replaceState(null, '', loadedUrl.toString());
+  }
+}
 
 function isStandaloneApp() {
   return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
