@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<meta name="cliploop-build" content="20261015-6">
+<meta name="cliploop-build" content="20261015-8">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="theme-color" content="#0a0a0f">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>ClipLoop</title>
-<link rel="manifest" href="manifest.webmanifest?v=20261015-6">
+<link rel="manifest" href="manifest.webmanifest?v=20261015-8">
 <link rel="icon" type="image/png" href="icon.png">
 <link rel="shortcut icon" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
@@ -2422,6 +2422,31 @@
   }
   .share-btn:active { opacity: 0.6; }
   .share-btn.primary { border-color: var(--accent); color: var(--accent); }
+  .shared-range-prompt {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 16px;
+    padding: 10px 12px;
+    border: 1.5px solid var(--accent2);
+    border-radius: 10px;
+    background: rgba(212, 168, 87, 0.1);
+  }
+  .shared-range-prompt.show { display: flex; }
+  .shared-range-info { flex: 1; min-width: 0; }
+  .shared-range-title { color: var(--accent2); font-size: 12px; font-weight: 700; }
+  .shared-range-time { margin-top: 3px; color: var(--text); font: 700 11px 'Space Mono', monospace; }
+  .shared-range-play {
+    flex-shrink: 0;
+    min-height: 40px;
+    padding: 8px 12px;
+    border: 1.5px solid var(--accent2);
+    border-radius: 8px;
+    background: var(--surface2);
+    color: var(--accent2);
+    font: 700 12px 'Noto Sans JP', sans-serif;
+    cursor: pointer;
+  }
 
   .speed-section {
     padding: 12px 14px;
@@ -3327,7 +3352,7 @@
   <button type="button" class="app-action-btn" id="shareAppBtn">↗ アプリ共有</button>
   <button type="button" class="app-action-btn" id="headerShareABBtn">🔁 A〜B区間を共有</button>
 </div>
-<div class="app-build-label">VERSION 2026.10.15-6</div>
+<div class="app-build-label">VERSION 2026.10.15-8</div>
 
 <!-- モード切替タブ -->
 <div class="mode-tabs">
@@ -3361,6 +3386,14 @@
   <div class="status-dot" id="statusDot"></div>
   <div class="status-text" id="statusText">待機中</div>
   <div class="loop-counter" id="loopCounter">🔁 <span id="loopCount">0</span>回</div>
+</div>
+
+<div class="shared-range-prompt" id="sharedRangePrompt" role="status">
+  <div class="shared-range-info">
+    <div class="shared-range-title">共有された区間を読み込みました</div>
+    <div class="shared-range-time" id="sharedRangeTime">A 0:00 → B 0:00</div>
+  </div>
+  <button type="button" class="shared-range-play" id="playSharedRangeBtn">▶ 区間再生</button>
 </div>
 
 <div class="panel">
@@ -4645,13 +4678,39 @@ function highlightActiveSpeed() {
 }
 let loopCount = 0;
 let urlRestoreDone = false;
+let pendingYouTubeVideoId = null;
+let youtubeApiWaitTimer = null;
+let youtubeApiWaitStartedAt = 0;
 
 // ─── YouTube IFrame API ───
 const tag = document.createElement('script');
 tag.src = 'https://www.youtube.com/iframe_api';
 document.head.appendChild(tag);
 
-window.onYouTubeIframeAPIReady = function() {};
+function loadPendingYouTubeVideo() {
+  const pendingId = pendingYouTubeVideoId;
+  if (!pendingId) return;
+  if (window.YT && typeof window.YT.Player === 'function') {
+    pendingYouTubeVideoId = null;
+    if (youtubeApiWaitTimer) {
+      clearTimeout(youtubeApiWaitTimer);
+      youtubeApiWaitTimer = null;
+    }
+    // 待機中に別のURLが入力された場合は、最後に指定された動画だけを読み込む
+    if (videoId === pendingId) createPlayer(pendingId);
+    return;
+  }
+  if (Date.now() - youtubeApiWaitStartedAt > 20000) {
+    pendingYouTubeVideoId = null;
+    youtubeApiWaitTimer = null;
+    setStatus('読み込みに失敗しました', '');
+    showToast('YouTubeプレーヤーを読み込めませんでした。通信を確認してもう一度「読込」を押してください');
+    return;
+  }
+  youtubeApiWaitTimer = setTimeout(loadPendingYouTubeVideo, 150);
+}
+
+window.onYouTubeIframeAPIReady = loadPendingYouTubeVideo;
 
 function createPlayer(vid) {
   // 既存プレーヤーがあれば動画だけ差し替え（高速）
@@ -4706,6 +4765,7 @@ function onStateChange(e) {
   }
   if (e.data === YT.PlayerState.PLAYING) {
     isPlaying = true;
+    hideSharedRangePrompt();
     document.getElementById('playBtn').textContent = '⏸';
     document.getElementById('fsPlayBtn').textContent = '⏸';
     updatePlayHalf(true);
@@ -4768,7 +4828,7 @@ function pollPosition() {
 
 // ─── アプリ操作 ───
 const CLIPLOOP_PUBLIC_URL = 'https://drumsns-web.github.io/ClipLoop/';
-const CLIPLOOP_BUILD = '20261015-6';
+const CLIPLOOP_BUILD = '20261015-8';
 let lastAppUpdateCheck = 0;
 
 async function checkForAppUpdate() {
@@ -4968,6 +5028,7 @@ function loadVideo() {
   const url = document.getElementById('urlInput').value.trim();
   const vid = extractVideoId(url);
   if (!vid) { showToast('有効なYouTube URLを入力してください'); return; }
+  hideSharedRangePrompt();
   videoId = vid;
   pointA = null; pointB = null;
   loopEnabled = false;
@@ -4979,26 +5040,69 @@ function loadVideo() {
   renderSlots();
   if (pollingTimer) { clearInterval(pollingTimer); pollingTimer = null; }
   setStatus('読み込み中...', '');
-  if (!window.YT || !window.YT.Player) {
-    window.onYouTubeIframeAPIReady = function() { createPlayer(vid); };
-  } else {
-    createPlayer(vid);
-  }
+  // ホーム画面からの起動では、URL復元がYouTube APIの準備より先になることがある。
+  // APIが利用可能になるまで同じリクエストを保持して、準備完了後に確実に生成する。
+  pendingYouTubeVideoId = vid;
+  youtubeApiWaitStartedAt = Date.now();
+  if (youtubeApiWaitTimer) clearTimeout(youtubeApiWaitTimer);
+  loadPendingYouTubeVideo();
 }
 
 // ─── URLパラメータからAB復元 ───
+function hideSharedRangePrompt() {
+  document.getElementById('sharedRangePrompt')?.classList.remove('show');
+}
+
+function showSharedRangePrompt() {
+  const prompt = document.getElementById('sharedRangePrompt');
+  const time = document.getElementById('sharedRangeTime');
+  if (!prompt || pointA === null) return;
+  if (time) {
+    time.textContent = pointB !== null
+      ? `A ${fmtTime(pointA)} → B ${fmtTime(pointB)}`
+      : `${fmtTime(pointA)} から再生`;
+  }
+  prompt.classList.add('show');
+}
+
+function startSharedRangePlayback() {
+  if (!playerReady || !player || pointA === null) {
+    showToast('動画を準備中です。少し待ってからもう一度押してください');
+    return;
+  }
+  loopEnabled = pointB !== null && pointB > pointA;
+  updateLoopBtn();
+  updateLoopCounter();
+  updateFsLoopBtn();
+  player.seekTo(pointA, true);
+  player.playVideo();
+  setStatus(loopEnabled ? 'AB リピート中' : '再生中', loopEnabled ? 'looping' : 'playing');
+}
+
+document.getElementById('playSharedRangeBtn')?.addEventListener('click', startSharedRangePlayback);
+
 function restoreFromURL() {
   const params = new URLSearchParams(window.location.search);
   const a = parseFloat(params.get('a'));
   const b = parseFloat(params.get('b'));
   if (!isNaN(a) && a >= 0) {
     pointA = a;
-    player.seekTo(a, true);
   }
-  if (!isNaN(b) && b > 0) pointB = b;
+  if (!isNaN(b) && b > 0 && (pointA === null || b > pointA)) pointB = b;
   if (pointA !== null || pointB !== null) {
+    loopEnabled = pointA !== null && pointB !== null && pointB > pointA;
     updateABDisplay();
-    showToast('AB点を復元しました');
+    updateLoopBtn();
+    updateLoopCounter();
+    updateFsLoopBtn();
+    if (pointA !== null) {
+      player.seekTo(pointA, true);
+      showSharedRangePrompt();
+      // 通常ブラウザではそのまま開始を試みる。iOSホーム画面で自動再生が
+      // 制限された場合は、表示中の「区間再生」がユーザー操作として開始する。
+      player.playVideo();
+    }
+    showToast(loopEnabled ? '共有されたA〜B区間を読み込みました' : '再生位置を復元しました');
   }
 }
 
@@ -5197,7 +5301,7 @@ document.addEventListener('click', event => {
     if (!videoId) { showToast('動画を先に読み込んでください'); return; }
     if (pointA === null || pointB === null) { showToast('A点とB点を両方セットしてください'); return; }
     const title = getVideoTitle();
-    const url = `https://drumsns-web.github.io/ClipLoop/?v=${videoId}&a=${pointA.toFixed(1)}&b=${pointB.toFixed(1)}`;
+    const url = `https://drumsns-web.github.io/ClipLoop/index.html?share=1&v=${videoId}&a=${pointA.toFixed(1)}&b=${pointB.toFixed(1)}`;
     const memo = document.getElementById('memoInput')?.value.trim() || '';
     let text = `🎬 ${title}\n`;
     text += `⏱ A: ${fmtTime(pointA, true)} → B: ${fmtTime(pointB, true)}\n`;
